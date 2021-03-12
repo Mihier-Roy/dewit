@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Dewit.CLI.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,6 +25,7 @@ namespace Dewit.CLI
 
 			// required to run the application
 			services.AddTransient<App>();
+			services.AddTransient<ITaskRepository, CsvTaskRepository>();
 
 			return services;
 		}
