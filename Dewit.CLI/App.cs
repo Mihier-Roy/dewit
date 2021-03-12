@@ -9,11 +9,14 @@ namespace Dewit.CLI
 	public class App
 	{
 		private readonly IConfiguration _config;
+		private readonly ITaskRepository _repository;
 
-		public App(IConfiguration config)
+		public App(IConfiguration config, ITaskRepository repository)
 		{
 			_config = config;
+			_repository = repository;
 		}
+
 		public void Run(string[] args)
 		{
 			List<string> acceptedArgs = new List<string>() { "now", "later", "done", "list" };
@@ -24,18 +27,18 @@ namespace Dewit.CLI
 				{
 					Console.WriteLine($"Adding task : {args[1]}");
 					var newTask = new TaskItem { Id = 1, TaskDescription = args[1], AddedOn = DateTime.Now };
-					CsvTaskRepository.WriteCSV("dewit_tasks.csv", newTask);
+					_repository.AddTask(newTask);
 				}
 
 				if (args[0] == "done")
 				{
-					Console.WriteLine($"Completing task : {args[1]}");
+					Console.WriteLine($"Completed task : {args[1]}");
 				}
 
 				if (args[0] == "list")
 				{
 					Console.WriteLine("Showing all tasks");
-					var tasks = CsvTaskRepository.ReadCSV("dewit_tasks.csv");
+					var tasks = _repository.GetTasks();
 					foreach (var task in tasks)
 					{
 						Console.WriteLine($"[{task.AddedOn}] {task.TaskDescription}");
