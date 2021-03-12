@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Dewit.CLI.Data;
+using Dewit.CLI.Models;
 
 namespace Dewit.CLI
 {
@@ -14,6 +16,8 @@ namespace Dewit.CLI
 				if (args[0] == "now" || args[0] == "later")
 				{
 					Console.WriteLine($"Adding task : {args[1]}");
+					var newTask = new TaskItem { Id = 1, TaskDescription = args[1], AddedOn = DateTime.Now };
+					CsvTaskRepository.WriteCSV("dewit_tasks.csv", newTask);
 				}
 
 				if (args[0] == "done")
@@ -24,6 +28,11 @@ namespace Dewit.CLI
 				if (args[0] == "list")
 				{
 					Console.WriteLine("Showing all tasks");
+					var tasks = CsvTaskRepository.ReadCSV("dewit_tasks.csv");
+					foreach (var task in tasks)
+					{
+						Console.WriteLine($"[{task.AddedOn}] {task.TaskDescription}");
+					}
 				}
 			}
 		}
