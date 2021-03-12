@@ -6,12 +6,21 @@ using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Dewit.CLI.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace Dewit.CLI.Data
 {
-	public class CsvTaskRepository
+	public class CsvTaskRepository : ITaskRepository
 	{
-		public static IEnumerable<TaskItem> ReadCSV(string path)
+		private readonly IConfiguration _config;
+		private readonly string path;
+
+		public CsvTaskRepository(IConfiguration config)
+		{
+			_config = config;
+			path = _config.GetValue<string>("CsvPath");
+		}
+		public IEnumerable<TaskItem> GetTasks()
 		{
 			// Open the file at the specified path and return an IEnumerable of TaskItems
 			using (var reader = new StreamReader(path, Encoding.UTF8))
@@ -23,7 +32,7 @@ namespace Dewit.CLI.Data
 			}
 		}
 
-		public static void WriteCSV(string path, TaskItem task)
+		public void AddTask(TaskItem task)
 		{
 			// Create an IEnumerable object with all the task records to be written.
 			var taskRecords = new List<TaskItem>(){
