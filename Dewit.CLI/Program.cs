@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.IO;
 using Dewit.CLI.Data;
-using Dewit.CLI.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dewit.CLI
 {
@@ -9,32 +9,33 @@ namespace Dewit.CLI
 	{
 		static void Main(string[] args)
 		{
-			List<string> acceptedArgs = new List<string>() { "now", "later", "done", "list" };
+			var services = ConfigureServices();
+			var serviceProvider = services.BuildServiceProvider();
 
-			if (null != args[0] && acceptedArgs.Contains(args[0]))
-			{
-				if (args[0] == "now" || args[0] == "later")
-				{
-					Console.WriteLine($"Adding task : {args[1]}");
-					var newTask = new TaskItem { Id = 1, TaskDescription = args[1], AddedOn = DateTime.Now };
-					CsvTaskRepository.WriteCSV("dewit_tasks.csv", newTask);
-				}
+			serviceProvider.GetService<App>().Run(args);
+		}
 
-				if (args[0] == "done")
-				{
-					Console.WriteLine($"Completing task : {args[1]}");
-				}
+		private static IServiceCollection ConfigureServices()
+		{
+			IServiceCollection services = new ServiceCollection();
 
-				if (args[0] == "list")
-				{
-					Console.WriteLine("Showing all tasks");
-					var tasks = CsvTaskRepository.ReadCSV("dewit_tasks.csv");
-					foreach (var task in tasks)
-					{
-						Console.WriteLine($"[{task.AddedOn}] {task.TaskDescription}");
-					}
-				}
-			}
+			// Make config available throughout the application
+			var config = LoadConfiguration();
+			services.AddSingleton(config);
+
+			// required to run the application
+			services.AddTransient<App>();
+			services.AddTransient<ITaskRepository, CsvTaskRepository>();
+
+			return services;
+		}
+
+		private static IConfiguration LoadConfiguration()
+		{
+			var builder = new ConfigurationBuilder()
+								.SetBasePath(Directory.GetCurrentDirectory())
+								.AddJsonFile("config.json");
+			return builder.Build();
 		}
 	}
 }
