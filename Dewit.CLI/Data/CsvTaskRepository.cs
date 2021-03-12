@@ -7,9 +7,9 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using Dewit.CLI.Models;
 
-namespace Dewit.CLI.Helpers
+namespace Dewit.CLI.Data
 {
-	public class CsvContext
+	public class CsvTaskRepository
 	{
 		public static IEnumerable<TaskItem> ReadCSV(string path)
 		{
