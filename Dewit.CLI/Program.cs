@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Dewit.CLI.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 namespace Dewit.CLI
 {
@@ -9,10 +11,39 @@ namespace Dewit.CLI
 	{
 		static void Main(string[] args)
 		{
-			var services = ConfigureServices();
-			var serviceProvider = services.BuildServiceProvider();
+			// Configure Logging
+			Log.Logger = new LoggerConfiguration()
+				.MinimumLevel.Debug()
+				.WriteTo.File("logs/dewit.log",
+					rollingInterval: RollingInterval.Day,
+					outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+				.CreateLogger();
 
-			serviceProvider.GetService<App>().Run(args);
+			try
+			{
+				Log.Information("Loading services and starting application.");
+
+				// Configure service providers to enable DI
+				var services = ConfigureServices();
+				var serviceProvider = services.BuildServiceProvider();
+
+				// Start the application
+				serviceProvider.GetService<App>().Run(args);
+			}
+			catch (FileNotFoundException ex)
+			{
+				Log.Fatal(ex, "Unable to load config file. Exiting.");
+				Console.WriteLine("ERROR : Unable to load config file. Please try again.");
+			}
+			catch (Exception ex)
+			{
+				Log.Error(ex, "Something went wrong while starting the application.");
+			}
+			finally
+			{
+				Log.CloseAndFlush();
+			}
+
 		}
 
 		private static IServiceCollection ConfigureServices()
@@ -32,10 +63,18 @@ namespace Dewit.CLI
 
 		private static IConfiguration LoadConfiguration()
 		{
-			var builder = new ConfigurationBuilder()
-								.SetBasePath(Directory.GetCurrentDirectory())
-								.AddJsonFile("config.json");
-			return builder.Build();
+			Log.Debug("Loading config file");
+			try
+			{
+				var builder = new ConfigurationBuilder()
+									.SetBasePath(Directory.GetCurrentDirectory())
+									.AddJsonFile("config.json");
+				return builder.Build();
+			}
+			catch (FileNotFoundException ex)
+			{
+				throw new FileNotFoundException($"Error : {ex.Message}");
+			}
 		}
 	}
 }
