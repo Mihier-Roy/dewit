@@ -1,33 +1,45 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dewit.CLI.Models;
 
 namespace Dewit.CLI.Data
 {
 	public class SqlTaskRepository : ITaskRepository
 	{
+		private readonly TaskContext _context;
+
+		public SqlTaskRepository(TaskContext context)
+		{
+			_context = context;
+		}
 		public void AddTask(TaskItem task)
 		{
-			throw new System.NotImplementedException();
+			if (null == task)
+			{
+				throw new ArgumentNullException("Invalid task entered.");
+			}
+			_context.Tasks.Add(task);
 		}
 
 		public TaskItem GetTaskById(int id)
 		{
-			throw new System.NotImplementedException();
+			return _context.Tasks.FirstOrDefault(t => t.Id == id);
 		}
 
 		public IEnumerable<TaskItem> GetTasks()
 		{
-			throw new System.NotImplementedException();
+			return _context.Tasks.ToList();
 		}
 
 		public bool SaveChanges()
 		{
-			throw new System.NotImplementedException();
+			return (_context.SaveChanges() >= 0);
 		}
 
 		public void UpdateTask(TaskItem task)
 		{
-			throw new System.NotImplementedException();
+			// No implementation required because EF will track changes to objects.
 		}
 	}
 }
