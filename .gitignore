@@ -365,3 +365,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 *.csv
+*.db
