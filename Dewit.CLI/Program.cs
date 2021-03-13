@@ -54,9 +54,12 @@ namespace Dewit.CLI
 			var config = LoadConfiguration();
 			services.AddSingleton(config);
 
+			// Connect to Database
+			services.AddDbContext<TaskContext>();
+
 			// required to run the application
 			services.AddTransient<App>();
-			services.AddTransient<ITaskRepository, CsvTaskRepository>();
+			services.AddTransient<ITaskRepository, SqlTaskRepository>();
 
 			return services;
 		}
