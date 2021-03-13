@@ -6,6 +6,9 @@ namespace Dewit.CLI.Data
 	public interface ITaskRepository
 	{
 		IEnumerable<TaskItem> GetTasks();
+		TaskItem GetTaskById(int id);
 		void AddTask(TaskItem task);
+		void UpdateTask(TaskItem task);
+		bool SaveChanges();
 	}
 }

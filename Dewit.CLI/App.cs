@@ -32,13 +32,16 @@ namespace Dewit.CLI
 							Log.Debug($"Adding a new task : {args[1]}, Status = {(args[0] == "now" ? "Doing" : "Later")}");
 							var newTask = new TaskItem
 							{
-								Id = 1,
 								TaskDescription = args[1],
 								AddedOn = DateTime.Now,
 								Status = args[0] == "now" ? "Doing" : "Later"
 							};
 							_repository.AddTask(newTask);
-							Console.WriteLine($"Added task : {args[1]}, Status = {(args[0] == "now" ? "Doing" : "Later")}");
+							var success = _repository.SaveChanges();
+							if (success)
+								Console.WriteLine($"Added task : {args[1]}, Status = {(args[0] == "now" ? "Doing" : "Later")}");
+							else
+								Console.WriteLine($"ERROR : Failed to add task. Please try again.");
 						}
 						break;
 					case "done":
