@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Dewit.CLI.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -37,7 +38,8 @@ namespace Dewit.CLI
 			}
 			catch (Exception ex)
 			{
-				Log.Error(ex, "Something went wrong while starting the application.");
+				Log.Error(ex, "Something went wrong during execution.");
+				Console.WriteLine("ERROR : An error occured while executing the last task. Please try again.");
 			}
 			finally
 			{
@@ -55,7 +57,7 @@ namespace Dewit.CLI
 			services.AddSingleton(config);
 
 			// Connect to Database
-			services.AddDbContext<TaskContext>();
+			services.AddDbContext<TaskContext>(opts => opts.UseSqlite(config.GetConnectionString("Sqlite")));
 
 			// required to run the application
 			services.AddTransient<App>();
