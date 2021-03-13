@@ -46,8 +46,19 @@ namespace Dewit.CLI
 						break;
 					case "done":
 						{
-							Log.Debug($"Setting status of task [{args[1]}] to Completed");
-							Console.WriteLine($"Completed task : {args[1]}");
+							Log.Debug($"Setting status of task [{args[1]}] to Done");
+
+							var task = _repository.GetTaskById(Convert.ToInt32(args[1]));
+							task.CompletedOn = DateTime.Now;
+							task.Status = "Done";
+
+							_repository.UpdateTask(task);
+							var success = _repository.SaveChanges();
+
+							if (success)
+								Console.WriteLine($"Completed task : {task.Id} | {task.TaskDescription} ");
+							else
+								Console.WriteLine($"ERROR : Failed to complete task. Please try again.");
 						}
 						break;
 					case "list":
@@ -57,7 +68,7 @@ namespace Dewit.CLI
 							var tasks = _repository.GetTasks();
 							foreach (var task in tasks)
 							{
-								Console.WriteLine($"[{task.AddedOn}] | {task.Status} | {task.TaskDescription}");
+								Console.WriteLine($"[{task.AddedOn}] {task.Id} | {task.Status} | {task.TaskDescription}");
 							}
 						}
 						break;
