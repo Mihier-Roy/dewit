@@ -28,6 +28,10 @@ namespace Dewit.CLI
 				var services = ConfigureServices();
 				var serviceProvider = services.BuildServiceProvider();
 
+				// Ensure db migrations are run
+				var _db = serviceProvider.GetService<TaskContext>();
+				_db.Database.Migrate();
+
 				// Start the application
 				serviceProvider.GetService<App>().Run(args);
 			}
