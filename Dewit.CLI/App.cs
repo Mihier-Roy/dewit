@@ -29,10 +29,16 @@ namespace Dewit.CLI
 					case "now":
 					case "later":
 						{
-							Log.Debug($"Adding a new task : {args[1]}");
-							var newTask = new TaskItem { Id = 1, TaskDescription = args[1], AddedOn = DateTime.Now };
+							Log.Debug($"Adding a new task : {args[1]}, Status = {(args[0] == "now" ? "Doing" : "Later")}");
+							var newTask = new TaskItem
+							{
+								Id = 1,
+								TaskDescription = args[1],
+								AddedOn = DateTime.Now,
+								Status = args[0] == "now" ? "Doing" : "Later"
+							};
 							_repository.AddTask(newTask);
-							Console.WriteLine($"Added task : {args[1]}");
+							Console.WriteLine($"Added task : {args[1]}, Status = {(args[0] == "now" ? "Doing" : "Later")}");
 						}
 						break;
 					case "done":
@@ -48,7 +54,7 @@ namespace Dewit.CLI
 							var tasks = _repository.GetTasks();
 							foreach (var task in tasks)
 							{
-								Console.WriteLine($"[{task.AddedOn}] {task.TaskDescription}");
+								Console.WriteLine($"[{task.AddedOn}] | {task.Status} | {task.TaskDescription}");
 							}
 						}
 						break;
