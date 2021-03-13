@@ -8,8 +8,6 @@ namespace Dewit.CLI.Data
 {
 	public class TaskContext : DbContext
 	{
-		private readonly IConfiguration _config;
-
 		public TaskContext(DbContextOptions<TaskContext> opt) : base(opt) { }
 
 		public DbSet<TaskItem> Tasks { get; set; }
