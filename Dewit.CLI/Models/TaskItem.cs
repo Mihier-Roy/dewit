@@ -6,6 +6,7 @@ namespace Dewit.CLI.Models
 	{
 		public int Id { get; set; }
 		public string TaskDescription { get; set; }
+		public string Status { get; set; }
 		public DateTime AddedOn { get; set; }
 		public DateTime CompletedOn { get; set; }
 	}
