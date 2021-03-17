@@ -1,6 +1,7 @@
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Linq;
 using Dewit.CLI.Data;
 using Dewit.CLI.Utils;
 using Serilog;
@@ -20,7 +21,7 @@ namespace Dewit.CLI.Commands
 		private void GetTasks(string obj)
 		{
 			Log.Debug("Showing all tasks");
-			var tasks = _repository.GetTasks();
+			var tasks = _repository.GetTasks().Where(p => p.AddedOn > DateTime.Today.AddDays(-1));
 
 			Output.WriteTable(new string[] { "ID", "Task", "Status", "AddedOn", "CompletedOn" }, tasks);
 		}
