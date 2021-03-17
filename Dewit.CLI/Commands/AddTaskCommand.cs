@@ -3,6 +3,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using Dewit.CLI.Data;
 using Dewit.CLI.Models;
+using Dewit.CLI.Utils;
 using Serilog;
 
 namespace Dewit.CLI.Commands
@@ -14,7 +15,7 @@ namespace Dewit.CLI.Commands
 
 		public AddTaskCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
 		{
-			AddArgument(new Argument<string>("title", "Task you're currently performing"));
+			AddArgument(new Argument<string>("title", "Description of the task you're currently performing."));
 			Handler = CommandHandler.Create<string>(AddTask);
 			_repository = repository;
 			_name = name;
@@ -35,13 +36,13 @@ namespace Dewit.CLI.Commands
 
 			if (success)
 			{
-				Log.Debug($"Added a new task : {title}, Status = {(_name == "now" ? "Doing" : "Later")}");
-				Console.WriteLine($"Added a new task : {title}, Status = {(_name == "now" ? "Doing" : "Later")}");
+				Log.Information($"Added a new task : {title}, Status = {(_name == "now" ? "Doing" : "Later")}");
+				Output.WriteText($"[green]Added a new task[/] : {title}, Status = {(_name == "now" ? "Doing" : "Later")}");
 			}
 			else
 			{
 				Log.Error($"Failed to add task.");
-				Console.WriteLine($"ERROR : Failed to add task. Please try again.");
+				Output.WriteError($"Failed to add task. Please try again.");
 			}
 		}
 	}
