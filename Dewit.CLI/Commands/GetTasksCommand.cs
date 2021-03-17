@@ -15,15 +15,35 @@ namespace Dewit.CLI.Commands
 		public GetTasksCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
 		{
 			var sortOptions = new Option<string>("--sort", "Sort tasks by status or date").FromAmong("status", "date");
+			var durationOptions = new Option<string>("--duration", "Show tasks between the specified duration. Default is set to today.")
+									.FromAmong("all", "yesterday", "today", "week", "month");
 			AddOption(sortOptions);
-			Handler = CommandHandler.Create<string>(GetTasks);
+			AddOption(durationOptions);
+			Handler = CommandHandler.Create<string, string>(GetTasks);
 			_repository = repository;
 		}
 
-		private void GetTasks(string sort)
+		private void GetTasks(string sort, string duration)
 		{
-			Log.Debug("Showing all tasks");
-			var tasks = _repository.GetTasks().Where(p => p.AddedOn > DateTime.Today.AddDays(-1));
+			Log.Debug($"Showing all tasks with arguments -> sort: {sort}, duration : {duration}");
+			var tasks = _repository.GetTasks();
+
+			switch (duration)
+			{
+				case "yesterday":
+					tasks = tasks.Where(p => p.AddedOn.Date > DateTime.Today.AddDays(-1));
+					break;
+				case "today":
+					tasks = tasks.Where(p => p.AddedOn.Date == DateTime.Today.Date);
+					break;
+				case "week":
+					tasks = tasks.Where(p => p.AddedOn.Date > DateTime.Today.AddDays(-7));
+					break;
+				case "month":
+					tasks = tasks.Where(p => p.AddedOn.Date > DateTime.Today.AddDays(-30));
+					break;
+				case "all": break;
+			}
 
 			if (sort == "status")
 				tasks = tasks.OrderBy(p => p.Status);
