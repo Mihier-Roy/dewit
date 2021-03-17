@@ -2,6 +2,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using Dewit.CLI.Data;
+using Dewit.CLI.Utils;
 using Serilog;
 
 namespace Dewit.CLI.Commands
@@ -20,10 +21,8 @@ namespace Dewit.CLI.Commands
 		{
 			Log.Debug("Showing all tasks");
 			var tasks = _repository.GetTasks();
-			foreach (var task in tasks)
-			{
-				Console.WriteLine($"[{task.AddedOn}] {task.Id} | {task.Status} | {task.TaskDescription}");
-			}
+
+			Output.WriteTable(new string[] { "ID", "Task", "Status", "AddedOn", "CompletedOn" }, tasks);
 		}
 	}
 }
