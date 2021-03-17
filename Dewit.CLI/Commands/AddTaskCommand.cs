@@ -15,7 +15,7 @@ namespace Dewit.CLI.Commands
 
 		public AddTaskCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
 		{
-			AddArgument(new Argument<string>("title", "Task you're currently performing"));
+			AddArgument(new Argument<string>("title", "Description of the task you're currently performing."));
 			Handler = CommandHandler.Create<string>(AddTask);
 			_repository = repository;
 			_name = name;
@@ -37,7 +37,7 @@ namespace Dewit.CLI.Commands
 			if (success)
 			{
 				Log.Information($"Added a new task : {title}, Status = {(_name == "now" ? "Doing" : "Later")}");
-				Output.WriteText($"Added a new task : {title}, Status = {(_name == "now" ? "Doing" : "Later")}");
+				Output.WriteText($"[green]Added a new task[/] : {title}, Status = {(_name == "now" ? "Doing" : "Later")}");
 			}
 			else
 			{
