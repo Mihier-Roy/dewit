@@ -57,7 +57,7 @@ namespace Dewit.CLI.Commands
 			if (success)
 			{
 				Log.Information($"Completed task : {task.Id} | {task.TaskDescription} ");
-				Output.WriteText($"Completed task : {task.Id} | {task.TaskDescription} ");
+				Output.WriteText($"[green]Completed task[/] : {task.Id} | {task.TaskDescription} ");
 			}
 			else
 			{

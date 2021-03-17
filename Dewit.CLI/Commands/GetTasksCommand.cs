@@ -14,8 +14,8 @@ namespace Dewit.CLI.Commands
 
 		public GetTasksCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
 		{
-			var sortOptions = new Option<string>("--sort", "Sort tasks by status or date").FromAmong("status", "date");
-			var durationOptions = new Option<string>("--duration", "Show tasks between the specified duration. Default is set to today.")
+			var sortOptions = new Option<string>("--sort", "Sort tasks by status or date. Default is <date>").FromAmong("status", "date");
+			var durationOptions = new Option<string>("--duration", "Show tasks between the specified duration. Default is set to <today>.")
 									.FromAmong("all", "yesterday", "today", "week", "month");
 			AddOption(sortOptions);
 			AddOption(durationOptions);
@@ -50,7 +50,7 @@ namespace Dewit.CLI.Commands
 			else
 				tasks = tasks.OrderBy(p => p.AddedOn);
 
-
+			Output.WriteText($"Displaying tasks using parameters -> [aqua]sort[/]: {sort}, [aqua]duration[/] : {duration}");
 			Output.WriteTable(new string[] { "ID", "Task", "Status", "AddedOn", "CompletedOn" }, tasks);
 		}
 	}

@@ -9,12 +9,12 @@ namespace Dewit.CLI.Utils
 	{
 		public static void WriteText(string text)
 		{
-			AnsiConsole.Markup(text);
+			AnsiConsole.MarkupLine(text);
 		}
 
 		public static void WriteError(string text)
 		{
-			AnsiConsole.Markup($"[red]ERROR[/] : {text}");
+			AnsiConsole.MarkupLine($"[red]ERROR[/] : {text}");
 		}
 
 		public static void WriteTable(string[] columnNames, IEnumerable<TaskItem> data)
