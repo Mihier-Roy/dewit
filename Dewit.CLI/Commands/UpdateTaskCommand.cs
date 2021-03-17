@@ -25,8 +25,13 @@ namespace Dewit.CLI.Commands
 			Log.Debug($"Setting status of task [{id}] to Done");
 
 			var task = _repository.GetTaskById(id);
-			task.Status = "Done";
+			if (null == task)
+			{
+				Console.WriteLine($"ERROR: Task with ID {id} does not exist. View all tasks with -> dewit list");
+				return;
+			}
 
+			// If the completed-at option is provided, parse the date entered by the user
 			if (!string.IsNullOrEmpty(completedAt))
 			{
 				var culture = CultureInfo.CreateSpecificCulture(CultureInfo.CurrentCulture.Name);
@@ -40,6 +45,7 @@ namespace Dewit.CLI.Commands
 			else
 				task.CompletedOn = DateTime.Now;
 
+			task.Status = "Done";
 			_repository.UpdateTask(task);
 			var success = _repository.SaveChanges();
 
