@@ -23,7 +23,7 @@ namespace Dewit.CLI.Commands
 			_repository = repository;
 		}
 
-		private void GetTasks(string sort, string duration)
+		private void GetTasks(string sort = "date", string duration = "all")
 		{
 			Log.Debug($"Showing all tasks with arguments -> sort: {sort}, duration : {duration}");
 			var tasks = _repository.GetTasks();
