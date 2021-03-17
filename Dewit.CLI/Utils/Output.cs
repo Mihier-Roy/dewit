@@ -33,7 +33,8 @@ namespace Dewit.CLI.Utils
 				{
 					item.Id.ToString(),
 					item.TaskDescription,
-					item.Status == "Done" ? "[green]Done[/]" : item.Status,
+					item.Status == "Done" ? "[green]Done[/]" : (item.Status == "Later" ? "[darkorange]Later[/]": "[yellow]Doing[/]"),
+					item.Tags == null ? "" : item.Tags,
 					item.AddedOn.ToString("dd-MMM-yy HH:mm"),
 					item.CompletedOn == DateTime.Parse("0001-01-01") ? "" : item.CompletedOn.ToString("dd-MMM-yy HH:MM")
 				});

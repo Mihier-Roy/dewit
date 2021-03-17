@@ -68,7 +68,7 @@ namespace Dewit.CLI.Commands
 				tasks = tasks.OrderBy(p => p.AddedOn);
 
 			Output.WriteText($"Displaying tasks using parameters -> [aqua]sort[/]: {sort}, [aqua]duration[/] : {duration}, [aqua]status[/]: {(status == null ? "n/a" : status)}");
-			Output.WriteTable(new string[] { "ID", "Task", "Status", "AddedOn", "CompletedOn" }, tasks);
+			Output.WriteTable(new string[] { "ID", "Task", "Status", "Tags", "AddedOn", "CompletedOn" }, tasks);
 		}
 	}
 }
