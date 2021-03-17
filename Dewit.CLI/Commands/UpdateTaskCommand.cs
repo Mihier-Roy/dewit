@@ -3,6 +3,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Globalization;
 using Dewit.CLI.Data;
+using Dewit.CLI.Utils;
 using Serilog;
 
 namespace Dewit.CLI.Commands
@@ -27,7 +28,8 @@ namespace Dewit.CLI.Commands
 			var task = _repository.GetTaskById(id);
 			if (null == task)
 			{
-				Console.WriteLine($"ERROR: Task with ID {id} does not exist. View all tasks with -> dewit list");
+				Log.Error($"Task with ID {id} does not exist.");
+				Output.WriteError($"Task with ID {id} does not exist. View all tasks with -> dewit list");
 				return;
 			}
 
@@ -40,7 +42,10 @@ namespace Dewit.CLI.Commands
 				if (DateTime.TryParse(completedAt, culture, styles, out completedOn))
 					task.CompletedOn = completedOn;
 				else
-					Console.WriteLine($"ERROR : Failed to complete task. Please try again.");
+				{
+					Log.Error($"Failed to set status of task [{id}] to Done");
+					Output.WriteError("Failed to set task as completed. Please try again.");
+				}
 			}
 			else
 				task.CompletedOn = DateTime.Now;
@@ -50,9 +55,15 @@ namespace Dewit.CLI.Commands
 			var success = _repository.SaveChanges();
 
 			if (success)
-				Console.WriteLine($"Completed task : {task.Id} | {task.TaskDescription} ");
+			{
+				Log.Information($"Completed task : {task.Id} | {task.TaskDescription} ");
+				Output.WriteText($"[green]Completed task[/] : {task.Id} | {task.TaskDescription} ");
+			}
 			else
-				Console.WriteLine($"ERROR : Failed to complete task. Please try again.");
+			{
+				Log.Error($"Failed to set status of task [{id}] to Done");
+				Output.WriteError($"Failed to set task as completed. Please try again.");
+			}
 		}
 	}
 }
