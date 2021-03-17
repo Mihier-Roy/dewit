@@ -1,6 +1,7 @@
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Globalization;
 using Dewit.CLI.Data;
 using Serilog;
 
@@ -13,17 +14,31 @@ namespace Dewit.CLI.Commands
 		public UpdateTaskCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
 		{
 			AddArgument(new Argument<int>("id", "ID of the task you wish to update."));
-			Handler = CommandHandler.Create<int>(UpdateTask);
+			AddOption(new Option<string>("--completed-at", "Specify when the task was completed"));
+			Handler = CommandHandler.Create<int, string>(UpdateTask);
 			_repository = repository;
 		}
 
-		private void UpdateTask(int id)
+		private void UpdateTask(int id, string completedAt)
 		{
+			DateTime completedOn;
 			Log.Debug($"Setting status of task [{id}] to Done");
 
 			var task = _repository.GetTaskById(id);
-			task.CompletedOn = DateTime.Now;
 			task.Status = "Done";
+
+			if (!string.IsNullOrEmpty(completedAt))
+			{
+				var culture = CultureInfo.CreateSpecificCulture(CultureInfo.CurrentCulture.Name);
+				var styles = DateTimeStyles.AssumeLocal;
+
+				if (DateTime.TryParse(completedAt, culture, styles, out completedOn))
+					task.CompletedOn = completedOn;
+				else
+					Console.WriteLine($"ERROR : Failed to complete task. Please try again.");
+			}
+			else
+				task.CompletedOn = DateTime.Now;
 
 			_repository.UpdateTask(task);
 			var success = _repository.SaveChanges();
