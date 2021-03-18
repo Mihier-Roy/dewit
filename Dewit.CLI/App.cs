@@ -18,7 +18,8 @@ namespace Dewit.CLI
 			var rootCommand = new RootCommand("dewit"){
 				new AddTaskCommand(_repository, "now"),
 				new AddTaskCommand(_repository, "later"),
-				new UpdateTaskCommand(_repository, "done"),
+				new UpdateStatusCommand(_repository, "done"),
+				new UpdateTaskCommand(_repository, "edit"),
 				new GetTasksCommand(_repository, "list"),
 			};
 
