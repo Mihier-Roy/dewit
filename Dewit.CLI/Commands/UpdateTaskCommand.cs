@@ -45,6 +45,7 @@ namespace Dewit.CLI.Commands
 			{
 				addTags = Sanitizer.SanitizeTags(addTags);
 				var updatedTags = string.Join(',', task.Tags, addTags);
+				updatedTags = Sanitizer.DeduplicateTags(updatedTags);
 				task.Tags = updatedTags[0] == ',' ? updatedTags.Remove(0, 1) : updatedTags;
 			}
 
