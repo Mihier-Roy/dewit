@@ -11,6 +11,8 @@ namespace Dewit.CLI.Models
 		public string TaskDescription { get; set; }
 		[Required]
 		public string Status { get; set; }
+		[MaxLength(2048)]
+		public string Tags { get; set; }
 		public DateTime AddedOn { get; set; }
 		public DateTime CompletedOn { get; set; }
 	}

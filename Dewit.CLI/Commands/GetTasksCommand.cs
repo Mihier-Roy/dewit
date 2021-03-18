@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Linq;
 using Dewit.CLI.Data;
+using Dewit.CLI.Models;
 using Dewit.CLI.Utils;
 using Serilog;
 
@@ -20,17 +22,20 @@ namespace Dewit.CLI.Commands
 									.FromAmong("all", "yesterday", "today", "week", "month");
 			var statusOptions = new Option<string>("--status", "Show tasks of specified status.")
 									.FromAmong("doing", "done", "later");
+			var tagOptions = new Option<string>("--tags", "Filter tasks based on tags.");
 			AddOption(sortOptions);
 			AddOption(durationOptions);
 			AddOption(statusOptions);
-			Handler = CommandHandler.Create<string, string, string>(GetTasks);
+			AddOption(tagOptions);
+			Handler = CommandHandler.Create<string, string, string, string>(GetTasks);
 			_repository = repository;
 		}
 
-		private void GetTasks(string sort = "date", string duration = "all", string status = null)
+		private void GetTasks(string sort = "date", string duration = "all", string status = null, string tags = null)
 		{
-			Log.Debug($"Showing all tasks with arguments -> sort: {sort}, duration : {duration}, status: {status}");
+			Log.Debug($"Showing all tasks with arguments -> sort: {sort}, duration : {duration}, status: {status}, tags: {tags}");
 			var tasks = _repository.GetTasks();
+			List<TaskItem> tempList = new List<TaskItem>();
 
 			switch (duration)
 			{
@@ -62,13 +67,28 @@ namespace Dewit.CLI.Commands
 					break;
 			}
 
+			// Filter tasks by tags
+			if (null != tags)
+			{
+				string[] allTags = tags.Contains(',') ? tags.Split(',') : new string[] { tags };
+
+				foreach (string tag in allTags)
+				{
+					var test = tasks.Where(p => (!string.IsNullOrEmpty(p.Tags) && p.Tags.Split(',').Contains<string>(tag)));
+					tempList.AddRange(test);
+				}
+
+				// Assign final output
+				tasks = tempList.Distinct();
+			}
+
 			if (sort == "status")
 				tasks = tasks.OrderBy(p => p.Status);
 			else
 				tasks = tasks.OrderBy(p => p.AddedOn);
 
-			Output.WriteText($"Displaying tasks using parameters -> [aqua]sort[/]: {sort}, [aqua]duration[/] : {duration}, [aqua]status[/]: {(status == null ? "n/a" : status)}");
-			Output.WriteTable(new string[] { "ID", "Task", "Status", "AddedOn", "CompletedOn" }, tasks);
+			Output.WriteText($"Displaying tasks using parameters -> [aqua]sort[/]: {sort}, [aqua]duration[/] : {duration}, [aqua]status[/]: {(status == null ? "n/a" : status)}, [aqua]tags[/]:{tags}");
+			Output.WriteTable(new string[] { "ID", "Task", "Status", "Tags", "AddedOn", "CompletedOn" }, tasks);
 		}
 	}
 }
