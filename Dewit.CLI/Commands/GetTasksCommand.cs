@@ -31,7 +31,7 @@ namespace Dewit.CLI.Commands
 			_repository = repository;
 		}
 
-		private void GetTasks(string sort = "date", string duration = "all", string status = null, string tags = null)
+		private void GetTasks(string sort = "date", string duration = "today", string status = null, string tags = null)
 		{
 			Log.Debug($"Showing all tasks with arguments -> sort: {sort}, duration : {duration}, status: {status}, tags: {tags}");
 			var tasks = _repository.GetTasks();
@@ -89,7 +89,7 @@ namespace Dewit.CLI.Commands
 				tasks = tasks.OrderBy(p => p.AddedOn);
 
 			Output.WriteText($"Displaying tasks using parameters -> [aqua]sort[/]: {sort}, [aqua]duration[/] : {duration}, [aqua]status[/]: {(status == null ? "n/a" : status)}, [aqua]tags[/]:{tags}");
-			Output.WriteTable(new string[] { "ID", "Task", "Status", "Tags", "AddedOn", "CompletedOn" }, tasks);
+			Output.WriteTable(new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" }, tasks);
 		}
 	}
 }
