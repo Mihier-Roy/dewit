@@ -32,6 +32,15 @@ namespace Dewit.CLI.Data
 			return _context.Tasks.ToList();
 		}
 
+		public void RemoveTask(TaskItem task)
+		{
+			if (null == task)
+			{
+				throw new ArgumentNullException("Invalid task entered.");
+			}
+			_context.Tasks.Remove(task);
+		}
+
 		public bool SaveChanges()
 		{
 			return (_context.SaveChanges() >= 0);

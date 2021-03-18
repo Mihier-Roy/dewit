@@ -9,6 +9,7 @@ namespace Dewit.CLI.Data
 		TaskItem GetTaskById(int id);
 		void AddTask(TaskItem task);
 		void UpdateTask(TaskItem task);
+		void RemoveTask(TaskItem task);
 		bool SaveChanges();
 	}
 }
