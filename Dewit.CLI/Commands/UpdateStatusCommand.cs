@@ -8,19 +8,19 @@ using Serilog;
 
 namespace Dewit.CLI.Commands
 {
-	public class UpdateTaskCommand : Command
+	public class UpdateStatusCommand : Command
 	{
 		private readonly ITaskRepository _repository;
 
-		public UpdateTaskCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
+		public UpdateStatusCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
 		{
 			AddArgument(new Argument<int>("id", "ID of the task you wish to update."));
 			AddOption(new Option<string>("--completed-at", "Specify when the task was completed"));
-			Handler = CommandHandler.Create<int, string>(UpdateTask);
+			Handler = CommandHandler.Create<int, string>(UpdateStatus);
 			_repository = repository;
 		}
 
-		private void UpdateTask(int id, string completedAt)
+		private void UpdateStatus(int id, string completedAt)
 		{
 			DateTime completedOn;
 			Log.Debug($"Setting status of task [{id}] to Done");
