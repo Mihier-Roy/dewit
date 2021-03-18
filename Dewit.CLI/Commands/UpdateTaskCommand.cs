@@ -19,11 +19,12 @@ namespace Dewit.CLI.Commands
 			AddOption(new Option<string>("--title", "Change the description of the task."));
 			AddOption(new Option<string>("--add-tags", "Add new tag(s) to an existing task. Example --add-tags work,test"));
 			AddOption(new Option<string>("--remove-tags", "Remove tag(s) from an existing task. Example --remove-tags work,test"));
-			Handler = CommandHandler.Create<int, string, string, string>(UpdateTaskDetails);
+			AddOption(new Option<bool>("--reset-tags", "Remove all tags from an existing task."));
+			Handler = CommandHandler.Create<int, string, string, string, bool>(UpdateTaskDetails);
 			_repository = repository;
 		}
 
-		private void UpdateTaskDetails(int id, string title = null, string addTags = null, string removeTags = null)
+		private void UpdateTaskDetails(int id, string title = null, string addTags = null, string removeTags = null, bool resetTags = false)
 		{
 			Log.Debug($"Modifying information of task [{id}]. Params -> Title: {title}, Tags: {addTags}");
 
@@ -53,6 +54,12 @@ namespace Dewit.CLI.Commands
 				var tagsToRemove = Sanitizer.SanitizeTags(removeTags).Split(',');
 				var oldTags = task.Tags.Split(',');
 				task.Tags = string.Join(',', oldTags.Except(tagsToRemove));
+			}
+
+			// Remove all tags from a task
+			if (resetTags)
+			{
+				task.Tags = string.Empty;
 			}
 
 			_repository.UpdateTask(task);
