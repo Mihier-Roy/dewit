@@ -43,7 +43,8 @@ namespace Dewit.CLI.Commands
 			if (!string.IsNullOrEmpty(addTags))
 			{
 				addTags = Sanitizer.SanitizeTags(addTags);
-				task.Tags = string.Join(',', task.Tags, addTags);
+				var updatedTags = string.Join(',', task.Tags, addTags);
+				task.Tags = updatedTags[0] == ',' ? updatedTags.Remove(0, 1) : updatedTags;
 			}
 
 			// Remove tag(s) from a task
