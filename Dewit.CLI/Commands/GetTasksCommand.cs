@@ -70,6 +70,7 @@ namespace Dewit.CLI.Commands
 			// Filter tasks by tags
 			if (null != tags)
 			{
+				tags = Sanitizer.SanitizeTags(tags);
 				string[] allTags = tags.Contains(',') ? tags.Split(',') : new string[] { tags };
 
 				foreach (string tag in allTags)
