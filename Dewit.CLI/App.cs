@@ -19,6 +19,7 @@ namespace Dewit.CLI
 				new AddTaskCommand(_repository, "now"),
 				new AddTaskCommand(_repository, "later"),
 				new UpdateStatusCommand(_repository, "done"),
+				new UpdateTaskCommand(_repository, "edit"),
 				new GetTasksCommand(_repository, "list"),
 			};
 
