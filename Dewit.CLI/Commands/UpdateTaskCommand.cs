@@ -2,6 +2,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Globalization;
+using System.Linq;
 using Dewit.CLI.Data;
 using Dewit.CLI.Utils;
 using Serilog;
@@ -17,11 +18,12 @@ namespace Dewit.CLI.Commands
 			AddArgument(new Argument<int>("id", "ID of the task you wish to update."));
 			AddOption(new Option<string>("--title", "Change the description of the task."));
 			AddOption(new Option<string>("--add-tags", "Add new tag(s) to an existing task. Example --add-tags work,test"));
-			Handler = CommandHandler.Create<int, string, string>(UpdateTaskDetails);
+			AddOption(new Option<string>("--remove-tags", "Remove tag(s) from an existing task. Example --remove-tags work,test"));
+			Handler = CommandHandler.Create<int, string, string, string>(UpdateTaskDetails);
 			_repository = repository;
 		}
 
-		private void UpdateTaskDetails(int id, string title = null, string addTags = null)
+		private void UpdateTaskDetails(int id, string title = null, string addTags = null, string removeTags = null)
 		{
 			Log.Debug($"Modifying information of task [{id}]. Params -> Title: {title}, Tags: {addTags}");
 
@@ -41,7 +43,15 @@ namespace Dewit.CLI.Commands
 			if (!string.IsNullOrEmpty(addTags))
 			{
 				addTags = Sanitizer.SanitizeTags(addTags);
-				task.Tags = String.Join(',', task.Tags, addTags);
+				task.Tags = string.Join(',', task.Tags, addTags);
+			}
+
+			// Remove tag(s) from a task
+			if (!string.IsNullOrEmpty(removeTags))
+			{
+				var tagsToRemove = Sanitizer.SanitizeTags(removeTags).Split(',');
+				var oldTags = task.Tags.Split(',');
+				task.Tags = string.Join(',', oldTags.Except(tagsToRemove));
 			}
 
 			_repository.UpdateTask(task);
