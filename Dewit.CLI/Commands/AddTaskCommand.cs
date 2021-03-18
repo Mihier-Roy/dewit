@@ -25,7 +25,10 @@ namespace Dewit.CLI.Commands
 		private void AddTask(string title, string tags = null)
 		{
 			if (null != tags)
+			{
 				tags = Sanitizer.SanitizeTags(tags);
+				tags = Sanitizer.DeduplicateTags(tags);
+			}
 
 			Log.Debug($"Adding a new task : {title}, Status = {(_name == "now" ? "Doing" : "Later")}, Tags = {tags}");
 			var newTask = new TaskItem
