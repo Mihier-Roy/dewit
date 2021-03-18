@@ -1,7 +1,6 @@
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.Text.RegularExpressions;
 using Dewit.CLI.Data;
 using Dewit.CLI.Models;
 using Dewit.CLI.Utils;
@@ -27,9 +26,8 @@ namespace Dewit.CLI.Commands
 		{
 			if (null != tags)
 			{
-				Regex r = new Regex("(?:[^a-z0-9,_])", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
-				tags = r.Replace(tags, string.Empty);
-				tags = tags[tags.Length - 1] == ',' ? tags.Remove(tags.Length - 1) : tags;
+				tags = Sanitizer.SanitizeTags(tags);
+				tags = Sanitizer.DeduplicateTags(tags);
 			}
 
 			Log.Debug($"Adding a new task : {title}, Status = {(_name == "now" ? "Doing" : "Later")}, Tags = {tags}");
