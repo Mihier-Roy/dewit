@@ -22,7 +22,8 @@ namespace Dewit.CLI
 				new UpdateTaskCommand(_repository, "edit"),
 				new GetTasksCommand(_repository, "list"),
 				new DeleteTaskCommand(_repository, "delete"),
-				new ExportTasksCommand(_repository, "export")
+				new ExportTasksCommand(_repository, "export"),
+				new ImportTasksCommand(_repository, "import"),
 			};
 
 			rootCommand.InvokeAsync(args).Wait();
