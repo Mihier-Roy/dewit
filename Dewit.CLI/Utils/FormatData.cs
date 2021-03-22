@@ -9,19 +9,22 @@ namespace Dewit.CLI.Utils
 {
 	public static class FormatData
 	{
-		public static void ToCsv(IEnumerable<TaskItem> tasks, string path)
+		public static void ToType(IEnumerable<TaskItem> tasks, string path, string type)
 		{
-			using (var writer = new StreamWriter(path))
-			using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+			if (type == "csv")
 			{
-				csv.WriteRecords(tasks);
-			}
-		}
 
-		public static void ToJson(IEnumerable<TaskItem> tasks, string path)
-		{
-			string json = JsonSerializer.Serialize(tasks);
-			File.WriteAllText(path, json);
+				using (var writer = new StreamWriter(path))
+				using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+				{
+					csv.WriteRecords(tasks);
+				}
+			}
+			else if (type == "json")
+			{
+				string json = JsonSerializer.Serialize(tasks);
+				File.WriteAllText(path, json);
+			}
 		}
 	}
 }
