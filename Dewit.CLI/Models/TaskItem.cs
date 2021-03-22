@@ -6,7 +6,7 @@ namespace Dewit.CLI.Models
 	public class TaskItem
 	{
 		[Key]
-		public int Id { get; set; }
+		public int? Id { get; set; }
 		[Required]
 		public string TaskDescription { get; set; }
 		[Required]
