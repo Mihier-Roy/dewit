@@ -23,17 +23,19 @@ namespace Dewit.CLI.Commands
 			var statusOptions = new Option<string>("--status", "Show tasks of specified status.")
 									.FromAmong("doing", "done", "later");
 			var tagOptions = new Option<string>("--tags", "Filter tasks based on tags.");
+			var searchOptions = new Option<string>("--search", "Search for tasks that contain the input string.");
 			AddOption(sortOptions);
 			AddOption(durationOptions);
 			AddOption(statusOptions);
 			AddOption(tagOptions);
-			Handler = CommandHandler.Create<string, string, string, string>(GetTasks);
+			AddOption(searchOptions);
+			Handler = CommandHandler.Create<string, string, string, string, string>(GetTasks);
 			_repository = repository;
 		}
 
-		private void GetTasks(string sort = "date", string duration = "today", string status = null, string tags = null)
+		private void GetTasks(string sort = "date", string duration = "today", string status = null, string tags = null, string search = null)
 		{
-			Log.Debug($"Showing all tasks with arguments -> sort: {sort}, duration : {duration}, status: {status}, tags: {tags}");
+			Log.Debug($"Showing all tasks with arguments -> sort: {sort}, duration : {duration}, status: {status}, tags: {tags}, seach string : {search}");
 			var tasks = _repository.GetTasks();
 			List<TaskItem> tempList = new List<TaskItem>();
 
@@ -65,6 +67,11 @@ namespace Dewit.CLI.Commands
 				case "later":
 					tasks = tasks.Where(p => p.Status == "Later");
 					break;
+			}
+
+			if (null != search)
+			{
+				tasks = tasks.Where(p => p.TaskDescription.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0);
 			}
 
 			// Filter tasks by tags
