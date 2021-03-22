@@ -39,15 +39,7 @@ namespace Dewit.CLI.Commands
 
 			try
 			{
-				if (format == "csv")
-				{
-					FormatData.ToCsv(tasks, filePath);
-				}
-				else
-				{
-					FormatData.ToJson(tasks, filePath);
-				}
-
+				FormatData.ToType(tasks, filePath, format);
 				Output.WriteText($"[green]Succesfully exported data.[/] Path : {filePath}");
 			}
 			catch (Exception ex)
