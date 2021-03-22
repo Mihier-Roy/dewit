@@ -17,5 +17,11 @@ namespace Dewit.CLI.Utils
 				csv.WriteRecords(tasks);
 			}
 		}
+
+		public static void ToJson(IEnumerable<TaskItem> tasks, string path)
+		{
+			string json = JsonSerializer.Serialize(tasks);
+			File.WriteAllText(path, json);
+		}
 	}
 }
