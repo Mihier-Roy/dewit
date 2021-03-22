@@ -3,6 +3,25 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishTrimmed>true</PublishTrimmed>
+    <AssemblyName>dewit</AssemblyName>
+    <StartupObject>Dewit.CLI.Program</StartupObject>
+    <Nullable>disable</Nullable>
+    <Authors>Mihier RoyChaudhury</Authors>
+    <Product>dewit CLI</Product>
+    <Description>dewit is a simple command line based task tracker/manager.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Mihier-Roy/dewit</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Mihier-Roy/dewit</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
