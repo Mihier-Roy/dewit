@@ -23,12 +23,12 @@ dewit [command] [arguments] [options]
 Commands:
   now <title> 	- Adds a new task and sets it's status to 'Doing'.
   later <title> - Adds a new task and sets it's status to 'Later'.
-  done <id>		- Set's a tasks status to 'Done'.
-  edit <id>		- Edit the title and tags of a task.
-  list			- List tasks entered.
-  delete <id>	- Delete a particular task.
-  export		- Export tasks to a CSV or JSON file.
-  import <path>	- Import tasks from a CSV or JSON file.
+  done <id>     - Set's a tasks status to 'Done'.
+  edit <id>     - Edit the title and tags of a task.
+  list          - List tasks entered.
+  delete <id>   - Delete a particular task.
+  export        - Export tasks to a CSV or JSON file.
+  import <path> - Import tasks from a CSV or JSON file.
 ```
 
 ### Adding and completing tasks
@@ -36,13 +36,13 @@ Commands:
 -   You may add a task using the commands : `dewit now` or `dewit later`.
 
     ```
-    Example : dewit [now|later] "New task" --tags tag1,tag2,tag_3
+    dewit [now|later] "New task" --tags tag1,tag2,tag_3
     ```
 
 -   You can complete a task using the `dewit done` command.
 
     ```
-    Example: dewit done <task-ID>
+    dewit done <task-ID>
     ```
 
 ### Editing a task
@@ -52,19 +52,19 @@ Commands:
 -   Edit the title of a task
 
     ```
-    Example : dewit edit <task-ID> --title "New title"
+    dewit edit <task-ID> --title "New title"
     ```
 
 -   Add/Remove Tags
 
     ```
-    Example : dewit edit <task-ID> --add-tags new_tag --remove-tags old_tag
+    dewit edit <task-ID> --add-tags new_tag --remove-tags old_tag
     ```
 
 -   Reset Tags (remove all tags associated with a task)
 
     ```
-    Example : dewit edit <task-ID> --reset-tags
+    dewit edit <task-ID> --reset-tags
     ```
 
 ### Displaying tasks
@@ -74,37 +74,36 @@ The `list` command is used to display tasks. By default, it will display only th
 -   The `--duration` option accepts the following values : `all|month|today|week|yesterday`.
 
     ```
-    Example : dewit list --duration week
+    dewit list --duration week
     ```
 
 -   The list of tasks can be filtered by the `--status` option, which accepts the follwoing values : `doing|done|later`.
 
     ```
-    Example : dewit list --status later
+    dewit list --status later
     ```
 
 -   Tasks may also be filtered based on tags using the `--tags` option, where you can specify the tags you wish to search for.
 
     ```
-    Example : dewit list --tags tag1
+    dewit list --tags tag1
     ```
 
 -   You may sort the returned values using the `--sort` option which allows you to sort by **date** or **status**.
 
     ```
-    Example : dewit list --sort date
+    dewit list --sort date
     ```
 
 -   If you want to search for tasks with particular word(s), you can do so using the `--search` tag.
 
     ```
-    Example : dewit list --search "Search expression"
+    dewit list --search "Search expression"
     ```
 
 ### Tags
 
 Tags can be added to a task by specifying all the tags in a comma-separated manner. Only alpha-numeric characters along with the underscore character are acccepted as tag names.
-
 Example: `--tags tag1,tag2,tag_3`
 
 ### Import/Export
