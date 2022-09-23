@@ -37,7 +37,7 @@ namespace Dewit.CLI.Commands
 		{
 			Log.Debug($"Showing all tasks with arguments -> sort: {sort}, duration : {duration}, status: {status}, tags: {tags}, seach string : {search}");
 			var tasks = _repository.GetTasks();
-			List<TaskItem> tempList = new List<TaskItem>();
+			List<TaskItem> tempList = new();
 
 			switch (duration)
 			{
@@ -71,7 +71,7 @@ namespace Dewit.CLI.Commands
 
 			if (null != search)
 			{
-				tasks = tasks.Where(p => p.TaskDescription.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0);
+				tasks = tasks.Where(p => p.TaskDescription.Contains(search));
 			}
 
 			// Filter tasks by tags
@@ -95,7 +95,7 @@ namespace Dewit.CLI.Commands
 			else
 				tasks = tasks.OrderBy(p => p.AddedOn);
 
-			Output.WriteText($"Displaying tasks using parameters -> [aqua]sort[/]: {sort}, [aqua]duration[/] : {duration}, [aqua]status[/]: {(status == null ? "n/a" : status)}, [aqua]tags[/]:{tags}");
+			Output.WriteText($"Displaying tasks using parameters -> [aqua]sort[/]: {sort}, [aqua]duration[/] : {duration}, [aqua]status[/]: {status ?? "n/a"}, [aqua]tags[/]:{tags}");
 			Output.WriteTable(new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" }, tasks);
 		}
 	}
