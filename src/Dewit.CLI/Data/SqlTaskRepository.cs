@@ -17,7 +17,7 @@ namespace Dewit.CLI.Data
 		{
 			if (null == task)
 			{
-				throw new ArgumentNullException("Invalid task entered.");
+				throw new ArgumentNullException(nameof(task));
 			}
 			_context.Tasks.Add(task);
 		}
@@ -36,14 +36,14 @@ namespace Dewit.CLI.Data
 		{
 			if (null == task)
 			{
-				throw new ArgumentNullException("Invalid task entered.");
+				throw new ArgumentNullException(nameof(task));
 			}
 			_context.Tasks.Remove(task);
 		}
 
 		public bool SaveChanges()
 		{
-			return (_context.SaveChanges() >= 0);
+			return _context.SaveChanges() >= 0;
 		}
 
 		public void UpdateTask(TaskItem task)
