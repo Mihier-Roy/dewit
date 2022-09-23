@@ -19,8 +19,10 @@ namespace Dewit.CLI.Utils
 
 		public static void WriteTable(string[] columnNames, IEnumerable<TaskItem> data)
 		{
-			var table = new Table();
-			table.Border = TableBorder.Square;
+			var table = new Table()
+			{
+				Border = TableBorder.Simple
+			};
 
 			foreach (var column in columnNames)
 			{
@@ -34,13 +36,13 @@ namespace Dewit.CLI.Utils
 					item.Id.ToString(),
 					item.TaskDescription,
 					item.Status == "Done" ? "[green]Done[/]" : (item.Status == "Later" ? "[darkorange]Later[/]": "[yellow]Doing[/]"),
-					item.Tags == null ? "" : item.Tags,
+					item.Tags ?? "",
 					item.AddedOn.ToString("dd-MMM-yy HH:mm"),
 					item.CompletedOn == DateTime.Parse("0001-01-01") ? "" : item.CompletedOn.ToString("dd-MMM-yy HH:MM")
 				});
 			}
 
-			AnsiConsole.Render(table);
+			AnsiConsole.Write(table);
 		}
 	}
 }
