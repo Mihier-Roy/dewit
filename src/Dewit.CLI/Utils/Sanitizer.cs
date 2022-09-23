@@ -8,9 +8,9 @@ namespace Dewit.CLI.Utils
 	{
 		public static string SanitizeTags(string input)
 		{
-			Regex r = new Regex("(?:[^a-z0-9,_])", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+			Regex r = new("(?:[^a-z0-9,_])", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 			var output = r.Replace(input, string.Empty);
-			return output[output.Length - 1] == ',' ? output.Remove(output.Length - 1) : output;
+			return output[^1] == ',' ? output.Remove(output.Length - 1) : output;
 		}
 
 		public static string DeduplicateTags(string input)
