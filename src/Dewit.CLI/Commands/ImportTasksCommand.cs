@@ -40,7 +40,7 @@ namespace Dewit.CLI.Commands
 				}
 				_repository.SaveChanges();
 
-				Output.WriteText($"[green]Succesfully imported data.[/] Path : {path.ToString()}");
+				Output.WriteText($"[green]Succesfully imported data.[/] Path : {path}");
 				Output.WriteTable(new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" }, tasksFromFile);
 			}
 			catch (Exception ex)

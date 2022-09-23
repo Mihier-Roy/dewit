@@ -6,7 +6,7 @@ namespace Dewit.CLI
 {
 	public class App
 	{
-		private ITaskRepository _repository;
+		private readonly ITaskRepository _repository;
 
 		public App(ITaskRepository repository)
 		{

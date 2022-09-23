@@ -22,7 +22,6 @@ namespace Dewit.CLI.Commands
 
 		private void UpdateStatus(int id, string completedAt)
 		{
-			DateTime completedOn;
 			Log.Debug($"Setting status of task [{id}] to Done");
 
 			var task = _repository.GetTaskById(id);
@@ -39,7 +38,7 @@ namespace Dewit.CLI.Commands
 				var culture = CultureInfo.CreateSpecificCulture(CultureInfo.CurrentCulture.Name);
 				var styles = DateTimeStyles.AssumeLocal;
 
-				if (DateTime.TryParse(completedAt, culture, styles, out completedOn))
+				if (DateTime.TryParse(completedAt, culture, styles, out DateTime completedOn))
 					task.CompletedOn = completedOn;
 				else
 				{
