@@ -1,17 +1,8 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Dewit.CLI.Models
+namespace Dewit.Core.Entities
 {
-	public enum Moods
-	{
-		Terrible,
-		Bad,
-		Meh,
-		Okay,
-		Great
-	}
-
 	public class JournalItem
 	{
 		[Key]

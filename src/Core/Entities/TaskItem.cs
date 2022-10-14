@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Dewit.CLI.Models
+namespace Dewit.Core.Entities
 {
 	public class TaskItem
 	{
