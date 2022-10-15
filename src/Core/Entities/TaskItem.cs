@@ -3,10 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Dewit.Core.Entities
 {
-	public class TaskItem
+	public class TaskItem : EntityBase
 	{
-		[Key]
-		public int? Id { get; set; }
 		[Required]
 		public string TaskDescription { get; set; }
 		[Required]

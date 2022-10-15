@@ -3,10 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Dewit.Core.Entities
 {
-	public class JournalItem
+	public class JournalItem : EntityBase
 	{
-		[Key]
-		public int? Id { get; set; }
 		[Required]
 		public DateTime CalendarDate { get; set; }
 		[Required]
