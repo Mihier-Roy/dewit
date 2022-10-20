@@ -1,12 +1,40 @@
+using Dewit.Core.Entities;
 using Dewit.Core.Interfaces;
+using Dewit.Core.Utils;
 
 namespace Dewit.Core.Services
 {
 	public class TaskService : ITaskService
 	{
-		public void AddTask(string title, string? tags = null)
+		private readonly IRepository<TaskItem> _taskRepository;
+
+		public TaskService(IRepository<TaskItem> taskRepository)
 		{
-			throw new NotImplementedException();
+			_taskRepository = taskRepository;
+		}
+
+		public void AddTask(string title, string status, string? tags = null)
+		{
+			if (null != tags)
+			{
+				tags = Sanitizer.SanitizeTags(tags);
+				tags = Sanitizer.DeduplicateTags(tags);
+			}
+
+			// Log.Debug($"Adding a new task : {title}, Status = {(_name == "now" ? "Doing" : "Later")}, Tags = {tags}");
+			var newTask = new TaskItem(title, status, tags, DateTime.Now);
+
+			try
+			{
+				_taskRepository.Add(newTask);
+				// Log.Information($"Added a new task : {title}, Status = {(_name == "now" ? "Doing" : "Later")}, Tags = {tags}");
+				// Output.WriteText($"[green]Added a new task[/] : {title}, [aqua]Status[/] = {(_name == "now" ? "Doing" : "Later")}, [aqua]Tags[/] = {tags}");
+			}
+			catch
+			{
+				// Log.Error($"Failed to add task.");
+				// Output.WriteError($"Failed to add task. Please try again.");
+			}
 		}
 
 		public void DeleteTask(int id)
