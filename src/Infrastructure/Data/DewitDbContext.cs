@@ -1,17 +1,22 @@
-using System.IO;
-using Dewit.CLI.Models;
+using Dewit.Core.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
+using System.Reflection;
 
-namespace Dewit.CLI.Data
+namespace Dewit.Infrastructure.Data
 {
 	public class DewitDbContext : DbContext
 	{
+#pragma warning disable CS8618 // Required by Entity Framework
 		public DewitDbContext(DbContextOptions<DewitDbContext> opt) : base(opt) { }
 
 		public DbSet<TaskItem> Tasks { get; set; }
 		public DbSet<JournalItem> JournalLogs { get; set; }
+
+		protected override void OnModelCreating(ModelBuilder builder)
+		{
+			base.OnModelCreating(builder);
+			builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+		}
 	}
 
 	// public class TaskContextFactory : IDesignTimeDbContextFactory<TaskContext>
