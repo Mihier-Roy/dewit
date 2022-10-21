@@ -8,10 +8,12 @@ namespace Dewit.Core.Services
 	public class TaskService : ITaskService
 	{
 		private readonly IRepository<TaskItem> _taskRepository;
+		private readonly IAppLogger<TaskService> _logger;
 
-		public TaskService(IRepository<TaskItem> taskRepository)
+		public TaskService(IRepository<TaskItem> taskRepository, IAppLogger<TaskService> logger)
 		{
 			_taskRepository = taskRepository;
+			_logger = logger;
 		}
 
 		public void AddTask(string title, string status, string? tags = null)
@@ -22,50 +24,45 @@ namespace Dewit.Core.Services
 				tags = Sanitizer.DeduplicateTags(tags);
 			}
 
-			// Log.Debug($"Adding a new task : {title}, Status = {(_name == "now" ? "Doing" : "Later")}, Tags = {tags}");
+			_logger.LogInformation("Adding a new task : {title}", title);
 			var newTask = new TaskItem(title, status, tags, DateTime.Now);
 
 			try
 			{
 				_taskRepository.Add(newTask);
-				// Log.Information($"Added a new task : {title}, Status = {(_name == "now" ? "Doing" : "Later")}, Tags = {tags}");
-				// Output.WriteText($"[green]Added a new task[/] : {title}, [aqua]Status[/] = {(_name == "now" ? "Doing" : "Later")}, [aqua]Tags[/] = {tags}");
+				_logger.LogInformation($"Added a new task : {title}, Status = {status}, Tags = {tags}", title, status, tags);
 			}
-			catch
+			catch (Exception ex)
 			{
-				// Log.Error($"Failed to add task.");
-				// Output.WriteError($"Failed to add task. Please try again.");
+				_logger.LogError("Failed to add task. Exception stack : ", ex);
 			}
 		}
 
 		public void DeleteTask(int id)
 		{
-			// Log.Debug($"Deleting task [{id}].");
+			_logger.LogInformation("Deleting task [{id}].", id);
 			var task = _taskRepository.GetById(id);
 
 			if (null == task)
 			{
-				// Log.Error($"Task with ID {id} does not exist.");
-				// Output.WriteError($"Task with ID {id} does not exist. View all tasks with -> dewit list");
+				_logger.LogError("Task with ID {id} does not exist.", id);
 				return;
 			}
 
 			try
 			{
 				_taskRepository.Remove(task);
-				// Log.Information($"Deleted task : {task.Id} | {task.TaskDescription} ");
-				// Output.WriteText($"[yellow]Deleted task[/] : {task.Id} | {task.TaskDescription} ");
+				_logger.LogInformation("Deleted task : {Id} | {TaskDescription}", task.Id, task.TaskDescription);
 			}
 			catch
 			{
-				// Log.Error($"Failed to delete task [{id}].");
-				// Output.WriteError($"Failed to delete. Please try again.");
+				_logger.LogError("Failed to delete task [{id}].", id);
 			}
 		}
 
 		public void GetTasks(string sort = "date", string duration = "today", string? status = null, string? tags = null, string? search = null)
 		{
-			// Log.Debug($"Showing all tasks with arguments -> sort: {sort}, duration : {duration}, status: {status}, tags: {tags}, seach string : {search}");
+			_logger.LogInformation("Showing all tasks with arguments -> sort: {sort}, duration : {duration}, status: {status}, tags: {tags}, seach string : {search}", sort, duration, status, tags, search);
 			var tasks = _taskRepository.List();
 			List<TaskItem> tempList = new();
 
@@ -112,7 +109,7 @@ namespace Dewit.Core.Services
 
 				foreach (string tag in allTags)
 				{
-					var test = tasks.Where(p => (!string.IsNullOrEmpty(p.Tags) && p.Tags.Split(',').Contains<string>(tag)));
+					var test = tasks.Where(p => !string.IsNullOrEmpty(p.Tags) && p.Tags.Split(',').Contains(tag));
 					tempList.AddRange(test);
 				}
 
@@ -124,20 +121,16 @@ namespace Dewit.Core.Services
 				tasks = tasks.OrderBy(p => p.Status);
 			else
 				tasks = tasks.OrderBy(p => p.AddedOn);
-
-			// Output.WriteText($"Displaying tasks using parameters -> [aqua]sort[/]: {sort}, [aqua]duration[/] : {duration}, [aqua]status[/]: {status ?? "n/a"}, [aqua]tags[/]:{tags}");
-			// Output.WriteTable(new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" }, tasks);
 		}
 
 		public void UpdateStatus(int id, string completedAt)
 		{
-			// Log.Debug($"Setting status of task [{id}] to Done");
+			_logger.LogInformation("Setting status of task [{id}] to Done", id);
 
 			var task = _taskRepository.GetById(id);
 			if (null == task)
 			{
-				// Log.Error($"Task with ID {id} does not exist.");
-				// Output.WriteError($"Task with ID {id} does not exist. View all tasks with -> dewit list");
+				_logger.LogError("Task with ID {id} does not exist.", id);
 				return;
 			}
 
@@ -151,8 +144,7 @@ namespace Dewit.Core.Services
 					task.CompletedOn = completedOn;
 				else
 				{
-					// Log.Error($"Failed to set status of task [{id}] to Done");
-					// Output.WriteError("Failed to set task as completed. Please try again.");
+					_logger.LogError("Failed to set status of task [{id}] to Done", id);
 				}
 			}
 			else
@@ -163,25 +155,22 @@ namespace Dewit.Core.Services
 			try
 			{
 				_taskRepository.Update(task);
-				// Log.Information($"Completed task : {task.Id} | {task.TaskDescription} ");
-				// Output.WriteText($"[green]Completed task[/] : {task.Id} | {task.TaskDescription} ");
+				_logger.LogInformation("Completed task : {Id} | {TaskDescription}", task.Id, task.TaskDescription);
 			}
 			catch
 			{
-				// Log.Error($"Failed to set status of task [{id}] to Done");
-				// Output.WriteError($"Failed to set task as completed. Please try again.");
+				_logger.LogError("Failed to set status of task [{id}] to Done", id);
 			}
 		}
 
 		public void UpdateTaskDetails(int id, string? title = null, string? addTags = null, string? removeTags = null, bool resetTags = false)
 		{
-			// Log.Debug($"Modifying information of task [{id}]. Params -> Title: {title}, Tags: {addTags}");
+			_logger.LogInformation("Modifying information of task [{id}]. Params -> Title: {title}, Tags: {addTags}", id, title, addTags);
 
 			var task = _taskRepository.GetById(id);
 			if (null == task)
 			{
-				// Log.Error($"Task with ID {id} does not exist.");
-				// Output.WriteError($"Task with ID {id} does not exist. View all tasks with -> dewit list");
+				_logger.LogError("Task with ID {id} does not exist.", id);
 				return;
 			}
 
@@ -212,17 +201,14 @@ namespace Dewit.Core.Services
 				task.Tags = string.Empty;
 			}
 
-
 			try
 			{
 				_taskRepository.Update(task);
-				// Log.Information($"Successfully updated task : {task.Id} | {task.TaskDescription} | {task.Tags}");
-				// Output.WriteText($"[green]Successfully updated task[/] : {task.Id} | {task.TaskDescription} | {task.Tags}");
+				_logger.LogInformation("Successfully updated task : {Id} | {TaskDescription} | {Tags}", task.Id, task.TaskDescription, task.Tags);
 			}
 			catch
 			{
-				// Log.Error($"Failed to update task [{id}].");
-				// Output.WriteError($"Failed to update task details. Please try again.");
+				_logger.LogError("Failed to update task [{id}].", id);
 			}
 		}
 	}
