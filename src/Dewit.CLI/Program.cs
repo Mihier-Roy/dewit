@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Dewit.Core.Interfaces;
+using Dewit.Infrastructure.Data;
+using Dewit.Infrastructure.Data.Repositories;
+using System;
 using System.IO;
-using Dewit.CLI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
+// using Serilog;
 
 namespace Dewit.CLI
 {
@@ -29,7 +31,7 @@ namespace Dewit.CLI
 				var serviceProvider = services.BuildServiceProvider();
 
 				// Ensure db migrations are run
-				var _db = serviceProvider.GetService<TaskContext>();
+				var _db = serviceProvider.GetService<DewitDbContext>();
 				_db.Database.Migrate();
 
 				// Start the application
@@ -61,11 +63,11 @@ namespace Dewit.CLI
 			services.AddSingleton(config);
 
 			// Connect to Database
-			services.AddDbContext<TaskContext>(opts => opts.UseSqlite(config.GetConnectionString("Sqlite")));
+			services.AddDbContext<DewitDbContext>(opts => opts.UseSqlite(config.GetConnectionString("Sqlite")));
 
 			// required to run the application
 			services.AddTransient<App>();
-			services.AddTransient<ITaskRepository, SqlTaskRepository>();
+			services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
 
 			return services;
 		}
