@@ -60,41 +60,28 @@ namespace Dewit.Core.Services
 			}
 		}
 
-		public void GetTasks(string sort = "date", string duration = "today", string? status = null, string? tags = null, string? search = null)
+		public IEnumerable<TaskItem> GetTasks(string sort = "date", string duration = "today", string? status = null, string? tags = null, string? search = null)
 		{
 			_logger.LogInformation("Showing all tasks with arguments -> sort: {sort}, duration : {duration}, status: {status}, tags: {tags}, seach string : {search}", sort, duration, status, tags, search);
 			var tasks = _taskRepository.List();
 			List<TaskItem> tempList = new();
 
-			switch (duration)
+			tasks = duration switch
 			{
-				case "yesterday":
-					tasks = tasks.Where(p => p.AddedOn.Date > DateTime.Today.AddDays(-1));
-					break;
-				case "today":
-					tasks = tasks.Where(p => p.AddedOn.Date == DateTime.Today.Date);
-					break;
-				case "week":
-					tasks = tasks.Where(p => p.AddedOn.Date > DateTime.Today.AddDays(-7));
-					break;
-				case "month":
-					tasks = tasks.Where(p => p.AddedOn.Date > DateTime.Today.AddDays(-30));
-					break;
-				case "all": break;
-			}
+				"yesterday" => tasks.Where(p => p.AddedOn.Date > DateTime.Today.AddDays(-1)),
+				"today" => tasks.Where(p => p.AddedOn.Date == DateTime.Today.Date),
+				"week" => tasks.Where(p => p.AddedOn.Date > DateTime.Today.AddDays(-7)),
+				"month" => tasks.Where(p => p.AddedOn.Date > DateTime.Today.AddDays(-30)),
+				_ => tasks
+			};
 
-			switch (status)
+			tasks = status switch
 			{
-				case "doing":
-					tasks = tasks.Where(p => p.Status == "Doing");
-					break;
-				case "done":
-					tasks = tasks.Where(p => p.Status == "Done");
-					break;
-				case "later":
-					tasks = tasks.Where(p => p.Status == "Later");
-					break;
-			}
+				"doing" => tasks.Where(p => p.Status == "Doing"),
+				"done" => tasks.Where(p => p.Status == "Done"),
+				"later" => tasks.Where(p => p.Status == "Later"),
+				_ => tasks
+			};
 
 			if (null != search)
 			{
@@ -121,6 +108,8 @@ namespace Dewit.Core.Services
 				tasks = tasks.OrderBy(p => p.Status);
 			else
 				tasks = tasks.OrderBy(p => p.AddedOn);
+
+			return tasks.ToList();
 		}
 
 		public void UpdateStatus(int id, string completedAt)
