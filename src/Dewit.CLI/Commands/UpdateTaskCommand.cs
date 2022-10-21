@@ -14,5 +14,8 @@ namespace Dewit.CLI.Commands
 			AddOption(new Option<bool>("--reset-tags", "Remove all tags from an existing task."));
 			Handler = CommandHandler.Create<int, string, string, string, bool>(UpdateTaskDetails);
 		}
+		// Output.WriteError($"Task with ID {id} does not exist. View all tasks with -> dewit list");
+		// Output.WriteText($"[green]Successfully updated task[/] : {task.Id} | {task.TaskDescription} | {task.Tags}");
+		// Output.WriteError($"Failed to update task details. Please try again.");
 	}
 }

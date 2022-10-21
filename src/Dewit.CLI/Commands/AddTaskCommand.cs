@@ -14,5 +14,9 @@ namespace Dewit.CLI.Commands
 			Handler = CommandHandler.Create<string, string>(AddTask);
 			_name = name;
 		}
+
+		// Output.WriteText($"[green]Added a new task[/] : {title}, [aqua]Status[/] = {(_name == "now" ? "Doing" : "Later")}, [aqua]Tags[/] = {tags}");
+
+		// Output.WriteError($"Failed to add task. Please try again.");
 	}
 }

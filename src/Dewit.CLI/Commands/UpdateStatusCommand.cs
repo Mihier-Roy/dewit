@@ -11,5 +11,9 @@ namespace Dewit.CLI.Commands
 			AddOption(new Option<string>("--completed-at", "Specify when the task was completed"));
 			Handler = CommandHandler.Create<int, string>(UpdateStatus);
 		}
+		// Output.WriteError($"Task with ID {id} does not exist. View all tasks with -> dewit list");
+		// Output.WriteError("Failed to set task as completed. Please try again.");
+		// Output.WriteText($"[green]Completed task[/] : {task.Id} | {task.TaskDescription} ");
+		// Output.WriteError($"Failed to set task as completed. Please try again.");
 	}
 }

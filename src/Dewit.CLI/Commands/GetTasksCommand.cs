@@ -22,5 +22,8 @@ namespace Dewit.CLI.Commands
 			AddOption(searchOptions);
 			Handler = CommandHandler.Create<string, string, string, string, string>(GetTasks);
 		}
+
+		// Output.WriteText($"Displaying tasks using parameters -> [aqua]sort[/]: {sort}, [aqua]duration[/] : {duration}, [aqua]status[/]: {status ?? "n/a"}, [aqua]tags[/]:{tags}");
+		// Output.WriteTable(new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" }, tasks);
 	}
 }
