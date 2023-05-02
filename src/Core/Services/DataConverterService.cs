@@ -12,11 +12,9 @@ namespace Dewit.Core.Services
 		{
 			if (type == DataFormats.Csv)
 			{
-				using (var writer = new StreamWriter(path))
-				using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-				{
-					csv.WriteRecords(items);
-				}
+				using var writer = new StreamWriter(path);
+				using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+				csv.WriteRecords(items);
 			}
 			else if (type == DataFormats.Json)
 			{
