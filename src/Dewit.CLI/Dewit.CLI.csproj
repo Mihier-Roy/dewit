@@ -50,7 +50,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Dewit.Core.csproj" />
-    <ProjectReference Include="..\Infrastructure\Dewit.Infrastructure.csproj" />
+    <ProjectReference Include="..\Infrastructure\Dewit.DataAccess.csproj" />
   </ItemGroup>
 
   <ItemGroup>
