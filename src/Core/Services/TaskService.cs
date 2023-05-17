@@ -2,15 +2,16 @@ using System.Globalization;
 using Dewit.Core.Entities;
 using Dewit.Core.Interfaces;
 using Dewit.Core.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace Dewit.Core.Services
 {
 	public class TaskService : ITaskService
 	{
 		private readonly IRepository<TaskItem> _taskRepository;
-		private readonly IAppLogger<TaskService> _logger;
+		private readonly ILogger<TaskService> _logger;
 
-		public TaskService(IRepository<TaskItem> taskRepository, IAppLogger<TaskService> logger)
+		public TaskService(IRepository<TaskItem> taskRepository, ILogger<TaskService> logger)
 		{
 			_taskRepository = taskRepository;
 			_logger = logger;
