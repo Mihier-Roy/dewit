@@ -1,6 +1,0 @@
-{
-    "CsvPath": "dewit_tasks.csv",
-    "ConnectionStrings": {
-        "Sqlite": "Data Source=dewit_tasks.db"
-    }
-}
