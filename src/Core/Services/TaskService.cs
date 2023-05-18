@@ -201,5 +201,18 @@ namespace Dewit.Core.Services
 				_logger.LogError("Failed to update task [{id}].", id);
 			}
 		}
+
+		public void ImportTask(TaskItem taskItem)
+		{
+			try
+			{
+				_taskRepository.Add(taskItem);
+				_logger.LogInformation("Added a new task : {TaskDescription}, Status = {Status}, Tags = {Tags}", taskItem.TaskDescription, taskItem.Status, taskItem.Tags);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError("Failed to add task. Exception stack : ", ex);
+			}
+		}
 	}
 }
