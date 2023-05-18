@@ -1,91 +1,98 @@
-﻿using Dewit.Core.Interfaces;
+﻿using Dewit.CLI.Branches.DataTransfer;
+using Dewit.CLI.Commands;
+using Dewit.Core.Interfaces;
+using Dewit.Core.Services;
 using Dewit.Infrastructure.Data;
 using Dewit.Infrastructure.Data.Repositories;
-using System;
-using System.IO;
+using Dewit.CLI.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-// using Serilog;
+using Serilog;
+using Spectre.Console.Cli;
 
 namespace Dewit.CLI
 {
-	class Program
-	{
-		static void Main(string[] args)
-		{
-			// Configure Logging
-			Log.Logger = new LoggerConfiguration()
-				.MinimumLevel.Debug()
-				.WriteTo.File("logs/dewit.log",
-					rollingInterval: RollingInterval.Day,
-					outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
-				.CreateLogger();
+    class Program
+    {
+        public static int Main(string[] args)
+        {
+            var configuration = new ConfigurationBuilder().AddJsonFile($"appsettings.json");
+            var app = new CommandApp(RegisterServices(configuration.Build()));
+            app.Configure(config => ConfigureCommands(config));
 
-			try
-			{
-				Log.Information("Loading services and starting application.");
+            return app.Run(args);
+        }
 
-				// Configure service providers to enable DI
-				var services = ConfigureServices();
-				var serviceProvider = services.BuildServiceProvider();
+        private static ITypeRegistrar RegisterServices(IConfiguration config)
+        {
+            var services = new ServiceCollection();
 
-				// Ensure db migrations are run
-				var _db = serviceProvider.GetService<DewitDbContext>();
-				_db.Database.Migrate();
+            services.AddSingleton(typeof(IRepository<>), typeof(Repository<>));
+            services.AddSingleton<ITaskService, TaskService>();
+            services.AddDbContext<DewitDbContext>(opts => opts.UseSqlite(config.GetConnectionString("Sqlite")));
+            services.AddLogging(builder =>
+            {
+                var logger = new LoggerConfiguration()
+                    .MinimumLevel.Debug()
+                    .ReadFrom.Configuration(config)
+                    .Enrich.FromLogContext()
+                    .WriteTo.File("logs/dewit.log",
+                        rollingInterval: RollingInterval.Day,
+                        outputTemplate:
+                        "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                    .CreateLogger();
 
-				// Start the application
-				serviceProvider.GetService<App>().Run(args);
-			}
-			catch (FileNotFoundException ex)
-			{
-				Log.Fatal(ex, "Unable to load config file. Exiting.");
-				Console.WriteLine("ERROR : Unable to load config file. Please try again.");
-			}
-			catch (Exception ex)
-			{
-				Log.Error(ex, "Something went wrong during execution.");
-				Console.WriteLine("ERROR : An error occured while executing the last task. Please try again.");
-			}
-			finally
-			{
-				Log.CloseAndFlush();
-			}
+                builder.AddSerilog(logger);
+            });
 
-		}
+            return new TypeRegistrar(services);
+        }
 
-		private static IServiceCollection ConfigureServices()
-		{
-			IServiceCollection services = new ServiceCollection();
+        private static IConfigurator ConfigureCommands(IConfigurator config)
+        {
+            config.CaseSensitivity(CaseSensitivity.None);
+            config.SetApplicationName("dewit");
+            config.ValidateExamples();
 
-			// Make config available throughout the application
-			var config = LoadConfiguration();
-			services.AddSingleton(config);
+            config.AddBranch("task", task =>
+            {
+                task.SetDescription("View, list, add or remove tasks.");
 
-			// Connect to Database
-			services.AddDbContext<DewitDbContext>(opts => opts.UseSqlite(config.GetConnectionString("Sqlite")));
+                task.AddCommand<AddTaskCommand>("now")
+                    .WithAlias("later")
+                    .WithDescription("Add new student information.")
+                    .WithExample(new[]
+                        { "task", "new", "1001", "Bill", "Shakespeare", "--enrollment", "5/14/1549" });
+                
+                task.AddCommand<UpdateStatusCommand>("done")
+                    .WithAlias("del")
+                    .WithDescription("Remove student from list.")
+                    .WithExample(new[] { "task", "delete", "1001" });
+                
+                task.AddCommand<UpdateTaskCommand>("edit")
+                    .WithAlias("del")
+                    .WithDescription("Remove student from list.")
+                    .WithExample(new[] { "task", "delete", "1001" });
 
-			// required to run the application
-			services.AddTransient<App>();
-			services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
+                task.AddCommand<GetTasksCommand>("list")
+                    .WithDescription("View student information by id.")
+                    .WithExample(new[] { "task", "view", "1001" });
 
-			return services;
-		}
+                task.AddCommand<DeleteTaskCommand>("delete")
+                    .WithDescription("View list of students.")
+                    .WithExample(new[] { "task", "list" });
+            });
+            
+            config.AddCommand<ImportTasksCommand>("import")
+                .WithDescription("View list of students.")
+                .WithExample(new[] { "task", "list" });
+            
+            config.AddCommand<ExportTasksCommand>("export")
+                .WithDescription("View list of students.")
+                .WithExample(new[] { "task", "list" });
 
-		private static IConfiguration LoadConfiguration()
-		{
-			Log.Debug("Loading config file");
-			try
-			{
-				var builder = new ConfigurationBuilder()
-									.SetBasePath(Directory.GetCurrentDirectory())
-									.AddJsonFile("config.json");
-				return builder.Build();
-			}
-			catch (FileNotFoundException ex)
-			{
-				throw new FileNotFoundException($"Error : {ex.Message}");
-			}
-		}
-	}
+            return config;
+        }
+    }
 }
