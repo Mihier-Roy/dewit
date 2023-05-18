@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Dewit.CLI.Models;
+using Dewit.Core.Entities;
 using Spectre.Console;
 
 namespace Dewit.CLI.Utils
@@ -17,7 +17,7 @@ namespace Dewit.CLI.Utils
 			AnsiConsole.MarkupLine($"[red]ERROR[/] : {text}");
 		}
 
-		public static void WriteTable(string[] columnNames, IEnumerable<TaskItem> data)
+		public static void WriteTasksTable(string[] columnNames, IEnumerable<TaskItem> data)
 		{
 			var table = new Table()
 			{
