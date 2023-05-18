@@ -20,7 +20,7 @@ namespace Dewit.CLI.Branches.DataTransfer
 			public string FilePath { get; set; }
 
 			[CommandOption("-f|--format <data-format>")]
-			[Description("New student enrollment date.")]
+			[Description("Format of the exported file: json/csv")]
 			public DataFormats Format { get; set; }
 		}
 		
