@@ -1,0 +1,53 @@
+using System;
+using System.ComponentModel;
+using Dewit.CLI.Utils;
+using Dewit.Core.Interfaces;
+using Microsoft.Extensions.Logging;
+using Spectre.Console.Cli;
+
+namespace Dewit.CLI.Branches.Task
+{
+	public class AddTaskCommand : Command<AddTaskCommand.Settings>
+	{
+		public class Settings : CommandSettings
+		{
+			[CommandArgument(0, "<title>")]
+			[Description("Description of the task you're performing")]
+			public string Title { get; set; }
+
+			[CommandOption("-t|--tags <tags>")]
+			[Description("Comma separated list of tags")]
+			public string Tags { get; set; }
+		}
+		
+		private readonly ITaskService _taskService;
+		private readonly ILogger<Task.AddTaskCommand> _logger;
+
+		public AddTaskCommand(ITaskService taskService, ILogger<Task.AddTaskCommand> logger)
+		{
+			
+			_taskService = taskService;
+			_logger = logger;
+		}
+ 
+		public override int Execute(CommandContext context, Settings settings)
+		{
+
+			try
+			{
+				var status = context.Name == "now" ? "Doing" : "Later";
+				_taskService.AddTask(settings.Title, status, settings.Tags);
+				_logger.LogDebug("Added a new task: {Title}, Status: {Status}, Tags: {Tags}", settings.Title, context.Name, settings.Tags);
+				Output.WriteText($"[green]Added a new task[/] : {settings.Title}, [aqua]Status[/] = {(context.Name == "now" ? "Doing" : "Later")}, [aqua]Tags[/] = {settings.Tags}");
+			}
+			catch (Exception e)
+			{
+				Output.WriteError($"Failed to add task. Please try again.");
+				_logger.LogError("Failed to add task. {e}", e);
+				return -1;
+			}
+
+			return 0;
+		}
+	}
+}
