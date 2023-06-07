@@ -36,6 +36,7 @@ namespace Dewit.Core.Services
 			catch (Exception ex)
 			{
 				_logger.LogError("Failed to add task. Exception stack : ", ex);
+				throw new ApplicationException("Failed to add task");
 			}
 		}
 
@@ -47,7 +48,7 @@ namespace Dewit.Core.Services
 			if (null == task)
 			{
 				_logger.LogError("Task with ID {id} does not exist.", id);
-				return;
+				throw new ArgumentException("Task not found");
 			}
 
 			try
@@ -55,9 +56,10 @@ namespace Dewit.Core.Services
 				_taskRepository.Remove(task);
 				_logger.LogInformation("Deleted task : {Id} | {TaskDescription}", task.Id, task.TaskDescription);
 			}
-			catch
+			catch(Exception e)
 			{
-				_logger.LogError("Failed to delete task [{id}].", id);
+				_logger.LogError("Failed to delete task [{id}]. {e}", id, e);
+				throw new ApplicationException("Failed to delete task");
 			}
 		}
 

@@ -37,13 +37,11 @@ namespace Dewit.CLI.Branches.Task
 			{
 				var status = context.Name == "now" ? "Doing" : "Later";
 				_taskService.AddTask(settings.Title, status, settings.Tags);
-				_logger.LogDebug("Added a new task: {Title}, Status: {Status}, Tags: {Tags}", settings.Title, context.Name, settings.Tags);
 				Output.WriteText($"[green]Added a new task[/] : {settings.Title}, [aqua]Status[/] = {(context.Name == "now" ? "Doing" : "Later")}, [aqua]Tags[/] = {settings.Tags}");
 			}
-			catch (Exception e)
+			catch (ApplicationException e)
 			{
 				Output.WriteError($"Failed to add task. Please try again.");
-				_logger.LogError("Failed to add task. {e}", e);
 				return -1;
 			}
 
