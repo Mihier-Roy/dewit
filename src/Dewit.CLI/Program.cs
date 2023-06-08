@@ -1,5 +1,5 @@
 ﻿using Dewit.CLI.Branches.DataTransfer;
-using Dewit.CLI.Commands;
+using Dewit.CLI.Branches.Task;
 using Dewit.Core.Interfaces;
 using Dewit.Core.Services;
 using Dewit.Infrastructure.Data;
@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Spectre.Console.Cli;
+using ExportTasksCommand = Dewit.CLI.Branches.DataTransfer.ExportTasksCommand;
 
 namespace Dewit.CLI
 {
@@ -61,36 +62,34 @@ namespace Dewit.CLI
 
                 task.AddCommand<AddTaskCommand>("now")
                     .WithAlias("later")
-                    .WithDescription("Add new student information.")
+                    .WithDescription("Add a new task")
                     .WithExample(new[]
-                        { "task", "new", "1001", "Bill", "Shakespeare", "--enrollment", "5/14/1549" });
+                        { "task", "now", "Write a new task", "--tags", "test,tags,now" });
                 
-                task.AddCommand<UpdateStatusCommand>("done")
-                    .WithAlias("del")
-                    .WithDescription("Remove student from list.")
-                    .WithExample(new[] { "task", "delete", "1001" });
+                task.AddCommand<CompleteTaskCommand>("done")
+                    .WithDescription("Complete a task")
+                    .WithExample(new[] { "task", "done", "1001" });
                 
                 task.AddCommand<UpdateTaskCommand>("edit")
-                    .WithAlias("del")
-                    .WithDescription("Remove student from list.")
-                    .WithExample(new[] { "task", "delete", "1001" });
+                    .WithDescription("Update a task")
+                    .WithExample(new[] { "task", "edit", "1001" });
 
                 task.AddCommand<GetTasksCommand>("list")
-                    .WithDescription("View student information by id.")
-                    .WithExample(new[] { "task", "view", "1001" });
+                    .WithDescription("View and filter tasks")
+                    .WithExample(new[] { "task", "list" });
 
                 task.AddCommand<DeleteTaskCommand>("delete")
-                    .WithDescription("View list of students.")
-                    .WithExample(new[] { "task", "list" });
+                    .WithDescription("Delete a task")
+                    .WithExample(new[] { "task", "delete", "1" });
             });
             
             config.AddCommand<ImportTasksCommand>("import")
                 .WithDescription("View list of students.")
-                .WithExample(new[] { "task", "list" });
+                .WithExample(new[] { "import", "./test.json" });
             
             config.AddCommand<ExportTasksCommand>("export")
                 .WithDescription("View list of students.")
-                .WithExample(new[] { "task", "list" });
+                .WithExample(new[] { "export", "./test.json" });
 
             return config;
         }
