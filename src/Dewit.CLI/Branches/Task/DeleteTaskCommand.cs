@@ -10,7 +10,7 @@ namespace Dewit.CLI.Branches.Task
 	{
 		public class Settings : CommandSettings
 		{
-			[CommandArgument(0, "<id>")]
+			[CommandArgument(0, "<title>")]
 			[Description("ID of the task to be deleted")]
 			public int Id { get; set; }
 		}

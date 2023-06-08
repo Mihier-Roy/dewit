@@ -11,23 +11,23 @@ namespace Dewit.CLI.Branches.Task
 	{
 		public class Settings : CommandSettings
 		{
-			[CommandOption("--sort [sort-order]")]
+			[CommandOption("--sort <sort-order>")]
 			[Description("Sort tasks by status or date. Default is <date>")]
 			public string? Sort { get; set; }
 			
-			[CommandOption("--duration [duration]")]
+			[CommandOption("--duration <duration>")]
 			[Description("Show tasks between the specified duration. Default is set to <today>")]
 			public string? Duration { get; set; }
 			
-			[CommandOption("--status [status]")]
+			[CommandOption("--status <status>")]
 			[Description("Show tasks of specified status")]
 			public string? Status { get; set; }
 			
-			[CommandOption("--tags [tags]")]
+			[CommandOption("--tags <tags>")]
 			[Description("Filter tasks based on tags")]
 			public string? Tags { get; set; }
 			
-			[CommandOption("--search [search-text]")]
+			[CommandOption("--search <search-text>")]
 			[Description("Search for tasks that contain the input string")]
 			public string? Search { get; set; }
 
