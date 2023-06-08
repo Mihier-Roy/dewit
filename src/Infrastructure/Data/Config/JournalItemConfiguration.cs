@@ -15,6 +15,8 @@ namespace Dewit.Infrastructure.Data.Config
 
 			builder.Property(journalItem => journalItem.Mood)
 				.IsRequired(true);
+
+			builder.Property(journalItem => journalItem.Note);
 		}
 	}
 }

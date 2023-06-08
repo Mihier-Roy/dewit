@@ -13,9 +13,9 @@ namespace Dewit.Core.Services
 			_journalRepository = journalRepository;
 		}
 
-		public void AddJournalEntry(DateTime calendarDate, Moods mood, string? note = null)
+		public void AddJournalEntry(DateTime calendarDate, Moods mood, string note)
 		{
-			_journalRepository.Add(new JournalItem(calendarDate, mood, note));
+			_journalRepository.Add(new JournalItem(calendarDate, mood, note ?? ""));
 		}
 
 		public void DeleteJournalEntry(int id)
@@ -33,7 +33,7 @@ namespace Dewit.Core.Services
 		{
 			var item = _journalRepository.GetById(id);
 			item.Mood = mood;
-			item.JournalNote = note;
+			item.Note = note;
 			item.UpdatedOn = updatedOn;
 			_journalRepository.Update(item);
 		}

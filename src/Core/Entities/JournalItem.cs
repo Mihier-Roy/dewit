@@ -6,14 +6,14 @@ namespace Dewit.Core.Entities
 	{
 		public DateTime CalendarDate { get; set; }
 		public Moods Mood { get; set; }
-		public string? JournalNote { get; set; }
+		public string Note { get; set; }
 		public DateTime UpdatedOn { get; set; }
 
-		public JournalItem(DateTime calendarDate, Moods mood, string? note = null)
+		public JournalItem(DateTime calendarDate, Moods mood, string note)
 		{
 			CalendarDate = calendarDate;
 			Mood = mood;
-			JournalNote = note;
+			Note = note;
 		}
 	}
 }
