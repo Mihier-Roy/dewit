@@ -16,7 +16,7 @@ namespace Dewit.CLI.Branches.Task
 			
 			[CommandOption("-c|--completed-at [time]")]
 			[Description("Specify when the task was completed")]
-			public string CompletedAt { get; set; }
+			public string? CompletedAt { get; set; }
 		}
 		
 		private readonly ITaskService _taskService;
@@ -34,12 +34,12 @@ namespace Dewit.CLI.Branches.Task
 				_taskService.CompleteTask(settings.Id, settings.CompletedAt);
 				Output.WriteText($"[green]Completed task[/] : {settings.Id} ");
 			}
-			catch (ArgumentException e)
+			catch (ArgumentException)
 			{
 				Output.WriteError($"Task with ID {settings.Id} does not exist. View all tasks with -> dewit list");
 				return -1;
 			}
-			catch (ApplicationException e)
+			catch (ApplicationException)
 			{
 				Output.WriteError("Failed to set task as completed. Please try again.");
 				return -1;

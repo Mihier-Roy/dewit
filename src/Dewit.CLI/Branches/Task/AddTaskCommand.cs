@@ -12,11 +12,11 @@ namespace Dewit.CLI.Branches.Task
 		{
 			[CommandArgument(0, "<title>")]
 			[Description("Description of the task you're performing")]
-			public string Title { get; set; }
+			public string? Title { get; set; }
 
 			[CommandOption("-t|--tags [tags]")]
 			[Description("Comma separated list of tags")]
-			public string Tags { get; set; }
+			public string? Tags { get; set; }
 		}
 		
 		private readonly ITaskService _taskService;
@@ -35,7 +35,7 @@ namespace Dewit.CLI.Branches.Task
 				_taskService.AddTask(settings.Title, status, settings.Tags);
 				Output.WriteText($"[green]Added a new task[/] : {settings.Title}, [aqua]Status[/] = {(context.Name == "now" ? "Doing" : "Later")}, [aqua]Tags[/] = {settings.Tags}");
 			}
-			catch (ApplicationException e)
+			catch (ApplicationException)
 			{
 				Output.WriteError($"Failed to add task. Please try again.");
 				return -1;

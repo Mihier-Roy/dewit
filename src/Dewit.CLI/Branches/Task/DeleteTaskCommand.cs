@@ -29,12 +29,12 @@ namespace Dewit.CLI.Branches.Task
 				_taskService.DeleteTask(settings.Id);
 				Output.WriteText($"[yellow]Deleted task[/] : {settings.Id}");
 			}
-			catch (ArgumentException e)
+			catch (ArgumentException)
 			{
 				Output.WriteError($"Task with ID {settings.Id} does not exist. View all tasks with -> dewit list");
 				return -1;
 			}
-			catch (ApplicationException e)
+			catch (ApplicationException)
 			{
 				Output.WriteError($"Failed to delete task. Please try again.");
 				return -1;
