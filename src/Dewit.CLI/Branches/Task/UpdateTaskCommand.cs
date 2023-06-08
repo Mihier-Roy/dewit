@@ -14,19 +14,19 @@ namespace Dewit.CLI.Branches.Task
 			[Description("ID of the task to be updated")]
 			public int Id { get; set; }
 			
-			[CommandOption("--title <title>")]
+			[CommandOption("--title [title]")]
 			[Description("Change the description of the task")]
 			public string Title { get; set; }
 			
-			[CommandOption("--add-tags <tags>")]
+			[CommandOption("--add-tags [tags]")]
 			[Description("Add new tag(s) to an existing task. Example --add-tags work,test")]
 			public string AddTags { get; set; }
 			
-			[CommandOption("--remove-tags <tags>")]
+			[CommandOption("--remove-tags [tags]")]
 			[Description("Remove tag(s) from an existing task. Example --remove-tags work,test")]
 			public string RemoveTags { get; set; }
 			
-			[CommandOption("--reset-tags <tags>")]
+			[CommandOption("--reset-tags [tags]")]
 			[Description("Remove all tags from an existing task")]
 			public bool ResetTags { get; set; }
 		}

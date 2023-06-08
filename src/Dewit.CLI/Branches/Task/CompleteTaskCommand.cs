@@ -14,7 +14,7 @@ namespace Dewit.CLI.Branches.Task
 			[Description("ID of the task to be updated")]
 			public int Id { get; set; }
 			
-			[CommandOption("-c|--completed-at <time>")]
+			[CommandOption("-c|--completed-at [time]")]
 			[Description("Specify when the task was completed")]
 			public string CompletedAt { get; set; }
 		}

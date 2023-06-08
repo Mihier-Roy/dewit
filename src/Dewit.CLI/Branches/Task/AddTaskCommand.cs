@@ -14,7 +14,7 @@ namespace Dewit.CLI.Branches.Task
 			[Description("Description of the task you're performing")]
 			public string Title { get; set; }
 
-			[CommandOption("-t|--tags <tags>")]
+			[CommandOption("-t|--tags [tags]")]
 			[Description("Comma separated list of tags")]
 			public string Tags { get; set; }
 		}
