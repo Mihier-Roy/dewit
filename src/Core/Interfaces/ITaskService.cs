@@ -8,7 +8,7 @@ namespace Dewit.Core.Interfaces
 		void AddTask(string title, string status, string? tags = null);
 		void DeleteTask(int id);
 		void CompleteTask(int id, string completedAt);
-		void UpdateTaskDetails(int id, string? title = null, string? addTags = null, string? removeTags = null, bool resetTags = false);
+		TaskItem UpdateTaskDetails(int id, string? title = null, string? addTags = null, string? removeTags = null, bool resetTags = false);
 		void ImportTask(TaskItem taskItem);
 	}
 }

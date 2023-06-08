@@ -157,7 +157,7 @@ namespace Dewit.Core.Services
 			}
 		}
 
-		public void UpdateTaskDetails(int id, string? title = null, string? addTags = null, string? removeTags = null, bool resetTags = false)
+		public TaskItem UpdateTaskDetails(int id, string? title = null, string? addTags = null, string? removeTags = null, bool resetTags = false)
 		{
 			_logger.LogInformation("Modifying information of task [{id}]. Params -> Title: {title}, Tags: {addTags}", id, title, addTags);
 
@@ -165,7 +165,7 @@ namespace Dewit.Core.Services
 			if (null == task)
 			{
 				_logger.LogError("Task with ID {id} does not exist.", id);
-				return;
+				throw new ArgumentException("Task not found");
 			}
 
 			// Modify the title of the task
@@ -191,18 +191,18 @@ namespace Dewit.Core.Services
 
 			// Remove all tags from a task
 			if (resetTags)
-			{
 				task.Tags = string.Empty;
-			}
 
 			try
 			{
 				_taskRepository.Update(task);
 				_logger.LogInformation("Successfully updated task : {Id} | {TaskDescription} | {Tags}", task.Id, task.TaskDescription, task.Tags);
+				return task;
 			}
 			catch
 			{
 				_logger.LogError("Failed to update task [{id}].", id);
+				throw new ApplicationException("Failed to update task");
 			}
 		}
 
