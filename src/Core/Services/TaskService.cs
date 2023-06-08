@@ -115,7 +115,7 @@ namespace Dewit.Core.Services
 			return tasks.ToList();
 		}
 
-		public void UpdateStatus(int id, string completedAt)
+		public void CompleteTask(int id, string completedAt)
 		{
 			_logger.LogInformation("Setting status of task [{id}] to Done", id);
 
@@ -123,7 +123,7 @@ namespace Dewit.Core.Services
 			if (null == task)
 			{
 				_logger.LogError("Task with ID {id} does not exist.", id);
-				return;
+				throw new ArgumentException("Task not found");
 			}
 
 			// If the completed-at option is provided, parse the date entered by the user
@@ -137,6 +137,7 @@ namespace Dewit.Core.Services
 				else
 				{
 					_logger.LogError("Failed to set status of task [{id}] to Done", id);
+					throw new ApplicationException("Failed to complete task");
 				}
 			}
 			else
@@ -152,6 +153,7 @@ namespace Dewit.Core.Services
 			catch
 			{
 				_logger.LogError("Failed to set status of task [{id}] to Done", id);
+				throw new ApplicationException("Failed to complete task");
 			}
 		}
 
