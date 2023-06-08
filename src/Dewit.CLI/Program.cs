@@ -84,11 +84,11 @@ namespace Dewit.CLI
             });
             
             config.AddCommand<ImportTasksCommand>("import")
-                .WithDescription("View list of students.")
+                .WithDescription("Import task data")
                 .WithExample(new[] { "import", "./test.json" });
             
             config.AddCommand<ExportTasksCommand>("export")
-                .WithDescription("View list of students.")
+                .WithDescription("Export task data")
                 .WithExample(new[] { "export", "./test.json" });
 
             return config;
