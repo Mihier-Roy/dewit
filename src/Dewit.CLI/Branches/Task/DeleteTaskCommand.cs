@@ -2,7 +2,6 @@ using System;
 using System.ComponentModel;
 using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
-using Microsoft.Extensions.Logging;
 using Spectre.Console.Cli;
 
 namespace Dewit.CLI.Branches.Task
@@ -17,13 +16,10 @@ namespace Dewit.CLI.Branches.Task
 		}
 		
 		private readonly ITaskService _taskService;
-		private readonly ILogger<Task.DeleteTaskCommand> _logger;
 
-		public DeleteTaskCommand(ITaskService taskService, ILogger<Task.DeleteTaskCommand> logger)
+		public DeleteTaskCommand(ITaskService taskService)
 		{
-			
 			_taskService = taskService;
-			_logger = logger;
 		}
  
 		public override int Execute(CommandContext context, Settings settings)

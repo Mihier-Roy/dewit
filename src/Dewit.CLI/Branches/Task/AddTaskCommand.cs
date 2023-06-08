@@ -2,7 +2,6 @@ using System;
 using System.ComponentModel;
 using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
-using Microsoft.Extensions.Logging;
 using Spectre.Console.Cli;
 
 namespace Dewit.CLI.Branches.Task
@@ -21,18 +20,15 @@ namespace Dewit.CLI.Branches.Task
 		}
 		
 		private readonly ITaskService _taskService;
-		private readonly ILogger<Task.AddTaskCommand> _logger;
 
-		public AddTaskCommand(ITaskService taskService, ILogger<Task.AddTaskCommand> logger)
+		public AddTaskCommand(ITaskService taskService)
 		{
 			
 			_taskService = taskService;
-			_logger = logger;
 		}
  
 		public override int Execute(CommandContext context, Settings settings)
 		{
-
 			try
 			{
 				var status = context.Name == "now" ? "Doing" : "Later";
