@@ -14,7 +14,7 @@ namespace Dewit.CLI.Utils
 
 		public static void WriteError(string text)
 		{
-			AnsiConsole.MarkupLine($"[red]ERROR[/] : {text}");
+			AnsiConsole.MarkupLine($"[red]App Error[/] : {text}");
 		}
 
 		public static void WriteTasksTable(string[] columnNames, IEnumerable<TaskItem> data)
