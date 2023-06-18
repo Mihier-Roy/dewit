@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Dewit.CLI.Branches.Config;
 using Dewit.CLI.Branches.DataTransfer;
+using Dewit.CLI.Branches.Setup;
 using Dewit.CLI.Branches.Task;
 using Dewit.Core.Interfaces;
 using Dewit.Core.Services;
@@ -23,10 +24,9 @@ namespace Dewit.CLI
             var config = configurationBuilder.Build();
             var app = new CommandApp(RegisterServices(config));
             app.Configure(config => ConfigureCommands(config));
-            app.SetDefaultCommand<ConfigCommand>();
 
             if (!File.Exists(config.GetValue<string>("ConnectionStrings:Sqlite").Split('=')[1]))
-                return app.Run(new[] { "config", "--first-run" });
+                return app.Run(new[] { "setup", "--first-run" });
 
             return app.Run(args);
         }
@@ -99,7 +99,10 @@ namespace Dewit.CLI
                 .WithExample(new[] { "export", "./test.json" });
 
             config.AddCommand<ConfigCommand>("config")
-                .WithDescription("Configure and setup the dewit database");
+                .WithDescription("View and update the settings of the application");
+            
+            config.AddCommand<SetupCommand>("setup")
+                .WithDescription("Setup the application for first time use");
 
             return config;
         }
