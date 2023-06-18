@@ -6,8 +6,6 @@
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>Link</TrimMode>
     <PublishReadyToRun>True</PublishReadyToRun>
     <AssemblyName>dewit</AssemblyName>
     <StartupObject>Dewit.CLI.Program</StartupObject>
