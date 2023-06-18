@@ -15,14 +15,14 @@ namespace Dewit.CLI.Utils
 
 		public static void WriteError(string text)
 		{
-			AnsiConsole.MarkupLine($"[red]App Error[/] : {text}");
+			AnsiConsole.MarkupLine($"[red]:cross_mark:  App Error[/] : {text}");
 		}
 
 		public static void WriteConfigTable(IEnumerable<ConfigItem> data)
 		{
 			var table = new Table()
 			{
-				Border = TableBorder.Simple
+				Border = TableBorder.Minimal
 			};
 			table.AddColumn("Name");
 			table.AddColumn("Value");
@@ -39,7 +39,7 @@ namespace Dewit.CLI.Utils
 		{
 			var table = new Table()
 			{
-				Border = TableBorder.Simple
+				Border = TableBorder.Minimal
 			};
 
 			foreach (var column in columnNames)
