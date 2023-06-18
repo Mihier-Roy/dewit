@@ -26,15 +26,15 @@ public class SetupCommand : Command<SetupCommand.Settings>
     {
         if (settings.FirstRun)
         {
-            Output.WriteText(":light_bulb:  Detected that app is running for first time");
-            Output.WriteText(":wrench:  Configuring app for first time use");
+            Output.WriteText(":light_bulb: Detected that app is running for first time");
+            Output.WriteText(":wrench: Configuring app for first time use");
         }
         
         // Apply migrations, this also creates the database
         try
         {
             _dbContext.Database.Migrate();
-            Output.WriteText(":check_mark:  Application has been configured!  :rocket: \nRun [blue]dewit --help[/] for usage information");
+            Output.WriteText(":check_mark: Application has been configured! :rocket: \nRun [blue]dewit --help[/] for usage information");
         }
         catch
         {
