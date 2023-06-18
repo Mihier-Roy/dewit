@@ -40,4 +40,9 @@ public class ConfigurationService : IConfigurationService
             _configRepository.Add(new ConfigItem() { Value = value });
         }
     }
+
+    public IEnumerable<ConfigItem> ListValues()
+    {
+        return _configRepository.List();
+    }
 }
