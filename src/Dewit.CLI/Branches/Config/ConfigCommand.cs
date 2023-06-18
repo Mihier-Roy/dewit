@@ -41,13 +41,15 @@ public class ConfigCommand : Command<ConfigCommand.Settings>
             }
             catch
             {
-                Output.WriteError("Error configuring database");
+                Output.WriteError("Error configuring database. Please try again");
             }
         }
         else
         {
-            Output.WriteText(
-                ":check_mark: [grey]Configuration has not been changed![/]\nRun [blue]dewit --help[/] for usage information.");
+            var data = _configurationService.ListValues();
+            Output.WriteText(":information: Here is your current configuration:");
+            Output.WriteConfigTable(data);
+            Output.WriteText("Run [blue]dewit --help[/] for a list of available command");
         }
 
         return 0;
