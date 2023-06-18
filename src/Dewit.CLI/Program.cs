@@ -1,4 +1,6 @@
-﻿using Dewit.CLI.Branches.DataTransfer;
+﻿using System.IO;
+using Dewit.CLI.Branches.Config;
+using Dewit.CLI.Branches.DataTransfer;
 using Dewit.CLI.Branches.Task;
 using Dewit.Core.Interfaces;
 using Dewit.Core.Services;
@@ -10,7 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Spectre.Console.Cli;
-using ExportTasksCommand = Dewit.CLI.Branches.DataTransfer.ExportTasksCommand;
 
 namespace Dewit.CLI
 {
@@ -18,9 +19,14 @@ namespace Dewit.CLI
     {
         public static int Main(string[] args)
         {
-            var configuration = new ConfigurationBuilder().AddJsonFile($"appsettings.json");
-            var app = new CommandApp(RegisterServices(configuration.Build()));
+            var configurationBuilder = new ConfigurationBuilder().AddJsonFile($"appsettings.json");
+            var config = configurationBuilder.Build();
+            var app = new CommandApp(RegisterServices(config));
             app.Configure(config => ConfigureCommands(config));
+            app.SetDefaultCommand<ConfigCommand>();
+
+            if (!File.Exists(config.GetValue<string>("ConnectionStrings:Sqlite").Split('=')[1]))
+                return app.Run(new[] { "config", "--first-run" });
 
             return app.Run(args);
         }
@@ -31,6 +37,7 @@ namespace Dewit.CLI
 
             services.AddSingleton(typeof(IRepository<>), typeof(Repository<>));
             services.AddSingleton<ITaskService, TaskService>();
+            services.AddSingleton<IConfigurationService, ConfigurationService>();
             services.AddDbContext<DewitDbContext>(opts => opts.UseSqlite(config.GetConnectionString("Sqlite")));
             services.AddLogging(builder =>
             {
@@ -65,11 +72,11 @@ namespace Dewit.CLI
                     .WithDescription("Add a new task")
                     .WithExample(new[]
                         { "task", "now", "Write a new task", "--tags", "test,tags,now" });
-                
+
                 task.AddCommand<CompleteTaskCommand>("done")
                     .WithDescription("Complete a task")
                     .WithExample(new[] { "task", "done", "1001" });
-                
+
                 task.AddCommand<UpdateTaskCommand>("edit")
                     .WithDescription("Update a task")
                     .WithExample(new[] { "task", "edit", "1001" });
@@ -82,14 +89,17 @@ namespace Dewit.CLI
                     .WithDescription("Delete a task")
                     .WithExample(new[] { "task", "delete", "1" });
             });
-            
+
             config.AddCommand<ImportTasksCommand>("import")
                 .WithDescription("Import task data")
                 .WithExample(new[] { "import", "./test.json" });
-            
+
             config.AddCommand<ExportTasksCommand>("export")
                 .WithDescription("Export task data")
                 .WithExample(new[] { "export", "./test.json" });
+
+            config.AddCommand<ConfigCommand>("config")
+                .WithDescription("Configure and setup the dewit database");
 
             return config;
         }
