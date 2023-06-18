@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Dewit.Core.Entities;
+using Dewit.Core.Enums;
 using Spectre.Console;
 
 namespace Dewit.CLI.Utils
@@ -15,6 +16,23 @@ namespace Dewit.CLI.Utils
 		public static void WriteError(string text)
 		{
 			AnsiConsole.MarkupLine($"[red]App Error[/] : {text}");
+		}
+
+		public static void WriteConfigTable(IEnumerable<ConfigItem> data)
+		{
+			var table = new Table()
+			{
+				Border = TableBorder.Simple
+			};
+			table.AddColumn("Name");
+			table.AddColumn("Value");
+			
+			foreach (var item in data)
+			{
+				table.AddRow(((UserConfiguration)item.Id).ToString(), item.Value);
+			}
+
+			AnsiConsole.Write(table);
 		}
 
 		public static void WriteTasksTable(string[] columnNames, IEnumerable<TaskItem> data)
