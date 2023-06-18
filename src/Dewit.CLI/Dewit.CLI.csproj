@@ -49,12 +49,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\Dewit.Core.csproj" />
-    <ProjectReference Include="..\Infrastructure\Dewit.DataAccess.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Branches\Journal\" />
+    <ProjectReference Include="..\Dewit.Core\Dewit.Core.csproj" />
+    <ProjectReference Include="..\Dewit.Data\Dewit.Data.csproj" />
   </ItemGroup>
 
 </Project>

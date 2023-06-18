@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dewit.CLI", "Dewit.CLI\Dewi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BC9831EB-CD44-450D-BD84-BD42FD708B67}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dewit.Core", "Core\Dewit.Core.csproj", "{8B5F975D-60C5-4A54-85C2-A488F1AF366F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dewit.Core", "Dewit.Core\Dewit.Core.csproj", "{8B5F975D-60C5-4A54-85C2-A488F1AF366F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dewit.DataAccess", "Infrastructure\Dewit.DataAccess.csproj", "{D76276C7-782D-4BD8-A39C-B92032A18652}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dewit.Data", "Dewit.Data\Dewit.Data.csproj", "{D76276C7-782D-4BD8-A39C-B92032A18652}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

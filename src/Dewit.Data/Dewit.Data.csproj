@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\Dewit.Core.csproj" />
+    <ProjectReference Include="..\Dewit.Core\Dewit.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,7 +21,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Dewit.Infrastructure</RootNamespace>
+    <RootNamespace>Dewit.Data</RootNamespace>
   </PropertyGroup>
 
 </Project>
