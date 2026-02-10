@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: "Create a GitHub release with auto-generated notes"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore src/Dewit.sln
+
+      - name: Check formatting
+        run: dotnet format src/Dewit.sln --verify-no-changes
+
+      - name: Build
+        run: dotnet build src/Dewit.sln --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet run --project src/Dewit.CLI.Tests/Dewit.CLI.Tests.csproj --configuration Release
+
+  release:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && inputs.create_release
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate version tag
+        id: version
+        run: echo "tag=v$(date +'%Y.%m.%d-%H%M%S')" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${{ steps.version.outputs.tag }}" --generate-notes --target main
