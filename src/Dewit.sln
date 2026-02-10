@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.31105.61
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dewit.CLI", "Dewit.CLI\Dewit.CLI.csproj", "{A9125094-10C6-44A1-BDDC-04B21C134841}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dewit.CLI.Tests", "Dewit.CLI.Tests\Dewit.CLI.Tests.csproj", "{ECBE790F-15D3-42C3-8F04-144942DE18D2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{A9125094-10C6-44A1-BDDC-04B21C134841}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9125094-10C6-44A1-BDDC-04B21C134841}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9125094-10C6-44A1-BDDC-04B21C134841}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECBE790F-15D3-42C3-8F04-144942DE18D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECBE790F-15D3-42C3-8F04-144942DE18D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECBE790F-15D3-42C3-8F04-144942DE18D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECBE790F-15D3-42C3-8F04-144942DE18D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
