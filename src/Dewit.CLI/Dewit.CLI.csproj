@@ -11,7 +11,7 @@
     <PublishReadyToRun>True</PublishReadyToRun>
     <AssemblyName>dewit</AssemblyName>
     <StartupObject>Dewit.CLI.Program</StartupObject>
-    <Nullable>true</Nullable>
+    <Nullable>enable</Nullable>
     <Authors>Mihier RoyChaudhury</Authors>
     <Product>dewit CLI</Product>
     <Description>dewit is a simple command line based task tracker/manager.</Description>
