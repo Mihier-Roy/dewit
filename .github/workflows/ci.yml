@@ -34,7 +34,7 @@ jobs:
         run: dotnet restore src/Dewit.sln
 
       - name: Check formatting
-        run: dotnet format src/Dewit.sln --verify-no-changes
+        run: dotnet format whitespace src/Dewit.sln --verify-no-changes
 
       - name: Build
         run: dotnet build src/Dewit.sln --configuration Release --no-restore

@@ -8,61 +8,61 @@ using Serilog;
 
 namespace Dewit.CLI.Commands
 {
-	public class UpdateStatusCommand : Command
-	{
-		private readonly ITaskRepository _repository;
+    public class UpdateStatusCommand : Command
+    {
+        private readonly ITaskRepository _repository;
 
-		public UpdateStatusCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
-		{
-			AddArgument(new Argument<int>("id", "ID of the task you wish to update."));
-			AddOption(new Option<string>("--completed-at", "Specify when the task was completed"));
-			Handler = CommandHandler.Create<int, string>(UpdateStatus);
-			_repository = repository;
-		}
+        public UpdateStatusCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
+        {
+            AddArgument(new Argument<int>("id", "ID of the task you wish to update."));
+            AddOption(new Option<string>("--completed-at", "Specify when the task was completed"));
+            Handler = CommandHandler.Create<int, string>(UpdateStatus);
+            _repository = repository;
+        }
 
-		private void UpdateStatus(int id, string completedAt)
-		{
-			Log.Debug($"Setting status of task [{id}] to Done");
+        private void UpdateStatus(int id, string completedAt)
+        {
+            Log.Debug($"Setting status of task [{id}] to Done");
 
-			var task = _repository.GetTaskById(id);
-			if (null == task)
-			{
-				Log.Error($"Task with ID {id} does not exist.");
-				Output.WriteError($"Task with ID {id} does not exist. View all tasks with -> dewit list");
-				return;
-			}
+            var task = _repository.GetTaskById(id);
+            if (null == task)
+            {
+                Log.Error($"Task with ID {id} does not exist.");
+                Output.WriteError($"Task with ID {id} does not exist. View all tasks with -> dewit list");
+                return;
+            }
 
-			// If the completed-at option is provided, parse the date entered by the user
-			if (!string.IsNullOrEmpty(completedAt))
-			{
-				var culture = CultureInfo.CreateSpecificCulture(CultureInfo.CurrentCulture.Name);
-				var styles = DateTimeStyles.AssumeLocal;
+            // If the completed-at option is provided, parse the date entered by the user
+            if (!string.IsNullOrEmpty(completedAt))
+            {
+                var culture = CultureInfo.CreateSpecificCulture(CultureInfo.CurrentCulture.Name);
+                var styles = DateTimeStyles.AssumeLocal;
 
-				if (DateTime.TryParse(completedAt, culture, styles, out DateTime completedOn))
-					task.CompletedOn = completedOn;
-				else
-				{
-					Log.Error($"Failed to set status of task [{id}] to Done");
-					Output.WriteError("Failed to set task as completed. Please try again.");
-				}
-			}
-			else
-				task.CompletedOn = DateTime.Now;
+                if (DateTime.TryParse(completedAt, culture, styles, out DateTime completedOn))
+                    task.CompletedOn = completedOn;
+                else
+                {
+                    Log.Error($"Failed to set status of task [{id}] to Done");
+                    Output.WriteError("Failed to set task as completed. Please try again.");
+                }
+            }
+            else
+                task.CompletedOn = DateTime.Now;
 
-			task.Status = "Done";
-			_repository.UpdateTask(task);
-			var success = _repository.SaveChanges();
+            task.Status = "Done";
+            _repository.UpdateTask(task);
+            var success = _repository.SaveChanges();
 
-			if (success)
-			{
-				Log.Information($"Completed task : {task.Id} | {task.TaskDescription} ");
-				Output.WriteText($"[green]Completed task[/] : {task.Id} | {task.TaskDescription} ");
-			}
-			else
-			{
-				Log.Error($"Failed to set status of task [{id}] to Done");
-				Output.WriteError($"Failed to set task as completed. Please try again.");
-			}
-		}
-	}
+            if (success)
+            {
+                Log.Information($"Completed task : {task.Id} | {task.TaskDescription} ");
+                Output.WriteText($"[green]Completed task[/] : {task.Id} | {task.TaskDescription} ");
+            }
+            else
+            {
+                Log.Error($"Failed to set status of task [{id}] to Done");
+                Output.WriteError($"Failed to set task as completed. Please try again.");
+            }
+        }
+    }
 }
