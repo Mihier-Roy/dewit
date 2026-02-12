@@ -40,7 +40,7 @@ jobs:
         run: dotnet build src/Dewit.sln --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test src/Dewit.sln --configuration Release
+        run: dotnet test --solution src/Dewit.sln --configuration Release
 
   release:
     name: Create Release
