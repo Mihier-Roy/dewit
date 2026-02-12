@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace Dewit.CLI.Utils
 {
     public static class FormatData
     {
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Types are preserved for serialization")]
         public static void ToType(IEnumerable<TaskItem> tasks, string path, string type)
         {
             if (type == "csv")
@@ -29,6 +31,7 @@ namespace Dewit.CLI.Utils
             }
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Types are preserved for deserialization")]
         public static IEnumerable<TaskItem> FromType(string path, string type)
         {
             if (type == "csv")
@@ -42,7 +45,7 @@ namespace Dewit.CLI.Utils
             else if (type == "json")
             {
                 var jsonString = File.ReadAllText(path);
-                return JsonSerializer.Deserialize<IEnumerable<TaskItem>>(jsonString);
+                return JsonSerializer.Deserialize<IEnumerable<TaskItem>>(jsonString) ?? Array.Empty<TaskItem>();
             }
             else
             {

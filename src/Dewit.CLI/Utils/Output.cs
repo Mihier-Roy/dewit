@@ -33,7 +33,7 @@ namespace Dewit.CLI.Utils
             {
                 table.AddRow(new string[]
                 {
-                    item.Id.ToString(),
+                    item.Id?.ToString() ?? "",
                     item.TaskDescription,
                     item.Status == "Done" ? "[green]Done[/]" : (item.Status == "Later" ? "[darkorange]Later[/]": "[yellow]Doing[/]"),
                     item.Tags ?? "",

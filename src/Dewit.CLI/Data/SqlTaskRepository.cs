@@ -22,7 +22,7 @@ namespace Dewit.CLI.Data
             _context.Tasks.Add(task);
         }
 
-        public TaskItem GetTaskById(int id)
+        public TaskItem? GetTaskById(int id)
         {
             return _context.Tasks.FirstOrDefault(t => t.Id == id);
         }

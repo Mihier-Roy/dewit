@@ -14,7 +14,7 @@ namespace Dewit.CLI.Commands
     {
         private readonly ITaskRepository _repository;
 
-        public GetTasksCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
+        public GetTasksCommand(ITaskRepository repository, string name, string? description = null) : base(name, description)
         {
             var sortOptions = new Option<string>("--sort", "Sort tasks by status or date. Default is <date>")
                                     .FromAmong("status", "date");
@@ -33,7 +33,7 @@ namespace Dewit.CLI.Commands
             _repository = repository;
         }
 
-        private void GetTasks(string sort = "date", string duration = "today", string status = null, string tags = null, string search = null)
+        private void GetTasks(string sort = "date", string duration = "today", string? status = null, string? tags = null, string? search = null)
         {
             Log.Debug($"Showing all tasks with arguments -> sort: {sort}, duration : {duration}, status: {status}, tags: {tags}, seach string : {search}");
             var tasks = _repository.GetTasks();

@@ -11,7 +11,7 @@ namespace Dewit.CLI.Commands
     {
         private readonly ITaskRepository _repository;
 
-        public DeleteTaskCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
+        public DeleteTaskCommand(ITaskRepository repository, string name, string? description = null) : base(name, description)
         {
             AddArgument(new Argument<int>("id", "ID of the task to be deleted."));
             Handler = CommandHandler.Create<int>(DeleteTask);

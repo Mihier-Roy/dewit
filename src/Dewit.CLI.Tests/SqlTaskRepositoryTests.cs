@@ -64,7 +64,7 @@ public class SqlTaskRepositoryTests
 
         var found = _repository.GetTaskById(task.Id!.Value);
         await Assert.That(found).IsNotNull();
-        await Assert.That(found.TaskDescription).IsEqualTo("Find me");
+        await Assert.That(found!.TaskDescription).IsEqualTo("Find me");
     }
 
     [Test]
@@ -134,7 +134,7 @@ public class SqlTaskRepositoryTests
         _repository.SaveChanges();
 
         var updated = _repository.GetTaskById(task.Id!.Value);
-        await Assert.That(updated.TaskDescription).IsEqualTo("Updated title");
+        await Assert.That(updated!.TaskDescription).IsEqualTo("Updated title");
     }
 
     [Test]
@@ -159,7 +159,7 @@ public class SqlTaskRepositoryTests
         _repository.SaveChanges();
 
         var found = _repository.GetTaskById(task.Id!.Value);
-        await Assert.That(found.Tags).IsEqualTo("work,urgent");
+        await Assert.That(found!.Tags).IsEqualTo("work,urgent");
     }
 
     [Test]
@@ -175,7 +175,7 @@ public class SqlTaskRepositoryTests
         _repository.SaveChanges();
 
         var updated = _repository.GetTaskById(task.Id!.Value);
-        await Assert.That(updated.Status).IsEqualTo("Done");
+        await Assert.That(updated!.Status).IsEqualTo("Done");
         await Assert.That(updated.CompletedOn).IsNotEqualTo(DateTime.MinValue);
     }
 }

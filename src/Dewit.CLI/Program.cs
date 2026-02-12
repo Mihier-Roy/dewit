@@ -29,11 +29,11 @@ namespace Dewit.CLI
                 var serviceProvider = services.BuildServiceProvider();
 
                 // Ensure db migrations are run
-                var _db = serviceProvider.GetService<TaskContext>();
+                var _db = serviceProvider.GetRequiredService<TaskContext>();
                 _db.Database.Migrate();
 
                 // Start the application
-                serviceProvider.GetService<App>().Run(args);
+                serviceProvider.GetRequiredService<App>().Run(args);
             }
             catch (FileNotFoundException ex)
             {

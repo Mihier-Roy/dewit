@@ -13,7 +13,7 @@ namespace Dewit.CLI.Commands
         private readonly ITaskRepository _repository;
         private readonly string _name;
 
-        public AddTaskCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
+        public AddTaskCommand(ITaskRepository repository, string name, string? description = null) : base(name, description)
         {
             AddArgument(new Argument<string>("title", "Description of the task you're currently performing."));
             AddOption(new Option<string>("--tags", "Comma-separated list of tags to identify your task. Example : --tags work,testing"));
@@ -22,7 +22,7 @@ namespace Dewit.CLI.Commands
             _name = name;
         }
 
-        private void AddTask(string title, string tags = null)
+        private void AddTask(string title, string? tags = null)
         {
             if (null != tags)
             {
@@ -36,7 +36,7 @@ namespace Dewit.CLI.Commands
                 TaskDescription = title,
                 AddedOn = DateTime.Now,
                 Status = _name == "now" ? "Doing" : "Later",
-                Tags = tags
+                Tags = tags ?? string.Empty
             };
 
             _repository.AddTask(newTask);

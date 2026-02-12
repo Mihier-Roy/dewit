@@ -13,7 +13,7 @@ namespace Dewit.CLI.Commands
     {
         private readonly ITaskRepository _repository;
 
-        public UpdateTaskCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
+        public UpdateTaskCommand(ITaskRepository repository, string name, string? description = null) : base(name, description)
         {
             AddArgument(new Argument<int>("id", "ID of the task you wish to update."));
             AddOption(new Option<string>("--title", "Change the description of the task."));
@@ -24,7 +24,7 @@ namespace Dewit.CLI.Commands
             _repository = repository;
         }
 
-        private void UpdateTaskDetails(int id, string title = null, string addTags = null, string removeTags = null, bool resetTags = false)
+        private void UpdateTaskDetails(int id, string? title = null, string? addTags = null, string? removeTags = null, bool resetTags = false)
         {
             Log.Debug($"Modifying information of task [{id}]. Params -> Title: {title}, Tags: {addTags}");
 

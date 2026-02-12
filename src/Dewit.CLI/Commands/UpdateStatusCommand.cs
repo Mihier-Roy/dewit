@@ -12,7 +12,7 @@ namespace Dewit.CLI.Commands
     {
         private readonly ITaskRepository _repository;
 
-        public UpdateStatusCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
+        public UpdateStatusCommand(ITaskRepository repository, string name, string? description = null) : base(name, description)
         {
             AddArgument(new Argument<int>("id", "ID of the task you wish to update."));
             AddOption(new Option<string>("--completed-at", "Specify when the task was completed"));

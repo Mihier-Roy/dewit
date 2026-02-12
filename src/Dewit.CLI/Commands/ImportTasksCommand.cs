@@ -12,7 +12,7 @@ namespace Dewit.CLI.Commands
     {
         private readonly ITaskRepository _repository;
 
-        public ImportTasksCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
+        public ImportTasksCommand(ITaskRepository repository, string name, string? description = null) : base(name, description)
         {
             AddArgument(new Argument<FileInfo>("path", "Path to import data."));
             AddOption(new Option<string>("--format", "Import format. Default format is JSON.").FromAmong("csv", "json"));

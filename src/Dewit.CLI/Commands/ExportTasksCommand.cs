@@ -13,7 +13,7 @@ namespace Dewit.CLI.Commands
     {
         private readonly ITaskRepository _repository;
 
-        public ExportTasksCommand(ITaskRepository repository, string name, string description = null) : base(name, description)
+        public ExportTasksCommand(ITaskRepository repository, string name, string? description = null) : base(name, description)
         {
             var filePathOption = new Option<FileInfo>("--path", "Path to where the exported data is to be saved. By default, it will be saved in the current directory.");
             var formatOption = new Option<string>("--format", "Data format in which the exported data is to be saved. Default format is JSON.")
@@ -24,7 +24,7 @@ namespace Dewit.CLI.Commands
             _repository = repository;
         }
 
-        private void ExportTasks(FileSystemInfo path = null, string format = "json")
+        private void ExportTasks(FileSystemInfo? path = null, string format = "json")
         {
 
             if (null == path)

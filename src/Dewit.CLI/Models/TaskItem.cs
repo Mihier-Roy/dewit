@@ -8,11 +8,11 @@ namespace Dewit.CLI.Models
         [Key]
         public int? Id { get; set; }
         [Required]
-        public string TaskDescription { get; set; }
+        public string TaskDescription { get; set; } = string.Empty;
         [Required]
-        public string Status { get; set; }
+        public string Status { get; set; } = string.Empty;
         [MaxLength(2048)]
-        public string Tags { get; set; }
+        public string Tags { get; set; } = string.Empty;
         public DateTime AddedOn { get; set; }
         public DateTime CompletedOn { get; set; }
     }
