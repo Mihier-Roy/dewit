@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: "Create a GitHub release with auto-generated release notes"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore src/Dewit.sln
+
+      - name: Check formatting
+        run: dotnet format whitespace src/Dewit.sln --verify-no-changes
+
+      - name: Build
+        run: dotnet build src/Dewit.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test src/Dewit.sln --configuration Release --no-build
+
+  release:
+    name: Create Release
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && inputs.create_release
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Publish
+        run: >
+          dotnet publish src/Dewit.CLI/Dewit.CLI.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained
+          -p:PublishSingleFile=true
+          -p:PublishTrimmed=true
+          -p:TrimMode=Link
+          -p:PublishReadyToRun=true
+          --output ./publish
+
+      - name: Generate release tag
+        id: tag
+        run: echo "tag=v$(date +'%Y.%m.%d-%H%M%S')" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          generate_release_notes: true
+          files: ./publish/*
