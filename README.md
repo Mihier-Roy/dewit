@@ -123,11 +123,7 @@ Getting setup to build the project should be relatively straight-forward. The fo
     cd dewit/src
     dotnet restore
     ```
-3. Apply database migrations (first time only)
-    ```bash
-    dotnet ef database update --project Dewit.Data --startup-project Dewit.CLI
-    ```
-4. Build and run the application
+3. Build and run the application (migrations apply automatically on first run)
     ```bash
     cd Dewit.CLI
     dotnet run -- now "New task" --tags some,tags,here
