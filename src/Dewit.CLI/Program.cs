@@ -72,6 +72,8 @@ namespace Dewit.CLI
 
             // Register service layer
             services.AddTransient<ITaskService, TaskService>();
+            services.AddTransient<IConfigurationService, ConfigurationService>();
+            services.AddTransient<IDataConverter, DataConverterService>();
 
             // Add structured logging
             services.AddLogging(builder =>
