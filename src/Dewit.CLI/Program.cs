@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using Dewit.CLI.Data;
 using Dewit.Core.Interfaces;
 using Dewit.Core.Services;
 using Dewit.Data.Data;
@@ -34,7 +33,7 @@ namespace Dewit.CLI
                 var serviceProvider = services.BuildServiceProvider();
 
                 // Ensure db migrations are run
-                var _db = serviceProvider.GetRequiredService<TaskContext>();
+                var _db = serviceProvider.GetRequiredService<DewitDbContext>();
                 _db.Database.Migrate();
 
                 // Start the application
@@ -65,20 +64,16 @@ namespace Dewit.CLI
             var config = LoadConfiguration();
             services.AddSingleton(config);
 
-            // EXISTING: Connect to old database context (keep for backward compatibility)
-            services.AddDbContext<TaskContext>(opts => opts.UseSqlite(config.GetConnectionString("Sqlite")));
-            services.AddTransient<ITaskRepository, SqlTaskRepository>();
-
-            // NEW: Connect to new architecture database context
+            // Connect to database context
             services.AddDbContext<DewitDbContext>(opts => opts.UseSqlite(config.GetConnectionString("Sqlite")));
 
-            // NEW: Register generic repository pattern
+            // Register generic repository pattern
             services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
 
-            // NEW: Register service layer
+            // Register service layer
             services.AddTransient<ITaskService, TaskService>();
 
-            // NEW: Add structured logging
+            // Add structured logging
             services.AddLogging(builder =>
             {
                 builder.AddSerilog(Log.Logger);

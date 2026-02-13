@@ -2,22 +2,23 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
-using Dewit.CLI.Data;
 using Dewit.CLI.Utils;
+using Dewit.Core.Entities;
+using Dewit.Core.Interfaces;
 using Serilog;
 
 namespace Dewit.CLI.Commands
 {
     public class ImportTasksCommand : Command
     {
-        private readonly ITaskRepository _repository;
+        private readonly ITaskService _taskService;
 
-        public ImportTasksCommand(ITaskRepository repository, string name, string? description = null) : base(name, description)
+        public ImportTasksCommand(ITaskService taskService, string name, string? description = null) : base(name, description)
         {
             AddArgument(new Argument<FileInfo>("path", "Path to import data."));
             AddOption(new Option<string>("--format", "Import format. Default format is JSON.").FromAmong("csv", "json"));
             Handler = CommandHandler.Create<FileInfo, string>(ImportTasks);
-            _repository = repository;
+            _taskService = taskService;
         }
 
         private void ImportTasks(FileInfo path, string format = "json")
@@ -33,12 +34,20 @@ namespace Dewit.CLI.Commands
             try
             {
                 var tasksFromFile = FormatData.FromType(path.ToString(), format);
-                foreach (var task in tasksFromFile)
+
+                // Convert from old format to new and import
+                foreach (var oldTask in tasksFromFile)
                 {
-                    task.Id = null;
-                    _repository.AddTask(task);
+                    var newTask = new TaskItem
+                    {
+                        TaskDescription = oldTask.TaskDescription,
+                        Status = oldTask.Status,
+                        Tags = oldTask.Tags ?? string.Empty,
+                        AddedOn = oldTask.AddedOn,
+                        CompletedOn = oldTask.CompletedOn
+                    };
+                    _taskService.ImportTask(newTask);
                 }
-                _repository.SaveChanges();
 
                 Output.WriteText($"[green]Succesfully imported data.[/] Path : {path}");
                 Output.WriteTable(new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" }, tasksFromFile);

@@ -3,17 +3,18 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
-using Dewit.CLI.Data;
+using Dewit.CLI.Models;
 using Dewit.CLI.Utils;
+using Dewit.Core.Interfaces;
 using Serilog;
 
 namespace Dewit.CLI.Commands
 {
     public class ExportTasksCommand : Command
     {
-        private readonly ITaskRepository _repository;
+        private readonly ITaskService _taskService;
 
-        public ExportTasksCommand(ITaskRepository repository, string name, string? description = null) : base(name, description)
+        public ExportTasksCommand(ITaskService taskService, string name, string? description = null) : base(name, description)
         {
             var filePathOption = new Option<FileInfo>("--path", "Path to where the exported data is to be saved. By default, it will be saved in the current directory.");
             var formatOption = new Option<string>("--format", "Data format in which the exported data is to be saved. Default format is JSON.")
@@ -21,7 +22,7 @@ namespace Dewit.CLI.Commands
             AddOption(filePathOption);
             AddOption(formatOption);
             Handler = CommandHandler.Create<FileSystemInfo, string>(ExportTasks);
-            _repository = repository;
+            _taskService = taskService;
         }
 
         private void ExportTasks(FileSystemInfo? path = null, string format = "json")
@@ -35,11 +36,22 @@ namespace Dewit.CLI.Commands
             string filePath = Path.Combine(path.ToString(), $"dewit_tasks.{format}");
 
             Log.Debug($"Exporting all tasks to file. Format: {format}, Path : {path}");
-            var tasks = _repository.GetTasks().OrderBy(p => p.AddedOn);
+            var tasks = _taskService.GetTasks(duration: "all").OrderBy(p => p.AddedOn);
+
+            // Convert to old TaskItem format for export compatibility
+            var oldFormatTasks = tasks.Select(t => new TaskItem
+            {
+                Id = t.Id,
+                TaskDescription = t.TaskDescription,
+                Status = t.Status,
+                Tags = t.Tags,
+                AddedOn = t.AddedOn,
+                CompletedOn = t.CompletedOn
+            });
 
             try
             {
-                FormatData.ToType(tasks, filePath, format);
+                FormatData.ToType(oldFormatTasks, filePath, format);
                 Output.WriteText($"[green]Succesfully exported data.[/] Path : {filePath}");
             }
             catch (Exception ex)
