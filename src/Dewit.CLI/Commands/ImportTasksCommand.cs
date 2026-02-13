@@ -4,6 +4,7 @@ using System.CommandLine.Invocation;
 using System.IO;
 using Dewit.CLI.Utils;
 using Dewit.Core.Entities;
+using Dewit.Core.Enums;
 using Dewit.Core.Interfaces;
 using Serilog;
 
@@ -12,13 +13,15 @@ namespace Dewit.CLI.Commands
     public class ImportTasksCommand : Command
     {
         private readonly ITaskService _taskService;
+        private readonly IDataConverter _dataConverter;
 
-        public ImportTasksCommand(ITaskService taskService, string name, string? description = null) : base(name, description)
+        public ImportTasksCommand(ITaskService taskService, IDataConverter dataConverter, string name, string? description = null) : base(name, description)
         {
             AddArgument(new Argument<FileInfo>("path", "Path to import data."));
             AddOption(new Option<string>("--format", "Import format. Default format is JSON.").FromAmong("csv", "json"));
             Handler = CommandHandler.Create<FileInfo, string>(ImportTasks);
             _taskService = taskService;
+            _dataConverter = dataConverter;
         }
 
         private void ImportTasks(FileInfo path, string format = "json")
@@ -33,20 +36,12 @@ namespace Dewit.CLI.Commands
 
             try
             {
-                var tasksFromFile = FormatData.FromType(path.ToString(), format);
+                var dataFormat = format.ToLower() == "csv" ? DataFormats.Csv : DataFormats.Json;
+                var tasksFromFile = _dataConverter.ImportFromFile<TaskItem>(path.ToString(), dataFormat);
 
-                // Convert from old format to new and import
-                foreach (var oldTask in tasksFromFile)
+                foreach (var task in tasksFromFile)
                 {
-                    var newTask = new TaskItem
-                    {
-                        TaskDescription = oldTask.TaskDescription,
-                        Status = oldTask.Status,
-                        Tags = oldTask.Tags ?? string.Empty,
-                        AddedOn = oldTask.AddedOn,
-                        CompletedOn = oldTask.CompletedOn
-                    };
-                    _taskService.ImportTask(newTask);
+                    _taskService.ImportTask(task);
                 }
 
                 Output.WriteText($"[green]Succesfully imported data.[/] Path : {path}");

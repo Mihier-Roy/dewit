@@ -1,4 +1,4 @@
-using Dewit.CLI.Models;
+using Dewit.Core.Entities;
 
 namespace Dewit.CLI.Tests;
 
@@ -10,7 +10,6 @@ public class TaskItemTests
         var now = DateTime.Now;
         var task = new TaskItem
         {
-            Id = 1,
             TaskDescription = "Test task",
             Status = "Doing",
             Tags = "work,test",
@@ -18,7 +17,6 @@ public class TaskItemTests
             CompletedOn = DateTime.MinValue
         };
 
-        await Assert.That(task.Id).IsEqualTo(1);
         await Assert.That(task.TaskDescription).IsEqualTo("Test task");
         await Assert.That(task.Status).IsEqualTo("Doing");
         await Assert.That(task.Tags).IsEqualTo("work,test");
@@ -27,16 +25,15 @@ public class TaskItemTests
     }
 
     [Test]
-    public async Task TaskItem_IdCanBeNull()
+    public async Task TaskItem_IdDefaultsToZero()
     {
         var task = new TaskItem
         {
-            Id = null,
             TaskDescription = "New task",
             Status = "Later"
         };
 
-        await Assert.That(task.Id).IsNull();
+        await Assert.That(task.Id).IsEqualTo(0);
     }
 
     [Test]

@@ -12,6 +12,7 @@ namespace Dewit.Data.Data
         }
 
         public DbSet<TaskItem> Tasks { get; set; }
+        public DbSet<ConfigItem> ConfigItems { get; set; }
     }
 
     public class DewitDbContextFactory : IDesignTimeDbContextFactory<DewitDbContext>
