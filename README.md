@@ -118,14 +118,14 @@ Getting setup to build the project should be relatively straight-forward. The fo
     ```bash
     git clone https://github.com/Mihier-Roy/dewit
     ```
-2. Install the dependencies
+2. Navigate to the source directory and restore dependencies
     ```bash
-    cd dewit/Dewit.CLI
+    cd dewit/src
     dotnet restore
     ```
 3. Build and run the application
     ```bash
-    dotnet run -- now "New task" --tags some,tags,here
+    dotnet run --project Dewit.CLI -- now "New task" --tags some,tags,here
     ```
 
 ### Dependencies/Libraries Used
