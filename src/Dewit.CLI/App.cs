@@ -23,7 +23,7 @@ namespace Dewit.CLI
                 new AddTaskCommand(_taskService, "later"),
                 new UpdateStatusCommand(_taskService, "done"),
                 new UpdateTaskCommand(_taskService, "edit"),
-                new GetTasksCommand(_repository, "list"),
+                new GetTasksCommand(_taskService, "list"),
                 new DeleteTaskCommand(_taskService, "delete"),
                 new ExportTasksCommand(_repository, "export"),
                 new ImportTasksCommand(_repository, "import"),

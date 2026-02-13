@@ -1,20 +1,17 @@
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.Linq;
-using Dewit.CLI.Data;
-using Dewit.CLI.Models;
 using Dewit.CLI.Utils;
+using Dewit.Core.Interfaces;
 using Serilog;
 
 namespace Dewit.CLI.Commands
 {
     public class GetTasksCommand : Command
     {
-        private readonly ITaskRepository _repository;
+        private readonly ITaskService _taskService;
 
-        public GetTasksCommand(ITaskRepository repository, string name, string? description = null) : base(name, description)
+        public GetTasksCommand(ITaskService taskService, string name, string? description = null) : base(name, description)
         {
             var sortOptions = new Option<string>("--sort", "Sort tasks by status or date. Default is <date>")
                                     .FromAmong("status", "date");
@@ -30,73 +27,23 @@ namespace Dewit.CLI.Commands
             AddOption(tagOptions);
             AddOption(searchOptions);
             Handler = CommandHandler.Create<string, string, string, string, string>(GetTasks);
-            _repository = repository;
+            _taskService = taskService;
         }
 
         private void GetTasks(string sort = "date", string duration = "today", string? status = null, string? tags = null, string? search = null)
         {
-            Log.Debug($"Showing all tasks with arguments -> sort: {sort}, duration : {duration}, status: {status}, tags: {tags}, seach string : {search}");
-            var tasks = _repository.GetTasks();
-            List<TaskItem> tempList = new();
-
-            switch (duration)
+            try
             {
-                case "yesterday":
-                    tasks = tasks.Where(p => p.AddedOn.Date > DateTime.Today.AddDays(-1));
-                    break;
-                case "today":
-                    tasks = tasks.Where(p => p.AddedOn.Date == DateTime.Today.Date);
-                    break;
-                case "week":
-                    tasks = tasks.Where(p => p.AddedOn.Date > DateTime.Today.AddDays(-7));
-                    break;
-                case "month":
-                    tasks = tasks.Where(p => p.AddedOn.Date > DateTime.Today.AddDays(-30));
-                    break;
-                case "all": break;
-            }
+                var tasks = _taskService.GetTasks(sort, duration, status, tags, search);
 
-            switch (status)
+                Output.WriteText($"Displaying tasks using parameters -> [aqua]sort[/]: {sort}, [aqua]duration[/] : {duration}, [aqua]status[/]: {status ?? "n/a"}, [aqua]tags[/]:{tags}");
+                Output.WriteTable(new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" }, tasks);
+            }
+            catch (Exception ex)
             {
-                case "doing":
-                    tasks = tasks.Where(p => p.Status == "Doing");
-                    break;
-                case "done":
-                    tasks = tasks.Where(p => p.Status == "Done");
-                    break;
-                case "later":
-                    tasks = tasks.Where(p => p.Status == "Later");
-                    break;
+                Log.Error(ex, "Failed to retrieve tasks");
+                Output.WriteError("Failed to retrieve tasks. Please try again.");
             }
-
-            if (null != search)
-            {
-                tasks = tasks.Where(p => p.TaskDescription.Contains(search));
-            }
-
-            // Filter tasks by tags
-            if (null != tags)
-            {
-                tags = Sanitizer.SanitizeTags(tags);
-                string[] allTags = tags.Contains(',') ? tags.Split(',') : new string[] { tags };
-
-                foreach (string tag in allTags)
-                {
-                    var test = tasks.Where(p => (!string.IsNullOrEmpty(p.Tags) && p.Tags.Split(',').Contains<string>(tag)));
-                    tempList.AddRange(test);
-                }
-
-                // Assign final output
-                tasks = tempList.Distinct();
-            }
-
-            if (sort == "status")
-                tasks = tasks.OrderBy(p => p.Status);
-            else
-                tasks = tasks.OrderBy(p => p.AddedOn);
-
-            Output.WriteText($"Displaying tasks using parameters -> [aqua]sort[/]: {sort}, [aqua]duration[/] : {duration}, [aqua]status[/]: {status ?? "n/a"}, [aqua]tags[/]:{tags}");
-            Output.WriteTable(new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" }, tasks);
         }
     }
 }
