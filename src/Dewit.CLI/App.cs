@@ -1,18 +1,15 @@
 using System.CommandLine;
 using Dewit.CLI.Commands;
-using Dewit.CLI.Data;
 using Dewit.Core.Interfaces;
 
 namespace Dewit.CLI
 {
     public class App
     {
-        private readonly ITaskRepository _repository;
         private readonly ITaskService _taskService;
 
-        public App(ITaskRepository repository, ITaskService taskService)
+        public App(ITaskService taskService)
         {
-            _repository = repository;
             _taskService = taskService;
         }
 
@@ -25,8 +22,8 @@ namespace Dewit.CLI
                 new UpdateTaskCommand(_taskService, "edit"),
                 new GetTasksCommand(_taskService, "list"),
                 new DeleteTaskCommand(_taskService, "delete"),
-                new ExportTasksCommand(_repository, "export"),
-                new ImportTasksCommand(_repository, "import"),
+                new ExportTasksCommand(_taskService, "export"),
+                new ImportTasksCommand(_taskService, "import"),
             };
 
             rootCommand.InvokeAsync(args).Wait();

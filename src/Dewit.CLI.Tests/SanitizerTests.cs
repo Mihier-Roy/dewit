@@ -1,4 +1,4 @@
-using Dewit.CLI.Utils;
+using Dewit.Core.Utils;
 
 namespace Dewit.CLI.Tests;
 
@@ -9,7 +9,7 @@ public class SanitizerTests
     [Arguments("work, testing", "work,testing")]
     [Arguments("work!@#testing", "worktesting")]
     [Arguments("work_test,code", "work_test,code")]
-    [Arguments("UPPER,lower", "UPPER,lower")]
+    [Arguments("UPPER,lower", "upper,lower")]
     [Arguments("tag1,tag2,", "tag1,tag2")]
     public async Task SanitizeTags_RemovesInvalidCharacters(string input, string expected)
     {
