@@ -1,9 +1,14 @@
 using System;
 using System.IO;
 using Dewit.CLI.Data;
+using Dewit.Core.Interfaces;
+using Dewit.Core.Services;
+using Dewit.Data.Data;
+using Dewit.Data.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace Dewit.CLI
@@ -60,12 +65,27 @@ namespace Dewit.CLI
             var config = LoadConfiguration();
             services.AddSingleton(config);
 
-            // Connect to Database
+            // EXISTING: Connect to old database context (keep for backward compatibility)
             services.AddDbContext<TaskContext>(opts => opts.UseSqlite(config.GetConnectionString("Sqlite")));
-
-            // required to run the application
-            services.AddTransient<App>();
             services.AddTransient<ITaskRepository, SqlTaskRepository>();
+
+            // NEW: Connect to new architecture database context
+            services.AddDbContext<DewitDbContext>(opts => opts.UseSqlite(config.GetConnectionString("Sqlite")));
+
+            // NEW: Register generic repository pattern
+            services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
+
+            // NEW: Register service layer
+            services.AddTransient<ITaskService, TaskService>();
+
+            // NEW: Add structured logging
+            services.AddLogging(builder =>
+            {
+                builder.AddSerilog(Log.Logger);
+            });
+
+            // Required to run the application
+            services.AddTransient<App>();
 
             return services;
         }
