@@ -47,6 +47,13 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' && inputs.create_release
+    strategy:
+      matrix:
+        include:
+          - runtime: win-x64
+            platform: windows
+          - runtime: linux-x64
+            platform: linux
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -60,13 +67,38 @@ jobs:
         run: >
           dotnet publish src/Dewit.CLI/Dewit.CLI.csproj
           --configuration Release
-          --runtime win-x64
+          --runtime ${{ matrix.runtime }}
           --self-contained
           -p:PublishSingleFile=true
           -p:PublishTrimmed=true
           -p:TrimMode=Link
           -p:PublishReadyToRun=true
+          -p:DebugType=None
+          -p:DebugSymbols=false
           --output ./publish
+
+      - name: Create release archive
+        run: |
+          cd publish
+          zip -r ../dewit-${{ matrix.platform }}-x64.zip .
+          cd ..
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dewit-${{ matrix.platform }}-x64
+          path: dewit-${{ matrix.platform }}-x64.zip
+
+  create-release:
+    name: Create GitHub Release
+    needs: release
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && inputs.create_release
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
 
       - name: Generate release tag
         id: tag
@@ -77,4 +109,4 @@ jobs:
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           generate_release_notes: true
-          files: ./publish/*
+          files: ./artifacts/**/*.zip
