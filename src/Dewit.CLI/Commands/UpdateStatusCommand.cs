@@ -1,67 +1,55 @@
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.Globalization;
-using Dewit.CLI.Data;
+using System.Linq;
 using Dewit.CLI.Utils;
+using Dewit.Core.Interfaces;
 using Serilog;
 
 namespace Dewit.CLI.Commands
 {
     public class UpdateStatusCommand : Command
     {
-        private readonly ITaskRepository _repository;
+        private readonly ITaskService _taskService;
 
-        public UpdateStatusCommand(ITaskRepository repository, string name, string? description = null) : base(name, description)
+        public UpdateStatusCommand(ITaskService taskService, string name, string? description = null) : base(name, description)
         {
             AddArgument(new Argument<int>("id", "ID of the task you wish to update."));
             AddOption(new Option<string>("--completed-at", "Specify when the task was completed"));
             Handler = CommandHandler.Create<int, string>(UpdateStatus);
-            _repository = repository;
+            _taskService = taskService;
         }
 
         private void UpdateStatus(int id, string completedAt)
         {
-            Log.Debug($"Setting status of task [{id}] to Done");
-
-            var task = _repository.GetTaskById(id);
-            if (null == task)
+            try
             {
-                Log.Error($"Task with ID {id} does not exist.");
-                Output.WriteError($"Task with ID {id} does not exist. View all tasks with -> dewit list");
-                return;
-            }
+                _taskService.CompleteTask(id, completedAt ?? string.Empty);
 
-            // If the completed-at option is provided, parse the date entered by the user
-            if (!string.IsNullOrEmpty(completedAt))
-            {
-                var culture = CultureInfo.CreateSpecificCulture(CultureInfo.CurrentCulture.Name);
-                var styles = DateTimeStyles.AssumeLocal;
+                // Get the task to display its details
+                var tasks = _taskService.GetTasks(duration: "all");
+                var task = tasks.FirstOrDefault(t => t.Id == id);
 
-                if (DateTime.TryParse(completedAt, culture, styles, out DateTime completedOn))
-                    task.CompletedOn = completedOn;
-                else
+                if (task != null)
                 {
-                    Log.Error($"Failed to set status of task [{id}] to Done");
-                    Output.WriteError("Failed to set task as completed. Please try again.");
+                    Log.Information($"Completed task : {task.Id} | {task.TaskDescription}");
+                    Output.WriteText($"[green]Completed task[/] : {task.Id} | {task.TaskDescription}");
                 }
             }
-            else
-                task.CompletedOn = DateTime.Now;
-
-            task.Status = "Done";
-            _repository.UpdateTask(task);
-            var success = _repository.SaveChanges();
-
-            if (success)
+            catch (ApplicationException ex)
             {
-                Log.Information($"Completed task : {task.Id} | {task.TaskDescription} ");
-                Output.WriteText($"[green]Completed task[/] : {task.Id} | {task.TaskDescription} ");
+                Log.Error(ex, "Failed to complete task");
+                Output.WriteError(ex.Message);
             }
-            else
+            catch (ArgumentException ex)
             {
-                Log.Error($"Failed to set status of task [{id}] to Done");
-                Output.WriteError($"Failed to set task as completed. Please try again.");
+                Log.Error(ex, "Invalid completion date");
+                Output.WriteError("Invalid date format. Please try again.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Unexpected error");
+                Output.WriteError("Failed to set task as completed. Please try again.");
             }
         }
     }
