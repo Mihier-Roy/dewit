@@ -1,6 +1,5 @@
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.Linq;
 using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
@@ -11,12 +10,23 @@ namespace Dewit.CLI.Commands
     public class DeleteTaskCommand : Command
     {
         private readonly ITaskService _taskService;
+        private readonly Argument<int> _idArg;
 
         public DeleteTaskCommand(ITaskService taskService, string name, string? description = null) : base(name, description)
         {
-            AddArgument(new Argument<int>("id", "ID of the task to be deleted."));
-            Handler = CommandHandler.Create<int>(DeleteTask);
             _taskService = taskService;
+
+            _idArg = new Argument<int>("id")
+            {
+                Description = "ID of the task to be deleted."
+            };
+            this.Arguments.Add(_idArg);
+
+            this.SetAction(parseResult =>
+            {
+                var id = parseResult.GetValue(_idArg);
+                DeleteTask(id);
+            });
         }
 
         private void DeleteTask(int id)

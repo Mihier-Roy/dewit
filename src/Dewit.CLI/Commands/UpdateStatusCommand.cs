@@ -1,6 +1,5 @@
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.Linq;
 using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
@@ -11,16 +10,34 @@ namespace Dewit.CLI.Commands
     public class UpdateStatusCommand : Command
     {
         private readonly ITaskService _taskService;
+        private readonly Argument<int> _idArg;
+        private readonly Option<string?> _completedAtOpt;
 
         public UpdateStatusCommand(ITaskService taskService, string name, string? description = null) : base(name, description)
         {
-            AddArgument(new Argument<int>("id", "ID of the task you wish to update."));
-            AddOption(new Option<string>("--completed-at", "Specify when the task was completed"));
-            Handler = CommandHandler.Create<int, string>(UpdateStatus);
             _taskService = taskService;
+
+            _idArg = new Argument<int>("id")
+            {
+                Description = "ID of the task you wish to update."
+            };
+            _completedAtOpt = new Option<string?>("--completed-at")
+            {
+                Description = "Specify when the task was completed"
+            };
+
+            this.Arguments.Add(_idArg);
+            this.Options.Add(_completedAtOpt);
+
+            this.SetAction(parseResult =>
+            {
+                var id = parseResult.GetValue(_idArg);
+                var completedAt = parseResult.GetValue(_completedAtOpt);
+                UpdateStatus(id, completedAt);
+            });
         }
 
-        private void UpdateStatus(int id, string completedAt)
+        private void UpdateStatus(int id, string? completedAt)
         {
             try
             {

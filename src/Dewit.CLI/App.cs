@@ -28,7 +28,7 @@ namespace Dewit.CLI
                 new ImportTasksCommand(_taskService, _dataConverter, "import"),
             };
 
-            rootCommand.InvokeAsync(args).Wait();
+            rootCommand.Parse(args).Invoke();
         }
     }
 }

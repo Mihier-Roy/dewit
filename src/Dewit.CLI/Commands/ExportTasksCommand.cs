@@ -1,6 +1,5 @@
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using Dewit.CLI.Utils;
@@ -14,20 +13,37 @@ namespace Dewit.CLI.Commands
     {
         private readonly ITaskService _taskService;
         private readonly IDataConverter _dataConverter;
+        private readonly Option<FileInfo?> _pathOpt;
+        private readonly Option<string> _formatOpt;
 
         public ExportTasksCommand(ITaskService taskService, IDataConverter dataConverter, string name, string? description = null) : base(name, description)
         {
-            var filePathOption = new Option<FileInfo>("--path", "Path to where the exported data is to be saved. By default, it will be saved in the current directory.");
-            var formatOption = new Option<string>("--format", "Data format in which the exported data is to be saved. Default format is JSON.")
-                                    .FromAmong("csv", "json");
-            AddOption(filePathOption);
-            AddOption(formatOption);
-            Handler = CommandHandler.Create<FileSystemInfo, string>(ExportTasks);
             _taskService = taskService;
             _dataConverter = dataConverter;
+
+            _pathOpt = new Option<FileInfo?>("--path")
+            {
+                Description = "Path to where the exported data is to be saved. By default, it will be saved in the current directory."
+            };
+            _formatOpt = new Option<string>("--format")
+            {
+                Description = "Data format in which the exported data is to be saved. Default format is JSON.",
+                DefaultValueFactory = _ => "json"
+            };
+            _formatOpt.AcceptOnlyFromAmong("csv", "json");
+
+            this.Options.Add(_pathOpt);
+            this.Options.Add(_formatOpt);
+
+            this.SetAction(parseResult =>
+            {
+                var path = parseResult.GetValue(_pathOpt);
+                var format = parseResult.GetValue(_formatOpt);
+                ExportTasks(path, format);
+            });
         }
 
-        private void ExportTasks(FileSystemInfo? path = null, string format = "json")
+        private void ExportTasks(FileInfo? path, string format)
         {
 
             if (null == path)
