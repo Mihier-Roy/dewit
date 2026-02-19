@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Dewit.Core.Interfaces;
 using Dewit.Core.Services;
+using Dewit.Core.Utils;
 using Dewit.Data.Data;
 using Dewit.Data.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +36,10 @@ namespace Dewit.CLI
                 // Ensure db migrations are run
                 var _db = serviceProvider.GetRequiredService<DewitDbContext>();
                 _db.Database.Migrate();
+
+                // Seed default mood descriptors if missing
+                var configService = serviceProvider.GetRequiredService<IConfigurationService>();
+                MoodDescriptorDefaults.SeedIfMissing(configService);
 
                 // Start the application
                 serviceProvider.GetRequiredService<App>().Run(args);
@@ -74,6 +79,7 @@ namespace Dewit.CLI
             services.AddTransient<ITaskService, TaskService>();
             services.AddTransient<IConfigurationService, ConfigurationService>();
             services.AddTransient<IDataConverter, DataConverterService>();
+            services.AddTransient<IMoodService, MoodService>();
 
             // Add structured logging
             services.AddLogging(builder =>
