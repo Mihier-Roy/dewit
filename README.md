@@ -29,6 +29,10 @@ Commands:
   delete <id>   - Delete a particular task.
   export        - Export tasks to a CSV or JSON file.
   import <path> - Import tasks from a CSV or JSON file.
+  mood          - Track and view your daily mood.
+    add         - Log your mood for today.
+    update      - Update a mood entry.
+    view        - Display your mood calendar.
 ```
 
 ### Adding and completing tasks
@@ -109,6 +113,45 @@ Example: `--tags tag1,tag2,tag_3`
 ### Import/Export
 
 `dewit` supports exporting all saved tasks to a CSV or JSON file so that users may view the data in an easily portable and editable format. Users may also use the `import` command to import data. The import command appends all the tasks in a file to the existing list of tasks.
+
+### Mood tracking
+
+`dewit mood` lets you log a daily mood, update past entries, and view a color-coded calendar.
+
+#### Logging today's mood
+
+Run without flags for an interactive prompt, or pass flags to skip it:
+
+```
+dewit mood add
+dewit mood add --mood happy --descriptors calm,focused
+```
+
+Moods: `veryhappy` · `happy` · `meh` · `down` · `extradown`
+
+#### Updating a mood entry
+
+Defaults to today. Use `--date` to target a different day:
+
+```
+dewit mood update
+dewit mood update --date yesterday --mood meh
+dewit mood update --date 2026-02-15 --mood happy --descriptors content,relaxed
+```
+
+`--date` accepts: `today`, `yesterday`, `last monday`, `YYYY-MM-DD`, `MM-DD`
+
+#### Viewing the calendar
+
+```
+dewit mood view                         # current week (default)
+dewit mood view --duration month
+dewit mood view --duration month  --period 2026-01
+dewit mood view --duration quarter --period 2026-Q1
+dewit mood view --duration year   --period 2026
+```
+
+Each logged day is shown as a colored block — green for Very Happy, through red for Extra Down — with a legend below.
 
 ## Development
 
