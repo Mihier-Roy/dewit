@@ -2,21 +2,18 @@ using Dewit.Core.Entities;
 using Dewit.Core.Enums;
 using Dewit.Core.Interfaces;
 using Dewit.Core.Services;
-using Microsoft.Extensions.Logging;
 
 namespace Dewit.CLI.Tests.Services;
 
 public class DataConverterServiceTests
 {
     private IDataConverter _converter = null!;
-    private ILogger<DataConverterService> _logger = null!;
     private string _testDirectory = null!;
 
     [Before(Test)]
     public void Setup()
     {
-        _logger = LoggerFactory.Create(b => { }).CreateLogger<DataConverterService>();
-        _converter = new DataConverterService(_logger);
+        _converter = new DataConverterService();
         _testDirectory = Path.Combine(Path.GetTempPath(), $"DewitTest_{Guid.NewGuid()}");
         Directory.CreateDirectory(_testDirectory);
     }

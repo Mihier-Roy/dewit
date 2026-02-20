@@ -4,7 +4,6 @@ using Dewit.Core.Services;
 using Dewit.Data.Data;
 using Dewit.Data.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Dewit.CLI.Tests.Services;
 
@@ -24,8 +23,7 @@ public class MoodServiceTests
         _context = new DewitDbContext(options);
         _moodRepo = new Repository<MoodEntry>(_context);
         _descriptorRepo = new Repository<MoodDescriptorItem>(_context);
-        var logger = LoggerFactory.Create(b => { }).CreateLogger<MoodService>();
-        _service = new MoodService(_moodRepo, _descriptorRepo, logger);
+        _service = new MoodService(_moodRepo, _descriptorRepo);
     }
 
     [After(Test)]

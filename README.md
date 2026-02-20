@@ -19,6 +19,13 @@ dewit [command] [arguments] [options]
 
 `dewit` is organized into sub-commands for each action. The commands available are listed below, but can always be found by running `dewit -h`.
 
+Pass `--verbose` anywhere in your command to see diagnostic output (shown in grey). Useful when something goes wrong and you want more detail:
+
+```
+dewit --verbose task list
+dewit task done 5 --verbose
+```
+
 ```
 Commands:
   now <title>       - Add a new task and set it to 'Doing'.

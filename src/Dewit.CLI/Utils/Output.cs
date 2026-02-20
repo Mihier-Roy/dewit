@@ -21,14 +21,18 @@ namespace Dewit.CLI.Utils
 
         public static void WriteVerbose(string message)
         {
-            if (!IsVerbose) return;
+            if (!IsVerbose)
+                return;
             AnsiConsole.MarkupLine($"[grey]{Markup.Escape(message)}[/]");
         }
 
         public static void WriteVerbose(Exception ex, string context)
         {
-            if (!IsVerbose) return;
-            AnsiConsole.MarkupLine($"[grey]{Markup.Escape(context)}: {Markup.Escape(ex.ToString())}[/]");
+            if (!IsVerbose)
+                return;
+            AnsiConsole.MarkupLine(
+                $"[grey]{Markup.Escape(context)}: {Markup.Escape(ex.ToString())}[/]"
+            );
         }
 
         public static void WriteTable(string[] columnNames, IEnumerable<TaskItem> data)

@@ -3,27 +3,13 @@ using System.Text.Json;
 using CsvHelper;
 using Dewit.Core.Enums;
 using Dewit.Core.Interfaces;
-using Microsoft.Extensions.Logging;
 
 namespace Dewit.Core.Services
 {
     public class DataConverterService : IDataConverter
     {
-        private readonly ILogger<DataConverterService> _logger;
-
-        public DataConverterService(ILogger<DataConverterService> logger)
-        {
-            _logger = logger;
-        }
-
         public void ExportToFile<T>(IEnumerable<T> data, string filePath, DataFormats format)
         {
-            _logger.LogInformation(
-                "Exporting data to {FilePath} in {Format} format",
-                filePath,
-                format
-            );
-
             try
             {
                 switch (format)
@@ -40,33 +26,21 @@ namespace Dewit.Core.Services
                             nameof(format)
                         );
                 }
-
-                _logger.LogInformation("Successfully exported data to {FilePath}", filePath);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to export data to {FilePath}", filePath);
                 throw new ApplicationException($"Failed to export data to {filePath}", ex);
             }
         }
 
         public IEnumerable<T> ImportFromFile<T>(string filePath, DataFormats format)
         {
-            _logger.LogInformation(
-                "Importing data from {FilePath} in {Format} format",
-                filePath,
-                format
-            );
-
             if (!File.Exists(filePath))
-            {
-                _logger.LogError("File not found: {FilePath}", filePath);
                 throw new FileNotFoundException($"File not found: {filePath}");
-            }
 
             try
             {
-                IEnumerable<T> data = format switch
+                return format switch
                 {
                     DataFormats.Json => ImportFromJson<T>(filePath),
                     DataFormats.Csv => ImportFromCsv<T>(filePath),
@@ -75,13 +49,9 @@ namespace Dewit.Core.Services
                         nameof(format)
                     ),
                 };
-
-                _logger.LogInformation("Successfully imported data from {FilePath}", filePath);
-                return data;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to import data from {FilePath}", filePath);
                 throw new ApplicationException($"Failed to import data from {filePath}", ex);
             }
         }

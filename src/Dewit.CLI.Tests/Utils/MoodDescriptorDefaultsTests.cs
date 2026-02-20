@@ -77,7 +77,10 @@ public class MoodDescriptorDefaultsTests
     {
         MoodDescriptorDefaults.SeedIfMissing(_repo);
 
-        var seededMoods = _repo.List().Select(i => i.Mood).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var seededMoods = _repo
+            .List()
+            .Select(i => i.Mood)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
         foreach (var mood in Enum.GetValues<Mood>())
         {
             await Assert.That(seededMoods.Contains(mood.ToString())).IsTrue();

@@ -4,7 +4,6 @@ using Dewit.Core.Services;
 using Dewit.Data.Data;
 using Dewit.Data.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Dewit.CLI.Tests.Services;
 
@@ -13,7 +12,6 @@ public class TaskServiceTests
     private DewitDbContext _context = null!;
     private IRepository<TaskItem> _repository = null!;
     private ITaskService _service = null!;
-    private ILogger<TaskService> _logger = null!;
 
     [Before(Test)]
     public void Setup()
@@ -23,8 +21,7 @@ public class TaskServiceTests
             .Options;
         _context = new DewitDbContext(options);
         _repository = new Repository<TaskItem>(_context);
-        _logger = LoggerFactory.Create(b => { }).CreateLogger<TaskService>();
-        _service = new TaskService(_repository, _logger);
+        _service = new TaskService(_repository);
     }
 
     [After(Test)]

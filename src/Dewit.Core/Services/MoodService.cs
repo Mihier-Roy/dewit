@@ -2,7 +2,6 @@ using Dewit.Core.Entities;
 using Dewit.Core.Enums;
 using Dewit.Core.Interfaces;
 using Dewit.Core.Utils;
-using Microsoft.Extensions.Logging;
 
 namespace Dewit.Core.Services
 {
@@ -10,17 +9,14 @@ namespace Dewit.Core.Services
     {
         private readonly IRepository<MoodEntry> _moodRepo;
         private readonly IRepository<MoodDescriptorItem> _descriptorRepo;
-        private readonly ILogger<MoodService> _logger;
 
         public MoodService(
             IRepository<MoodEntry> moodRepo,
-            IRepository<MoodDescriptorItem> descriptorRepo,
-            ILogger<MoodService> logger
+            IRepository<MoodDescriptorItem> descriptorRepo
         )
         {
             _moodRepo = moodRepo;
             _descriptorRepo = descriptorRepo;
-            _logger = logger;
         }
 
         public MoodEntry? GetEntryForDate(DateTime date)
@@ -44,12 +40,9 @@ namespace Dewit.Core.Services
             var target = date.Date;
 
             if (GetEntryForDate(target) != null)
-            {
-                _logger.LogError("Mood entry already exists for {Date}", target);
                 throw new InvalidOperationException(
                     $"A mood entry already exists for {target:yyyy-MM-dd}. Use 'mood update' to change it."
                 );
-            }
 
             var entry = new MoodEntry
             {
@@ -61,11 +54,9 @@ namespace Dewit.Core.Services
             try
             {
                 _moodRepo.Add(entry);
-                _logger.LogInformation("Added mood entry for {Date}: {Mood}", target, mood);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to add mood entry");
                 throw new ApplicationException("Failed to add mood entry", ex);
             }
         }
@@ -76,12 +67,9 @@ namespace Dewit.Core.Services
             var entry = GetEntryForDate(target);
 
             if (entry == null)
-            {
-                _logger.LogError("No mood entry found for {Date}", target);
                 throw new ApplicationException(
                     $"No mood entry found for {target:yyyy-MM-dd}. Use 'mood add' to create one."
                 );
-            }
 
             if (mood != null)
                 entry.Mood = mood;
@@ -91,11 +79,9 @@ namespace Dewit.Core.Services
             try
             {
                 _moodRepo.Update(entry);
-                _logger.LogInformation("Updated mood entry for {Date}", target);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to update mood entry for {Date}", target);
                 throw new ApplicationException(
                     $"Failed to update mood entry for {target:yyyy-MM-dd}",
                     ex
@@ -140,8 +126,6 @@ namespace Dewit.Core.Services
                     new MoodDescriptorItem { Mood = mood, Descriptors = descriptors }
                 );
             }
-
-            _logger.LogInformation("Updated descriptors for mood {Mood}", mood);
         }
 
         public void ResetDescriptors(string mood)
@@ -153,7 +137,6 @@ namespace Dewit.Core.Services
                 throw new ArgumentException($"No defaults found for mood: {mood}");
 
             SetDescriptors(moodEnum.ToString(), defaults);
-            _logger.LogInformation("Reset descriptors for mood {Mood} to defaults", mood);
         }
     }
 }
