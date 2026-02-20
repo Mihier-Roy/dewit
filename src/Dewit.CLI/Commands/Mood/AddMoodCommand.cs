@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.Linq;
 using Dewit.CLI.Utils;
@@ -17,17 +16,18 @@ namespace Dewit.CLI.Commands.Mood
         private readonly Option<string?> _moodOpt;
         private readonly Option<string?> _descriptorsOpt;
 
-        public AddMoodCommand(IMoodService moodService) : base("add", "Log your mood for today.")
+        public AddMoodCommand(IMoodService moodService)
+            : base("add", "Log your mood for today.")
         {
             _moodService = moodService;
 
             _moodOpt = new Option<string?>("--mood")
             {
-                Description = "Your mood: veryhappy, happy, meh, down, extradown"
+                Description = "Your mood: veryhappy, happy, meh, down, extradown",
             };
             _descriptorsOpt = new Option<string?>("--descriptors")
             {
-                Description = "Comma-separated descriptors, e.g. --descriptors calm,focused"
+                Description = "Comma-separated descriptors, e.g. --descriptors calm,focused",
             };
 
             this.Options.Add(_moodOpt);
@@ -50,20 +50,37 @@ namespace Dewit.CLI.Commands.Mood
 
                 if (existing != null)
                 {
-                    Output.WriteText($"[yellow]You already logged a mood for today:[/] {existing.Mood}");
+                    Output.WriteText(
+                        $"[yellow]You already logged a mood for today:[/] {existing.Mood}"
+                    );
                     var update = AnsiConsole.Confirm("Would you like to update it instead?");
-                    if (!update) return;
+                    if (!update)
+                        return;
 
-                    var (mood, descriptors) = ResolveMoodAndDescriptors(moodInput, descriptorsInput, existing.Mood);
+                    var (mood, descriptors) = ResolveMoodAndDescriptors(
+                        moodInput,
+                        descriptorsInput,
+                        existing.Mood
+                    );
                     _moodService.UpdateEntry(today, mood, descriptors);
                     Output.WriteText($"[green]Updated today's mood to[/] {mood}.");
                     return;
                 }
 
-                var (selectedMood, selectedDescriptors) = ResolveMoodAndDescriptors(moodInput, descriptorsInput, null);
+                var (selectedMood, selectedDescriptors) = ResolveMoodAndDescriptors(
+                    moodInput,
+                    descriptorsInput,
+                    null
+                );
                 _moodService.AddEntry(selectedMood, selectedDescriptors, today);
-                Output.WriteText($"[green]Logged mood:[/] {selectedMood}" +
-                    (string.IsNullOrEmpty(selectedDescriptors) ? "" : $" | [aqua]{selectedDescriptors}[/]"));
+                Output.WriteText(
+                    $"[green]Logged mood:[/] {selectedMood}"
+                        + (
+                            string.IsNullOrEmpty(selectedDescriptors)
+                                ? ""
+                                : $" | [aqua]{selectedDescriptors}[/]"
+                        )
+                );
             }
             catch (Exception ex)
             {
@@ -73,7 +90,10 @@ namespace Dewit.CLI.Commands.Mood
         }
 
         private (string mood, string descriptors) ResolveMoodAndDescriptors(
-            string? moodInput, string? descriptorsInput, string? currentMood)
+            string? moodInput,
+            string? descriptorsInput,
+            string? currentMood
+        )
         {
             string mood;
 
@@ -111,7 +131,9 @@ namespace Dewit.CLI.Commands.Mood
                 else
                 {
                     var multiPrompt = new MultiSelectionPrompt<string>()
-                        .Title($"What's contributing to feeling [bold]{mood}[/]? (space to select, enter to confirm)")
+                        .Title(
+                            $"What's contributing to feeling [bold]{mood}[/]? (space to select, enter to confirm)"
+                        )
                         .NotRequired()
                         .AddChoices(available);
 

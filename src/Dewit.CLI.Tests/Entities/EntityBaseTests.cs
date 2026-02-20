@@ -11,7 +11,7 @@ public class EntityBaseTests
         {
             TaskDescription = "Test task",
             Status = "Doing",
-            AddedOn = DateTime.Now
+            AddedOn = DateTime.Now,
         };
 
         EntityBase entityBase = task; // Should compile if TaskItem inherits from EntityBase
@@ -26,7 +26,7 @@ public class EntityBaseTests
         {
             TaskDescription = "Test task",
             Status = "Doing",
-            AddedOn = DateTime.Now
+            AddedOn = DateTime.Now,
         };
 
         await Assert.That(task.Id).IsTypeOf<int>();
@@ -39,7 +39,7 @@ public class EntityBaseTests
         {
             TaskDescription = "Test task",
             Status = "Doing",
-            AddedOn = DateTime.Now
+            AddedOn = DateTime.Now,
         };
 
         await Assert.That(task.Id).IsEqualTo(0);
@@ -55,7 +55,7 @@ public class EntityBaseTests
             Status = "Doing",
             Tags = "test,core",
             AddedOn = now,
-            CompletedOn = DateTime.MinValue
+            CompletedOn = DateTime.MinValue,
         };
 
         await Assert.That(task.TaskDescription).IsEqualTo("Test task from Core");

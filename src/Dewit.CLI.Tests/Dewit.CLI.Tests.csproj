@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -19,5 +18,4 @@
     <ProjectReference Include="..\Dewit.Core\Dewit.Core.csproj" />
     <ProjectReference Include="..\Dewit.Data\Dewit.Data.csproj" />
   </ItemGroup>
-
 </Project>

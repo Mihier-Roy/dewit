@@ -10,7 +10,8 @@ namespace Dewit.CLI.Commands.Config
     {
         private readonly IConfigurationService _configService;
 
-        public ConfigListCommand(IConfigurationService configService) : base("list", "List all configuration values.")
+        public ConfigListCommand(IConfigurationService configService)
+            : base("list", "List all configuration values.")
         {
             _configService = configService;
             this.SetAction(_ => Run());

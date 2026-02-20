@@ -15,7 +15,8 @@ namespace Dewit.Core.Services
         public MoodService(
             IRepository<MoodEntry> moodRepo,
             IRepository<MoodDescriptorItem> descriptorRepo,
-            ILogger<MoodService> logger)
+            ILogger<MoodService> logger
+        )
         {
             _moodRepo = moodRepo;
             _descriptorRepo = descriptorRepo;
@@ -32,7 +33,8 @@ namespace Dewit.Core.Services
         {
             var start = from.Date;
             var end = to.Date;
-            return _moodRepo.List()
+            return _moodRepo
+                .List()
                 .Where(e => e.Date >= start && e.Date <= end)
                 .OrderBy(e => e.Date);
         }
@@ -44,14 +46,16 @@ namespace Dewit.Core.Services
             if (GetEntryForDate(target) != null)
             {
                 _logger.LogError("Mood entry already exists for {Date}", target);
-                throw new InvalidOperationException($"A mood entry already exists for {target:yyyy-MM-dd}. Use 'mood update' to change it.");
+                throw new InvalidOperationException(
+                    $"A mood entry already exists for {target:yyyy-MM-dd}. Use 'mood update' to change it."
+                );
             }
 
             var entry = new MoodEntry
             {
                 Mood = mood,
                 Descriptors = descriptors,
-                Date = target
+                Date = target,
             };
 
             try
@@ -74,11 +78,15 @@ namespace Dewit.Core.Services
             if (entry == null)
             {
                 _logger.LogError("No mood entry found for {Date}", target);
-                throw new ApplicationException($"No mood entry found for {target:yyyy-MM-dd}. Use 'mood add' to create one.");
+                throw new ApplicationException(
+                    $"No mood entry found for {target:yyyy-MM-dd}. Use 'mood add' to create one."
+                );
             }
 
-            if (mood != null) entry.Mood = mood;
-            if (descriptors != null) entry.Descriptors = descriptors;
+            if (mood != null)
+                entry.Mood = mood;
+            if (descriptors != null)
+                entry.Descriptors = descriptors;
 
             try
             {
@@ -88,19 +96,26 @@ namespace Dewit.Core.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to update mood entry for {Date}", target);
-                throw new ApplicationException($"Failed to update mood entry for {target:yyyy-MM-dd}", ex);
+                throw new ApplicationException(
+                    $"Failed to update mood entry for {target:yyyy-MM-dd}",
+                    ex
+                );
             }
         }
 
         public IEnumerable<string> GetDescriptors(string mood)
         {
-            var row = _descriptorRepo.List()
+            var row = _descriptorRepo
+                .List()
                 .FirstOrDefault(d => d.Mood.Equals(mood, StringComparison.OrdinalIgnoreCase));
 
-            if (row == null) return [];
+            if (row == null)
+                return [];
 
-            return row.Descriptors
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            return row.Descriptors.Split(
+                ',',
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+            );
         }
 
         public IEnumerable<MoodDescriptorItem> GetAllDescriptors()
@@ -110,7 +125,8 @@ namespace Dewit.Core.Services
 
         public void SetDescriptors(string mood, string descriptors)
         {
-            var existing = _descriptorRepo.List()
+            var existing = _descriptorRepo
+                .List()
                 .FirstOrDefault(d => d.Mood.Equals(mood, StringComparison.OrdinalIgnoreCase));
 
             if (existing != null)
@@ -120,7 +136,9 @@ namespace Dewit.Core.Services
             }
             else
             {
-                _descriptorRepo.Add(new MoodDescriptorItem { Mood = mood, Descriptors = descriptors });
+                _descriptorRepo.Add(
+                    new MoodDescriptorItem { Mood = mood, Descriptors = descriptors }
+                );
             }
 
             _logger.LogInformation("Updated descriptors for mood {Mood}", mood);

@@ -16,8 +16,14 @@ namespace Dewit.CLI.Commands.Config
         {
             _moodService = moodService;
 
-            _moodArg = new Argument<string>("mood") { Description = "The mood to update (e.g. Happy, VeryHappy, Meh, Down, ExtraDown)." };
-            _descriptorsArg = new Argument<string>("descriptors") { Description = "Comma-separated list of descriptors." };
+            _moodArg = new Argument<string>("mood")
+            {
+                Description = "The mood to update (e.g. Happy, VeryHappy, Meh, Down, ExtraDown).",
+            };
+            _descriptorsArg = new Argument<string>("descriptors")
+            {
+                Description = "Comma-separated list of descriptors.",
+            };
 
             this.Arguments.Add(_moodArg);
             this.Arguments.Add(_descriptorsArg);
@@ -34,12 +40,16 @@ namespace Dewit.CLI.Commands.Config
         {
             if (!MoodExtensions.TryParse(mood, out var moodEnum))
             {
-                Output.WriteError($"Unknown mood '{mood}'. Valid moods: VeryHappy, Happy, Meh, Down, ExtraDown.");
+                Output.WriteError(
+                    $"Unknown mood '{mood}'. Valid moods: VeryHappy, Happy, Meh, Down, ExtraDown."
+                );
                 return;
             }
 
             _moodService.SetDescriptors(moodEnum.ToString(), descriptors);
-            Output.WriteText($"[green]Descriptors updated[/] for [bold]{moodEnum.ToDisplayName()}[/].");
+            Output.WriteText(
+                $"[green]Descriptors updated[/] for [bold]{moodEnum.ToDisplayName()}[/]."
+            );
         }
     }
 }

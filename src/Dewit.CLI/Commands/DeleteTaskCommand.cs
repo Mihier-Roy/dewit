@@ -12,14 +12,12 @@ namespace Dewit.CLI.Commands
         private readonly ITaskService _taskService;
         private readonly Argument<int> _idArg;
 
-        public DeleteTaskCommand(ITaskService taskService, string name, string? description = null) : base(name, description)
+        public DeleteTaskCommand(ITaskService taskService, string name, string? description = null)
+            : base(name, description)
         {
             _taskService = taskService;
 
-            _idArg = new Argument<int>("id")
-            {
-                Description = "ID of the task to be deleted."
-            };
+            _idArg = new Argument<int>("id") { Description = "ID of the task to be deleted." };
             this.Arguments.Add(_idArg);
 
             this.SetAction(parseResult =>
@@ -40,7 +38,9 @@ namespace Dewit.CLI.Commands
                 if (task == null)
                 {
                     Log.Error($"Task with ID {id} does not exist.");
-                    Output.WriteError($"Task with ID {id} does not exist. View all tasks with -> dewit list");
+                    Output.WriteError(
+                        $"Task with ID {id} does not exist. View all tasks with -> dewit list"
+                    );
                     return;
                 }
 

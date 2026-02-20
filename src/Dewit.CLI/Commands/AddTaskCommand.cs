@@ -13,18 +13,20 @@ namespace Dewit.CLI.Commands
         private readonly Argument<string> _titleArg;
         private readonly Option<string?> _tagsOpt;
 
-        public AddTaskCommand(ITaskService taskService, string name, string? description = null) : base(name, description)
+        public AddTaskCommand(ITaskService taskService, string name, string? description = null)
+            : base(name, description)
         {
             _taskService = taskService;
             _name = name;
 
             _titleArg = new Argument<string>("title")
             {
-                Description = "Description of the task you're currently performing."
+                Description = "Description of the task you're currently performing.",
             };
             _tagsOpt = new Option<string?>("--tags")
             {
-                Description = "Comma-separated list of tags to identify your task. Example : --tags work,testing"
+                Description =
+                    "Comma-separated list of tags to identify your task. Example : --tags work,testing",
             };
 
             this.Arguments.Add(_titleArg);
@@ -46,7 +48,9 @@ namespace Dewit.CLI.Commands
                 _taskService.AddTask(title, status, tags);
 
                 Log.Information($"Added a new task : {title}, Status = {status}, Tags = {tags}");
-                Output.WriteText($"[green]Added a new task[/] : {title}, [aqua]Status[/] = {status}, [aqua]Tags[/] = {tags}");
+                Output.WriteText(
+                    $"[green]Added a new task[/] : {title}, [aqua]Status[/] = {status}, [aqua]Tags[/] = {tags}"
+                );
             }
             catch (Exception ex)
             {

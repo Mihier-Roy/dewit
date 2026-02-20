@@ -13,7 +13,8 @@ namespace Dewit.CLI.Commands.Config
     {
         private readonly IMoodService _moodService;
 
-        public DescriptorsListCommand(IMoodService moodService) : base("list", "List descriptors for all moods.")
+        public DescriptorsListCommand(IMoodService moodService)
+            : base("list", "List descriptors for all moods.")
         {
             _moodService = moodService;
             this.SetAction(_ => Run());
@@ -35,7 +36,9 @@ namespace Dewit.CLI.Commands.Config
 
             foreach (var item in items)
             {
-                var color = MoodExtensions.ToSpectreColor(Enum.Parse<MoodEnum>(item.Mood, ignoreCase: true));
+                var color = MoodExtensions.ToSpectreColor(
+                    Enum.Parse<MoodEnum>(item.Mood, ignoreCase: true)
+                );
                 table.AddRow($"[{color}]{item.Mood}[/]", item.Descriptors);
             }
 

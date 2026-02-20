@@ -6,7 +6,6 @@ using Dewit.Data.Data;
 using Dewit.Data.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace Dewit.CLI
@@ -18,9 +17,11 @@ namespace Dewit.CLI
             // Configure Logging
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.File("logs/dewit.log",
+                .WriteTo.File(
+                    "logs/dewit.log",
                     rollingInterval: RollingInterval.Day,
-                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+                )
                 .CreateLogger();
 
             try
@@ -36,7 +37,9 @@ namespace Dewit.CLI
                 _db.Database.Migrate();
 
                 // Seed mood descriptors into dedicated table
-                var descriptorRepo = serviceProvider.GetRequiredService<IRepository<Dewit.Core.Entities.MoodDescriptorItem>>();
+                var descriptorRepo = serviceProvider.GetRequiredService<
+                    IRepository<Dewit.Core.Entities.MoodDescriptorItem>
+                >();
                 MoodDescriptorDefaults.SeedIfMissing(descriptorRepo);
 
                 // Seed default export filename config if missing
@@ -52,13 +55,14 @@ namespace Dewit.CLI
             catch (Exception ex)
             {
                 Log.Error(ex, "Something went wrong during execution.");
-                Console.WriteLine("ERROR : An error occured while executing the last task. Please try again.");
+                Console.WriteLine(
+                    "ERROR : An error occured while executing the last task. Please try again."
+                );
             }
             finally
             {
                 Log.CloseAndFlush();
             }
-
         }
 
         private static IServiceCollection ConfigureServices()

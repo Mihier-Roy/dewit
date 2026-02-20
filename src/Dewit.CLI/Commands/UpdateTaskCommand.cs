@@ -15,29 +15,28 @@ namespace Dewit.CLI.Commands
         private readonly Option<string?> _removeTagsOpt;
         private readonly Option<bool> _resetTagsOpt;
 
-        public UpdateTaskCommand(ITaskService taskService, string name, string? description = null) : base(name, description)
+        public UpdateTaskCommand(ITaskService taskService, string name, string? description = null)
+            : base(name, description)
         {
             _taskService = taskService;
 
-            _idArg = new Argument<int>("id")
-            {
-                Description = "ID of the task you wish to update."
-            };
+            _idArg = new Argument<int>("id") { Description = "ID of the task you wish to update." };
             _titleOpt = new Option<string?>("--title")
             {
-                Description = "Change the description of the task."
+                Description = "Change the description of the task.",
             };
             _addTagsOpt = new Option<string?>("--add-tags")
             {
-                Description = "Add new tag(s) to an existing task. Example --add-tags work,test"
+                Description = "Add new tag(s) to an existing task. Example --add-tags work,test",
             };
             _removeTagsOpt = new Option<string?>("--remove-tags")
             {
-                Description = "Remove tag(s) from an existing task. Example --remove-tags work,test"
+                Description =
+                    "Remove tag(s) from an existing task. Example --remove-tags work,test",
             };
             _resetTagsOpt = new Option<bool>("--reset-tags")
             {
-                Description = "Remove all tags from an existing task."
+                Description = "Remove all tags from an existing task.",
             };
 
             this.Arguments.Add(_idArg);
@@ -57,14 +56,30 @@ namespace Dewit.CLI.Commands
             });
         }
 
-        private void UpdateTaskDetails(int id, string? title = null, string? addTags = null, string? removeTags = null, bool resetTags = false)
+        private void UpdateTaskDetails(
+            int id,
+            string? title = null,
+            string? addTags = null,
+            string? removeTags = null,
+            bool resetTags = false
+        )
         {
             try
             {
-                var task = _taskService.UpdateTaskDetails(id, title, addTags, removeTags, resetTags);
+                var task = _taskService.UpdateTaskDetails(
+                    id,
+                    title,
+                    addTags,
+                    removeTags,
+                    resetTags
+                );
 
-                Log.Information($"Successfully updated task : {task.Id} | {task.TaskDescription} | {task.Tags}");
-                Output.WriteText($"[green]Successfully updated task[/] : {task.Id} | {task.TaskDescription} | {task.Tags}");
+                Log.Information(
+                    $"Successfully updated task : {task.Id} | {task.TaskDescription} | {task.Tags}"
+                );
+                Output.WriteText(
+                    $"[green]Successfully updated task[/] : {task.Id} | {task.TaskDescription} | {task.Tags}"
+                );
             }
             catch (ApplicationException ex)
             {

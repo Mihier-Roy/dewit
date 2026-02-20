@@ -13,7 +13,12 @@ namespace Dewit.CLI
         private readonly IMoodService _moodService;
         private readonly IConfigurationService _configService;
 
-        public App(ITaskService taskService, IDataConverter dataConverter, IMoodService moodService, IConfigurationService configService)
+        public App(
+            ITaskService taskService,
+            IDataConverter dataConverter,
+            IMoodService moodService,
+            IConfigurationService configService
+        )
         {
             _taskService = taskService;
             _dataConverter = dataConverter;
@@ -23,7 +28,8 @@ namespace Dewit.CLI
 
         public void Run(string[] args)
         {
-            var rootCommand = new RootCommand("dewit"){
+            var rootCommand = new RootCommand("dewit")
+            {
                 new AddTaskCommand(_taskService, "now"),
                 new AddTaskCommand(_taskService, "later"),
                 new UpdateStatusCommand(_taskService, "done"),

@@ -17,14 +17,21 @@ namespace Dewit.Core.Services
             _logger = logger;
         }
 
-        public IEnumerable<TaskItem> GetTasks(string sort = "date",
+        public IEnumerable<TaskItem> GetTasks(
+            string sort = "date",
             string duration = "today",
             string? status = null,
             string? tags = null,
-            string? search = null)
+            string? search = null
+        )
         {
-            _logger.LogInformation("Retrieving tasks with filters - Duration: {Duration}, Status: {Status}, Tags: {Tags}, Search: {Search}",
-                duration, status, tags, search);
+            _logger.LogInformation(
+                "Retrieving tasks with filters - Duration: {Duration}, Status: {Status}, Tags: {Tags}, Search: {Search}",
+                duration,
+                status,
+                tags,
+                search
+            );
 
             var tasks = _repository.List().AsEnumerable();
 
@@ -35,7 +42,7 @@ namespace Dewit.Core.Services
                 "today" => tasks.Where(p => p.AddedOn.Date == DateTime.Today.Date),
                 "week" => tasks.Where(p => p.AddedOn.Date > DateTime.Today.AddDays(-7)),
                 "month" => tasks.Where(p => p.AddedOn.Date > DateTime.Today.AddDays(-30)),
-                _ => tasks
+                _ => tasks,
             };
 
             // Filter by status
@@ -46,7 +53,7 @@ namespace Dewit.Core.Services
                     "doing" => "Doing",
                     "done" => "Done",
                     "later" => "Later",
-                    _ => null
+                    _ => null,
                 };
 
                 if (statusFilter != null)
@@ -56,7 +63,9 @@ namespace Dewit.Core.Services
             // Filter by search
             if (!string.IsNullOrEmpty(search))
             {
-                tasks = tasks.Where(p => p.TaskDescription.Contains(search, StringComparison.OrdinalIgnoreCase));
+                tasks = tasks.Where(p =>
+                    p.TaskDescription.Contains(search, StringComparison.OrdinalIgnoreCase)
+                );
             }
 
             // Filter by tags
@@ -71,7 +80,7 @@ namespace Dewit.Core.Services
             tasks = sort switch
             {
                 "status" => tasks.OrderBy(p => p.Status),
-                _ => tasks.OrderByDescending(p => p.AddedOn)
+                _ => tasks.OrderByDescending(p => p.AddedOn),
             };
 
             return tasks;
@@ -79,7 +88,12 @@ namespace Dewit.Core.Services
 
         public void AddTask(string title, string status, string? tags = null)
         {
-            _logger.LogInformation("Adding new task: {Title}, Status: {Status}, Tags: {Tags}", title, status, tags);
+            _logger.LogInformation(
+                "Adding new task: {Title}, Status: {Status}, Tags: {Tags}",
+                title,
+                status,
+                tags
+            );
 
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -99,7 +113,7 @@ namespace Dewit.Core.Services
                 TaskDescription = title,
                 AddedOn = DateTime.Now,
                 Status = status,
-                Tags = tags ?? string.Empty
+                Tags = tags ?? string.Empty,
             };
 
             try
@@ -161,7 +175,10 @@ namespace Dewit.Core.Services
                 else
                 {
                     _logger.LogError("Failed to parse completion date: {CompletedAt}", completedAt);
-                    throw new ArgumentException($"Invalid date format: {completedAt}", nameof(completedAt));
+                    throw new ArgumentException(
+                        $"Invalid date format: {completedAt}",
+                        nameof(completedAt)
+                    );
                 }
             }
             else
@@ -174,7 +191,11 @@ namespace Dewit.Core.Services
             try
             {
                 _repository.Update(task);
-                _logger.LogInformation("Successfully completed task: {TaskId} | {TaskDescription}", task.Id, task.TaskDescription);
+                _logger.LogInformation(
+                    "Successfully completed task: {TaskId} | {TaskDescription}",
+                    task.Id,
+                    task.TaskDescription
+                );
             }
             catch (Exception ex)
             {
@@ -183,13 +204,22 @@ namespace Dewit.Core.Services
             }
         }
 
-        public TaskItem UpdateTaskDetails(int id, string? title = null,
+        public TaskItem UpdateTaskDetails(
+            int id,
+            string? title = null,
             string? addTags = null,
             string? removeTags = null,
-            bool resetTags = false)
+            bool resetTags = false
+        )
         {
-            _logger.LogInformation("Updating task with ID: {TaskId}. Title: {Title}, AddTags: {AddTags}, RemoveTags: {RemoveTags}, ResetTags: {ResetTags}",
-                id, title, addTags, removeTags, resetTags);
+            _logger.LogInformation(
+                "Updating task with ID: {TaskId}. Title: {Title}, AddTags: {AddTags}, RemoveTags: {RemoveTags}, ResetTags: {ResetTags}",
+                id,
+                title,
+                addTags,
+                removeTags,
+                resetTags
+            );
 
             var task = _repository.GetById(id);
             if (task == null)
@@ -232,7 +262,11 @@ namespace Dewit.Core.Services
             try
             {
                 _repository.Update(task);
-                _logger.LogInformation("Successfully updated task: {TaskId} | {TaskDescription}", task.Id, task.TaskDescription);
+                _logger.LogInformation(
+                    "Successfully updated task: {TaskId} | {TaskDescription}",
+                    task.Id,
+                    task.TaskDescription
+                );
                 return task;
             }
             catch (Exception ex)
@@ -253,7 +287,11 @@ namespace Dewit.Core.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to import task: {TaskDescription}", taskItem.TaskDescription);
+                _logger.LogError(
+                    ex,
+                    "Failed to import task: {TaskDescription}",
+                    taskItem.TaskDescription
+                );
                 throw new ApplicationException("Failed to import task", ex);
             }
         }

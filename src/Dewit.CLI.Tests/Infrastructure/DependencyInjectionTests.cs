@@ -17,15 +17,18 @@ public class DependencyInjectionTests
         var services = new ServiceCollection();
 
         var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                {"ConnectionStrings:Sqlite", "Data Source=:memory:"}
-            })
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    { "ConnectionStrings:Sqlite", "Data Source=:memory:" },
+                }
+            )
             .Build();
 
         services.AddSingleton<IConfiguration>(config);
         services.AddDbContext<DewitDbContext>(opts =>
-            opts.UseInMemoryDatabase($"Test_{Guid.NewGuid()}"));
+            opts.UseInMemoryDatabase($"Test_{Guid.NewGuid()}")
+        );
         services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
         services.AddLogging();
         services.AddTransient<ITaskService, TaskService>();
@@ -94,7 +97,7 @@ public class DependencyInjectionTests
         {
             TaskDescription = "Test repo via DI",
             Status = "Doing",
-            AddedOn = DateTime.Now
+            AddedOn = DateTime.Now,
         };
 
         repo.Add(task);

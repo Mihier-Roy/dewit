@@ -5,7 +5,15 @@ namespace Dewit.Core.Utils
     public static class DateParser
     {
         private static readonly string[] DayNames =
-            ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+        [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday",
+        ];
 
         public static DateTime Parse(string input)
         {
@@ -13,13 +21,15 @@ namespace Dewit.Core.Utils
 
             DateTime result = normalized switch
             {
-                "today"     => DateTime.Today,
+                "today" => DateTime.Today,
                 "yesterday" => DateTime.Today.AddDays(-1),
-                _           => TryParseNaturalOrFormatted(normalized)
+                _ => TryParseNaturalOrFormatted(normalized),
             };
 
             if (result.Date > DateTime.Today)
-                throw new ArgumentException($"Date '{input}' is in the future. Only past or today dates are allowed.");
+                throw new ArgumentException(
+                    $"Date '{input}' is in the future. Only past or today dates are allowed."
+                );
 
             return result.Date; // strip time component
         }
@@ -36,24 +46,40 @@ namespace Dewit.Core.Utils
             }
 
             // "YYYY-MM-DD"
-            if (DateTime.TryParseExact(input, "yyyy-MM-dd",
-                CultureInfo.InvariantCulture, DateTimeStyles.None, out var full))
+            if (
+                DateTime.TryParseExact(
+                    input,
+                    "yyyy-MM-dd",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out var full
+                )
+            )
                 return full;
 
             // "MM-DD" → assume current year
-            if (DateTime.TryParseExact($"{DateTime.Today.Year}-{input}", "yyyy-MM-dd",
-                CultureInfo.InvariantCulture, DateTimeStyles.None, out var monthDay))
+            if (
+                DateTime.TryParseExact(
+                    $"{DateTime.Today.Year}-{input}",
+                    "yyyy-MM-dd",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out var monthDay
+                )
+            )
                 return monthDay;
 
             throw new ArgumentException(
-                $"Cannot parse date '{input}'. Accepted formats: today, yesterday, last monday, YYYY-MM-DD, MM-DD.");
+                $"Cannot parse date '{input}'. Accepted formats: today, yesterday, last monday, YYYY-MM-DD, MM-DD."
+            );
         }
 
         private static DateTime GetLastWeekday(DayOfWeek target)
         {
             var today = DateTime.Today;
             var daysBack = ((int)today.DayOfWeek - (int)target + 7) % 7;
-            if (daysBack == 0) daysBack = 7; // "last monday" when today is Monday = 7 days ago
+            if (daysBack == 0)
+                daysBack = 7; // "last monday" when today is Monday = 7 days ago
             return today.AddDays(-daysBack);
         }
     }

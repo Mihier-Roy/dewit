@@ -9,7 +9,10 @@ namespace Dewit.Core.Services
         private readonly IRepository<ConfigItem> _repository;
         private readonly ILogger<ConfigurationService> _logger;
 
-        public ConfigurationService(IRepository<ConfigItem> repository, ILogger<ConfigurationService> logger)
+        public ConfigurationService(
+            IRepository<ConfigItem> repository,
+            ILogger<ConfigurationService> logger
+        )
         {
             _repository = repository;
             _logger = logger;
@@ -19,7 +22,8 @@ namespace Dewit.Core.Services
         {
             _logger.LogDebug("Getting configuration value for key: {Key}", key);
 
-            var configItem = _repository.List()
+            var configItem = _repository
+                .List()
                 .FirstOrDefault(c => c.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
 
             return configItem?.Value;
@@ -35,7 +39,8 @@ namespace Dewit.Core.Services
                 throw new ArgumentException("Configuration key cannot be empty", nameof(key));
             }
 
-            var existingItem = _repository.List()
+            var existingItem = _repository
+                .List()
                 .FirstOrDefault(c => c.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
 
             if (existingItem != null)
@@ -54,7 +59,7 @@ namespace Dewit.Core.Services
                     Key = key,
                     Value = value,
                     CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
+                    UpdatedAt = DateTime.Now,
                 };
                 _repository.Add(newItem);
                 _logger.LogInformation("Created new configuration: {Key}", key);
@@ -65,7 +70,8 @@ namespace Dewit.Core.Services
         {
             _logger.LogInformation("Deleting configuration value for key: {Key}", key);
 
-            var configItem = _repository.List()
+            var configItem = _repository
+                .List()
                 .FirstOrDefault(c => c.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
 
             if (configItem != null)
@@ -81,7 +87,8 @@ namespace Dewit.Core.Services
 
         public bool KeyExists(string key)
         {
-            return _repository.List()
+            return _repository
+                .List()
                 .Any(c => c.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -89,7 +96,8 @@ namespace Dewit.Core.Services
         {
             _logger.LogDebug("Getting all configuration values");
 
-            return _repository.List()
+            return _repository
+                .List()
                 .Select(c => new KeyValuePair<string, string>(c.Key, c.Value))
                 .ToList();
         }

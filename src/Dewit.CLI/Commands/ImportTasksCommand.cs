@@ -16,19 +16,22 @@ namespace Dewit.CLI.Commands
         private readonly Argument<FileInfo> _pathArg;
         private readonly Option<string> _formatOpt;
 
-        public ImportTasksCommand(ITaskService taskService, IDataConverter dataConverter, string name, string? description = null) : base(name, description)
+        public ImportTasksCommand(
+            ITaskService taskService,
+            IDataConverter dataConverter,
+            string name,
+            string? description = null
+        )
+            : base(name, description)
         {
             _taskService = taskService;
             _dataConverter = dataConverter;
 
-            _pathArg = new Argument<FileInfo>("path")
-            {
-                Description = "Path to import data."
-            };
+            _pathArg = new Argument<FileInfo>("path") { Description = "Path to import data." };
             _formatOpt = new Option<string>("--format")
             {
                 Description = "Import format. Default format is JSON.",
-                DefaultValueFactory = _ => "json"
+                DefaultValueFactory = _ => "json",
             };
             _formatOpt.AcceptOnlyFromAmong("csv", "json");
 
@@ -56,7 +59,10 @@ namespace Dewit.CLI.Commands
             try
             {
                 var dataFormat = format.ToLower() == "csv" ? DataFormats.Csv : DataFormats.Json;
-                var tasksFromFile = _dataConverter.ImportFromFile<TaskItem>(path.ToString(), dataFormat);
+                var tasksFromFile = _dataConverter.ImportFromFile<TaskItem>(
+                    path.ToString(),
+                    dataFormat
+                );
 
                 foreach (var task in tasksFromFile)
                 {
@@ -64,7 +70,10 @@ namespace Dewit.CLI.Commands
                 }
 
                 Output.WriteText($"[green]Succesfully imported data.[/] Path : {path}");
-                Output.WriteTable(new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" }, tasksFromFile);
+                Output.WriteTable(
+                    new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" },
+                    tasksFromFile
+                );
             }
             catch (Exception ex)
             {

@@ -13,24 +13,26 @@ namespace Dewit.CLI.Commands.Mood
         private readonly Option<string> _durationOpt;
         private readonly Option<string?> _periodOpt;
 
-        public ViewMoodCommand(IMoodService moodService) : base("view", "Display your mood calendar.")
+        public ViewMoodCommand(IMoodService moodService)
+            : base("view", "Display your mood calendar.")
         {
             _moodService = moodService;
 
             _durationOpt = new Option<string>("--duration")
             {
                 Description = "Calendar range: week (default), month, quarter, year.",
-                DefaultValueFactory = _ => "week"
+                DefaultValueFactory = _ => "week",
             };
             _durationOpt.AcceptOnlyFromAmong("week", "month", "quarter", "year");
 
             _periodOpt = new Option<string?>("--period")
             {
-                Description = "Period to display. " +
-                    "month: YYYY-MM (e.g. 2026-02). " +
-                    "quarter: YYYY-Q# (e.g. 2026-Q1). " +
-                    "year: YYYY (e.g. 2026). " +
-                    "Defaults to the current period."
+                Description =
+                    "Period to display. "
+                    + "month: YYYY-MM (e.g. 2026-02). "
+                    + "quarter: YYYY-Q# (e.g. 2026-Q1). "
+                    + "year: YYYY (e.g. 2026). "
+                    + "Defaults to the current period.",
             };
 
             this.Options.Add(_durationOpt);
@@ -39,7 +41,7 @@ namespace Dewit.CLI.Commands.Mood
             this.SetAction(parseResult =>
             {
                 var duration = parseResult.GetValue(_durationOpt);
-                var period   = parseResult.GetValue(_periodOpt);
+                var period = parseResult.GetValue(_periodOpt);
                 Run(duration, period);
             });
         }
@@ -85,56 +87,71 @@ namespace Dewit.CLI.Commands.Mood
 
         private void RenderMonth(string? period)
         {
-            int year, month;
+            int year,
+                month;
             if (period == null)
             {
-                year  = DateTime.Today.Year;
+                year = DateTime.Today.Year;
                 month = DateTime.Today.Month;
             }
-            else if (DateTime.TryParseExact(period, "yyyy-MM",
-                CultureInfo.InvariantCulture,
-                DateTimeStyles.None, out var parsed))
+            else if (
+                DateTime.TryParseExact(
+                    period,
+                    "yyyy-MM",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out var parsed
+                )
+            )
             {
-                year  = parsed.Year;
+                year = parsed.Year;
                 month = parsed.Month;
             }
             else
             {
-                throw new ArgumentException($"Invalid month period '{period}'. Use YYYY-MM format, e.g. 2026-02.");
+                throw new ArgumentException(
+                    $"Invalid month period '{period}'. Use YYYY-MM format, e.g. 2026-02."
+                );
             }
 
             var from = new DateTime(year, month, 1);
-            var to   = from.AddMonths(1).AddDays(-1);
+            var to = from.AddMonths(1).AddDays(-1);
             var entries = _moodService.GetEntriesInRange(from, to);
             MoodCalendar.RenderMonth(year, month, entries);
         }
 
         private void RenderQuarter(string? period)
         {
-            int year, quarter;
+            int year,
+                quarter;
             if (period == null)
             {
-                year    = DateTime.Today.Year;
+                year = DateTime.Today.Year;
                 quarter = (DateTime.Today.Month - 1) / 3 + 1;
             }
             else
             {
                 // Expects "YYYY-Q#"
                 var parts = period.Split('-');
-                if (parts.Length != 2 ||
-                    !int.TryParse(parts[0], out year) ||
-                    parts[1].Length != 2 ||
-                    parts[1][0] != 'Q' ||
-                    !int.TryParse(parts[1][1..], out quarter) ||
-                    quarter < 1 || quarter > 4)
+                if (
+                    parts.Length != 2
+                    || !int.TryParse(parts[0], out year)
+                    || parts[1].Length != 2
+                    || parts[1][0] != 'Q'
+                    || !int.TryParse(parts[1][1..], out quarter)
+                    || quarter < 1
+                    || quarter > 4
+                )
                 {
-                    throw new ArgumentException($"Invalid quarter period '{period}'. Use YYYY-Q# format, e.g. 2026-Q1.");
+                    throw new ArgumentException(
+                        $"Invalid quarter period '{period}'. Use YYYY-Q# format, e.g. 2026-Q1."
+                    );
                 }
             }
 
             var startMonth = (quarter - 1) * 3 + 1;
-            var from   = new DateTime(year, startMonth, 1);
-            var to     = from.AddMonths(3).AddDays(-1);
+            var from = new DateTime(year, startMonth, 1);
+            var to = from.AddMonths(3).AddDays(-1);
             var entries = _moodService.GetEntriesInRange(from, to);
             MoodCalendar.RenderQuarter(year, quarter, entries);
         }
@@ -148,11 +165,13 @@ namespace Dewit.CLI.Commands.Mood
             }
             else if (!int.TryParse(period, out year))
             {
-                throw new ArgumentException($"Invalid year period '{period}'. Use YYYY format, e.g. 2026.");
+                throw new ArgumentException(
+                    $"Invalid year period '{period}'. Use YYYY format, e.g. 2026."
+                );
             }
 
-            var from    = new DateTime(year, 1, 1);
-            var to      = new DateTime(year, 12, 31);
+            var from = new DateTime(year, 1, 1);
+            var to = new DateTime(year, 12, 31);
             var entries = _moodService.GetEntriesInRange(from, to);
             MoodCalendar.RenderYear(year, entries);
         }

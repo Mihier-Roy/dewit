@@ -6,7 +6,10 @@ namespace Dewit.Core.Utils
     {
         public static string SanitizeTags(string input)
         {
-            Regex r = new("(?:[^a-z0-9,_])", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+            Regex r = new(
+                "(?:[^a-z0-9,_])",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled
+            );
             var output = r.Replace(input, string.Empty).ToLower();
             return output[^1] == ',' ? output.Remove(output.Length - 1) : output;
         }

@@ -15,37 +15,39 @@ namespace Dewit.CLI.Commands
         private readonly Option<string?> _tagsOpt;
         private readonly Option<string?> _searchOpt;
 
-        public GetTasksCommand(ITaskService taskService, string name, string? description = null) : base(name, description)
+        public GetTasksCommand(ITaskService taskService, string name, string? description = null)
+            : base(name, description)
         {
             _taskService = taskService;
 
             _sortOpt = new Option<string>("--sort")
             {
                 Description = "Sort tasks by status or date. Default is <date>",
-                DefaultValueFactory = _ => "date"
+                DefaultValueFactory = _ => "date",
             };
             _sortOpt.AcceptOnlyFromAmong("status", "date");
 
             _durationOpt = new Option<string>("--duration")
             {
-                Description = "Show tasks between the specified duration. Default is set to <today>.",
-                DefaultValueFactory = _ => "today"
+                Description =
+                    "Show tasks between the specified duration. Default is set to <today>.",
+                DefaultValueFactory = _ => "today",
             };
             _durationOpt.AcceptOnlyFromAmong("all", "yesterday", "today", "week", "month");
 
             _statusOpt = new Option<string?>("--status")
             {
-                Description = "Show tasks of specified status."
+                Description = "Show tasks of specified status.",
             };
             _statusOpt.AcceptOnlyFromAmong("doing", "done", "later");
 
             _tagsOpt = new Option<string?>("--tags")
             {
-                Description = "Filter tasks based on tags."
+                Description = "Filter tasks based on tags.",
             };
             _searchOpt = new Option<string?>("--search")
             {
-                Description = "Search for tasks that contain the input string."
+                Description = "Search for tasks that contain the input string.",
             };
 
             this.Options.Add(_sortOpt);
@@ -65,14 +67,25 @@ namespace Dewit.CLI.Commands
             });
         }
 
-        private void GetTasks(string sort, string duration, string? status = null, string? tags = null, string? search = null)
+        private void GetTasks(
+            string sort,
+            string duration,
+            string? status = null,
+            string? tags = null,
+            string? search = null
+        )
         {
             try
             {
                 var tasks = _taskService.GetTasks(sort, duration, status, tags, search);
 
-                Output.WriteText($"Displaying tasks using parameters -> [aqua]sort[/]: {sort}, [aqua]duration[/] : {duration}, [aqua]status[/]: {status ?? "n/a"}, [aqua]tags[/]:{tags}");
-                Output.WriteTable(new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" }, tasks);
+                Output.WriteText(
+                    $"Displaying tasks using parameters -> [aqua]sort[/]: {sort}, [aqua]duration[/] : {duration}, [aqua]status[/]: {status ?? "n/a"}, [aqua]tags[/]:{tags}"
+                );
+                Output.WriteTable(
+                    new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" },
+                    tasks
+                );
             }
             catch (Exception ex)
             {

@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Dewit.Data.Data.Repositories
 {
-    public class Repository<T> : IRepository<T> where T : EntityBase
+    public class Repository<T> : IRepository<T>
+        where T : EntityBase
     {
         private readonly DewitDbContext _context;
         private readonly DbSet<T> _dbSet;

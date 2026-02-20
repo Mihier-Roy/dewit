@@ -6,9 +6,8 @@ namespace Dewit.Data.Data
 {
     public class DewitDbContext : DbContext
     {
-        public DewitDbContext(DbContextOptions<DewitDbContext> options) : base(options)
-        {
-        }
+        public DewitDbContext(DbContextOptions<DewitDbContext> options)
+            : base(options) { }
 
         public DbSet<TaskItem> Tasks { get; set; }
         public DbSet<ConfigItem> ConfigItems { get; set; }

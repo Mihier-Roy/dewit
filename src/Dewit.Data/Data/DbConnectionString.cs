@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-
 namespace Dewit.Data.Data
 {
     public static class DbConnectionString
@@ -9,7 +6,9 @@ namespace Dewit.Data.Data
         {
             var configDir = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                ".config", "dewit");
+                ".config",
+                "dewit"
+            );
 
             Directory.CreateDirectory(configDir);
 

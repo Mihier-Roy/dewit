@@ -13,17 +13,19 @@ namespace Dewit.CLI.Commands
         private readonly Argument<int> _idArg;
         private readonly Option<string?> _completedAtOpt;
 
-        public UpdateStatusCommand(ITaskService taskService, string name, string? description = null) : base(name, description)
+        public UpdateStatusCommand(
+            ITaskService taskService,
+            string name,
+            string? description = null
+        )
+            : base(name, description)
         {
             _taskService = taskService;
 
-            _idArg = new Argument<int>("id")
-            {
-                Description = "ID of the task you wish to update."
-            };
+            _idArg = new Argument<int>("id") { Description = "ID of the task you wish to update." };
             _completedAtOpt = new Option<string?>("--completed-at")
             {
-                Description = "Specify when the task was completed"
+                Description = "Specify when the task was completed",
             };
 
             this.Arguments.Add(_idArg);
@@ -50,7 +52,9 @@ namespace Dewit.CLI.Commands
                 if (task != null)
                 {
                     Log.Information($"Completed task : {task.Id} | {task.TaskDescription}");
-                    Output.WriteText($"[green]Completed task[/] : {task.Id} | {task.TaskDescription}");
+                    Output.WriteText(
+                        $"[green]Completed task[/] : {task.Id} | {task.TaskDescription}"
+                    );
                 }
             }
             catch (ApplicationException ex)

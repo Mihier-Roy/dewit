@@ -14,7 +14,7 @@ public class TaskItemTests
             Status = "Doing",
             Tags = "work,test",
             AddedOn = now,
-            CompletedOn = DateTime.MinValue
+            CompletedOn = DateTime.MinValue,
         };
 
         await Assert.That(task.TaskDescription).IsEqualTo("Test task");
@@ -27,11 +27,7 @@ public class TaskItemTests
     [Test]
     public async Task TaskItem_IdDefaultsToZero()
     {
-        var task = new TaskItem
-        {
-            TaskDescription = "New task",
-            Status = "Later"
-        };
+        var task = new TaskItem { TaskDescription = "New task", Status = "Later" };
 
         await Assert.That(task.Id).IsEqualTo(0);
     }
@@ -42,11 +38,7 @@ public class TaskItemTests
     [Arguments("Later")]
     public async Task TaskItem_AcceptsValidStatuses(string status)
     {
-        var task = new TaskItem
-        {
-            TaskDescription = "Test",
-            Status = status
-        };
+        var task = new TaskItem { TaskDescription = "Test", Status = status };
 
         await Assert.That(task.Status).IsEqualTo(status);
     }
@@ -54,11 +46,7 @@ public class TaskItemTests
     [Test]
     public async Task TaskItem_DefaultDateTimeIsMinValue()
     {
-        var task = new TaskItem
-        {
-            TaskDescription = "Test",
-            Status = "Doing"
-        };
+        var task = new TaskItem { TaskDescription = "Test", Status = "Doing" };
 
         await Assert.That(task.CompletedOn).IsEqualTo(DateTime.MinValue);
     }
@@ -70,7 +58,7 @@ public class TaskItemTests
         {
             TaskDescription = "Test",
             Status = "Doing",
-            Tags = null!
+            Tags = null!,
         };
 
         await Assert.That(task.Tags).IsNull();

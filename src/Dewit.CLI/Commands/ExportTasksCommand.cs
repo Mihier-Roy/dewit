@@ -17,7 +17,14 @@ namespace Dewit.CLI.Commands
         private readonly Option<FileInfo?> _pathOpt;
         private readonly Option<string> _formatOpt;
 
-        public ExportTasksCommand(ITaskService taskService, IDataConverter dataConverter, IConfigurationService configService, string name, string? description = null) : base(name, description)
+        public ExportTasksCommand(
+            ITaskService taskService,
+            IDataConverter dataConverter,
+            IConfigurationService configService,
+            string name,
+            string? description = null
+        )
+            : base(name, description)
         {
             _taskService = taskService;
             _dataConverter = dataConverter;
@@ -25,12 +32,14 @@ namespace Dewit.CLI.Commands
 
             _pathOpt = new Option<FileInfo?>("--path")
             {
-                Description = "Path to where the exported data is to be saved. By default, it will be saved in the current directory."
+                Description =
+                    "Path to where the exported data is to be saved. By default, it will be saved in the current directory.",
             };
             _formatOpt = new Option<string>("--format")
             {
-                Description = "Data format in which the exported data is to be saved. Default format is JSON.",
-                DefaultValueFactory = _ => "json"
+                Description =
+                    "Data format in which the exported data is to be saved. Default format is JSON.",
+                DefaultValueFactory = _ => "json",
             };
             _formatOpt.AcceptOnlyFromAmong("csv", "json");
 
@@ -47,7 +56,6 @@ namespace Dewit.CLI.Commands
 
         private void ExportTasks(FileInfo? path, string format)
         {
-
             if (null == path)
             {
                 path = new FileInfo(Directory.GetCurrentDirectory());
@@ -70,7 +78,6 @@ namespace Dewit.CLI.Commands
                 Log.Error(ex, $"Failed to export data.");
                 Output.WriteError("Failed to export data to file. Please try again.");
             }
-
         }
     }
 }

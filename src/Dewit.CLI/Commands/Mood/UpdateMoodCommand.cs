@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.Linq;
 using Dewit.CLI.Utils;
@@ -19,21 +18,23 @@ namespace Dewit.CLI.Commands.Mood
         private readonly Option<string?> _moodOpt;
         private readonly Option<string?> _descriptorsOpt;
 
-        public UpdateMoodCommand(IMoodService moodService) : base("update", "Update a mood entry. Defaults to today.")
+        public UpdateMoodCommand(IMoodService moodService)
+            : base("update", "Update a mood entry. Defaults to today.")
         {
             _moodService = moodService;
 
             _dateOpt = new Option<string?>("--date")
             {
-                Description = "Date to update. Accepts: today, yesterday, last monday, YYYY-MM-DD, MM-DD. Defaults to today."
+                Description =
+                    "Date to update. Accepts: today, yesterday, last monday, YYYY-MM-DD, MM-DD. Defaults to today.",
             };
             _moodOpt = new Option<string?>("--mood")
             {
-                Description = "New mood: veryhappy, happy, meh, down, extradown"
+                Description = "New mood: veryhappy, happy, meh, down, extradown",
             };
             _descriptorsOpt = new Option<string?>("--descriptors")
             {
-                Description = "New comma-separated descriptors"
+                Description = "New comma-separated descriptors",
             };
 
             this.Options.Add(_dateOpt);
@@ -42,8 +43,8 @@ namespace Dewit.CLI.Commands.Mood
 
             this.SetAction(parseResult =>
             {
-                var dateInput        = parseResult.GetValue(_dateOpt);
-                var moodInput        = parseResult.GetValue(_moodOpt);
+                var dateInput = parseResult.GetValue(_dateOpt);
+                var moodInput = parseResult.GetValue(_moodOpt);
                 var descriptorsInput = parseResult.GetValue(_descriptorsOpt);
                 Run(dateInput, moodInput, descriptorsInput);
             });
@@ -67,11 +68,15 @@ namespace Dewit.CLI.Commands.Mood
                 var existing = _moodService.GetEntryForDate(date);
                 if (existing == null)
                 {
-                    Output.WriteError($"No mood entry found for {date:yyyy-MM-dd}. Use 'mood add' to create one.");
+                    Output.WriteError(
+                        $"No mood entry found for {date:yyyy-MM-dd}. Use 'mood add' to create one."
+                    );
                     return;
                 }
 
-                Output.WriteText($"Current entry for [aqua]{date:yyyy-MM-dd}[/]: Mood=[bold]{existing.Mood}[/] | Descriptors={existing.Descriptors}");
+                Output.WriteText(
+                    $"Current entry for [aqua]{date:yyyy-MM-dd}[/]: Mood=[bold]{existing.Mood}[/] | Descriptors={existing.Descriptors}"
+                );
 
                 // Resolve mood
                 string? mood = null;
@@ -89,7 +94,8 @@ namespace Dewit.CLI.Commands.Mood
                     var prompt = new SelectionPrompt<MoodEnum>()
                         .Title("Select new mood:")
                         .UseConverter(m => m.ToDisplayName());
-                    foreach (var m in Enum.GetValues<MoodEnum>()) prompt.AddChoice(m);
+                    foreach (var m in Enum.GetValues<MoodEnum>())
+                        prompt.AddChoice(m);
                     mood = AnsiConsole.Prompt(prompt).ToString();
                 }
 

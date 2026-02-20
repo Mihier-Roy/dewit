@@ -10,7 +10,8 @@ namespace Dewit.CLI.Commands.Config
         private readonly Argument<string> _keyArg;
         private readonly Argument<string> _valueArg;
 
-        public ConfigSetCommand(IConfigurationService configService) : base("set", "Set a configuration value.")
+        public ConfigSetCommand(IConfigurationService configService)
+            : base("set", "Set a configuration value.")
         {
             _configService = configService;
 

@@ -21,9 +21,12 @@ namespace Dewit.CLI.Commands.Config
             _moodArg = new Argument<string?>("mood")
             {
                 Description = "The mood to reset. Omit to use --all.",
-                Arity = ArgumentArity.ZeroOrOne
+                Arity = ArgumentArity.ZeroOrOne,
             };
-            _allOpt = new Option<bool>("--all") { Description = "Reset descriptors for all moods." };
+            _allOpt = new Option<bool>("--all")
+            {
+                Description = "Reset descriptors for all moods.",
+            };
 
             this.Arguments.Add(_moodArg);
             this.Options.Add(_allOpt);
@@ -54,12 +57,16 @@ namespace Dewit.CLI.Commands.Config
 
             if (!MoodExtensions.TryParse(mood, out var moodEnum))
             {
-                Output.WriteError($"Unknown mood '{mood}'. Valid moods: VeryHappy, Happy, Meh, Down, ExtraDown.");
+                Output.WriteError(
+                    $"Unknown mood '{mood}'. Valid moods: VeryHappy, Happy, Meh, Down, ExtraDown."
+                );
                 return;
             }
 
             _moodService.ResetDescriptors(moodEnum.ToString());
-            Output.WriteText($"[green]Descriptors reset[/] for [bold]{moodEnum.ToDisplayName()}[/].");
+            Output.WriteText(
+                $"[green]Descriptors reset[/] for [bold]{moodEnum.ToDisplayName()}[/]."
+            );
         }
     }
 }

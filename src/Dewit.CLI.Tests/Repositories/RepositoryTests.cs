@@ -34,7 +34,7 @@ public class RepositoryTests
         {
             TaskDescription = "Test",
             Status = "Doing",
-            AddedOn = DateTime.Now
+            AddedOn = DateTime.Now,
         };
 
         _repository.Add(task);
@@ -50,7 +50,7 @@ public class RepositoryTests
         {
             TaskDescription = "Test",
             Status = "Doing",
-            AddedOn = DateTime.Now
+            AddedOn = DateTime.Now,
         };
 
         _repository.Add(task);
@@ -65,7 +65,7 @@ public class RepositoryTests
         {
             TaskDescription = "Test",
             Status = "Doing",
-            AddedOn = DateTime.Now
+            AddedOn = DateTime.Now,
         };
         _repository.Add(task);
 
@@ -90,7 +90,7 @@ public class RepositoryTests
         {
             TaskDescription = "Original",
             Status = "Doing",
-            AddedOn = DateTime.Now
+            AddedOn = DateTime.Now,
         };
         _repository.Add(task);
 
@@ -108,7 +108,7 @@ public class RepositoryTests
         {
             TaskDescription = "Test",
             Status = "Doing",
-            AddedOn = DateTime.Now
+            AddedOn = DateTime.Now,
         };
         _repository.Add(task);
 
@@ -125,13 +125,13 @@ public class RepositoryTests
         {
             TaskDescription = "Task 1",
             Status = "Doing",
-            AddedOn = DateTime.Now
+            AddedOn = DateTime.Now,
         };
         var task2 = new TaskItem
         {
             TaskDescription = "Task 2",
             Status = "Later",
-            AddedOn = DateTime.Now
+            AddedOn = DateTime.Now,
         };
 
         _repository.Add(task1);
@@ -156,12 +156,14 @@ public class RepositoryTests
         // Add multiple tasks
         for (int i = 0; i < 5; i++)
         {
-            _repository.Add(new TaskItem
-            {
-                TaskDescription = $"Task {i}",
-                Status = "Doing",
-                AddedOn = DateTime.Now
-            });
+            _repository.Add(
+                new TaskItem
+                {
+                    TaskDescription = $"Task {i}",
+                    Status = "Doing",
+                    AddedOn = DateTime.Now,
+                }
+            );
         }
 
         var allTasks = _repository.List().ToList();

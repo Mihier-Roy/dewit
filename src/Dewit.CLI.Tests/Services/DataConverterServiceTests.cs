@@ -35,8 +35,18 @@ public class DataConverterServiceTests
     {
         var tasks = new List<TaskItem>
         {
-            new TaskItem { TaskDescription = "Test 1", Status = "Doing", AddedOn = DateTime.Now },
-            new TaskItem { TaskDescription = "Test 2", Status = "Done", AddedOn = DateTime.Now }
+            new TaskItem
+            {
+                TaskDescription = "Test 1",
+                Status = "Doing",
+                AddedOn = DateTime.Now,
+            },
+            new TaskItem
+            {
+                TaskDescription = "Test 2",
+                Status = "Done",
+                AddedOn = DateTime.Now,
+            },
         };
         var filePath = Path.Combine(_testDirectory, "test.json");
 
@@ -50,8 +60,18 @@ public class DataConverterServiceTests
     {
         var tasks = new List<TaskItem>
         {
-            new TaskItem { TaskDescription = "Test 1", Status = "Doing", AddedOn = DateTime.Now },
-            new TaskItem { TaskDescription = "Test 2", Status = "Done", AddedOn = DateTime.Now }
+            new TaskItem
+            {
+                TaskDescription = "Test 1",
+                Status = "Doing",
+                AddedOn = DateTime.Now,
+            },
+            new TaskItem
+            {
+                TaskDescription = "Test 2",
+                Status = "Done",
+                AddedOn = DateTime.Now,
+            },
         };
         var filePath = Path.Combine(_testDirectory, "test.csv");
 
@@ -65,8 +85,20 @@ public class DataConverterServiceTests
     {
         var tasks = new List<TaskItem>
         {
-            new TaskItem { TaskDescription = "Test 1", Status = "Doing", Tags = "test", AddedOn = DateTime.Now },
-            new TaskItem { TaskDescription = "Test 2", Status = "Done", Tags = "work", AddedOn = DateTime.Now }
+            new TaskItem
+            {
+                TaskDescription = "Test 1",
+                Status = "Doing",
+                Tags = "test",
+                AddedOn = DateTime.Now,
+            },
+            new TaskItem
+            {
+                TaskDescription = "Test 2",
+                Status = "Done",
+                Tags = "work",
+                AddedOn = DateTime.Now,
+            },
         };
         var filePath = Path.Combine(_testDirectory, "test.json");
         _converter.ExportToFile(tasks, filePath, DataFormats.Json);
@@ -83,8 +115,20 @@ public class DataConverterServiceTests
     {
         var tasks = new List<TaskItem>
         {
-            new TaskItem { TaskDescription = "CSV Test 1", Status = "Doing", Tags = "csv", AddedOn = DateTime.Now },
-            new TaskItem { TaskDescription = "CSV Test 2", Status = "Later", Tags = "test", AddedOn = DateTime.Now }
+            new TaskItem
+            {
+                TaskDescription = "CSV Test 1",
+                Status = "Doing",
+                Tags = "csv",
+                AddedOn = DateTime.Now,
+            },
+            new TaskItem
+            {
+                TaskDescription = "CSV Test 2",
+                Status = "Later",
+                Tags = "test",
+                AddedOn = DateTime.Now,
+            },
         };
         var filePath = Path.Combine(_testDirectory, "test.csv");
         _converter.ExportToFile(tasks, filePath, DataFormats.Csv);
@@ -101,7 +145,8 @@ public class DataConverterServiceTests
     {
         var filePath = Path.Combine(_testDirectory, "nonexistent.json");
 
-        await Assert.That(() => _converter.ImportFromFile<TaskItem>(filePath, DataFormats.Json))
+        await Assert
+            .That(() => _converter.ImportFromFile<TaskItem>(filePath, DataFormats.Json))
             .Throws<FileNotFoundException>();
     }
 
@@ -116,8 +161,8 @@ public class DataConverterServiceTests
                 Status = "Doing",
                 Tags = "test,roundtrip",
                 AddedOn = new DateTime(2026, 1, 1, 12, 0, 0),
-                CompletedOn = DateTime.MinValue
-            }
+                CompletedOn = DateTime.MinValue,
+            },
         };
         var filePath = Path.Combine(_testDirectory, "roundtrip.json");
 
@@ -140,8 +185,8 @@ public class DataConverterServiceTests
                 Status = "Later",
                 Tags = "csv,test",
                 AddedOn = new DateTime(2026, 1, 1, 12, 0, 0),
-                CompletedOn = DateTime.MinValue
-            }
+                CompletedOn = DateTime.MinValue,
+            },
         };
         var filePath = Path.Combine(_testDirectory, "roundtrip.csv");
 

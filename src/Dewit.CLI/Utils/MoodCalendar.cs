@@ -9,9 +9,18 @@ namespace Dewit.CLI.Utils
 {
     public static class MoodCalendar
     {
-        private const string EmptyCell  = "[grey]░░░░░░[/]";
-        private const string BlockCell  = "██████";  // colored by mood
-        private static readonly string[] DayHeaders = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        private const string EmptyCell = "[grey]░░░░░░[/]";
+        private const string BlockCell = "██████"; // colored by mood
+        private static readonly string[] DayHeaders =
+        [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+            "Sun",
+        ];
 
         /// <summary>Renders a week grid (Mon–Sun of the given week containing 'weekDay').</summary>
         public static void RenderWeek(DateTime weekDay, IEnumerable<MoodEntry> entries)
@@ -29,7 +38,7 @@ namespace Dewit.CLI.Utils
         public static void RenderMonth(int year, int month, IEnumerable<MoodEntry> entries)
         {
             var firstDay = new DateTime(year, month, 1);
-            var lastDay  = firstDay.AddMonths(1).AddDays(-1);
+            var lastDay = firstDay.AddMonths(1).AddDays(-1);
             var entryMap = entries.ToDictionary(e => e.Date, e => e);
 
             AnsiConsole.MarkupLine($"\n[bold]Mood Calendar — {firstDay:MMMM yyyy}[/]\n");
@@ -41,14 +50,14 @@ namespace Dewit.CLI.Utils
         public static void RenderQuarter(int year, int quarter, IEnumerable<MoodEntry> entries)
         {
             var startMonth = (quarter - 1) * 3 + 1;
-            var entryMap   = entries.ToDictionary(e => e.Date, e => e);
+            var entryMap = entries.ToDictionary(e => e.Date, e => e);
 
             AnsiConsole.MarkupLine($"\n[bold]Mood Calendar — Q{quarter} {year}[/]\n");
 
             for (int m = startMonth; m < startMonth + 3; m++)
             {
                 var firstDay = new DateTime(year, m, 1);
-                var lastDay  = firstDay.AddMonths(1).AddDays(-1);
+                var lastDay = firstDay.AddMonths(1).AddDays(-1);
                 AnsiConsole.MarkupLine($"[bold]{firstDay:MMMM}[/]");
                 RenderMonthGrid(firstDay, lastDay, entryMap);
                 AnsiConsole.WriteLine();
@@ -67,7 +76,7 @@ namespace Dewit.CLI.Utils
             for (int m = 1; m <= 12; m++)
             {
                 var firstDay = new DateTime(year, m, 1);
-                var lastDay  = firstDay.AddMonths(1).AddDays(-1);
+                var lastDay = firstDay.AddMonths(1).AddDays(-1);
                 AnsiConsole.MarkupLine($"[bold]{firstDay:MMMM}[/]");
                 RenderMonthGrid(firstDay, lastDay, entryMap);
                 AnsiConsole.WriteLine();
@@ -78,13 +87,17 @@ namespace Dewit.CLI.Utils
 
         // ── Helpers ───────────────────────────────────────────────────────────────
 
-        private static void RenderWeekGrid(List<DateTime> days, Dictionary<DateTime, MoodEntry> entryMap)
+        private static void RenderWeekGrid(
+            List<DateTime> days,
+            Dictionary<DateTime, MoodEntry> entryMap
+        )
         {
             var table = new Table().NoBorder().HideHeaders();
-            foreach (var _ in days) table.AddColumn(new TableColumn("").Centered());
+            foreach (var _ in days)
+                table.AddColumn(new TableColumn("").Centered());
 
             // Row 1: day names + date numbers
-            table.AddRow(days.Select(d => $"[bold]{d:ddd}[/]\n[grey]{d.Day,2}[/]").ToArray());
+            table.AddRow(days.Select(d => $"[bold]{d:ddd}[/]\n[grey]{d.Day, 2}[/]").ToArray());
 
             // Row 2: colored blocks
             table.AddRow(days.Select(d => DayCell(d, entryMap)).ToArray());
@@ -92,13 +105,18 @@ namespace Dewit.CLI.Utils
             AnsiConsole.Write(table);
         }
 
-        private static void RenderMonthGrid(DateTime firstDay, DateTime lastDay, Dictionary<DateTime, MoodEntry> entryMap)
+        private static void RenderMonthGrid(
+            DateTime firstDay,
+            DateTime lastDay,
+            Dictionary<DateTime, MoodEntry> entryMap
+        )
         {
             // Find the Monday on or before the first day of the month
             var startMonday = GetMonday(firstDay);
 
             var table = new Table().NoBorder().HideHeaders();
-            foreach (var _ in DayHeaders) table.AddColumn(new TableColumn("").Centered());
+            foreach (var _ in DayHeaders)
+                table.AddColumn(new TableColumn("").Centered());
 
             // Header row
             table.AddRow(DayHeaders.Select(h => $"[bold]{h}[/]").ToArray());
@@ -108,11 +126,15 @@ namespace Dewit.CLI.Utils
             while (cursor <= lastDay)
             {
                 var week = Enumerable.Range(0, 7).Select(i => cursor.AddDays(i)).ToList();
-                table.AddRow(week.Select(d =>
-                {
-                    if (d < firstDay || d > lastDay) return ""; // outside month
-                    return $"[grey]{d.Day,2}[/] {DayCell(d, entryMap)}";
-                }).ToArray());
+                table.AddRow(
+                    week.Select(d =>
+                        {
+                            if (d < firstDay || d > lastDay)
+                                return ""; // outside month
+                            return $"[grey]{d.Day, 2}[/] {DayCell(d, entryMap)}";
+                        })
+                        .ToArray()
+                );
                 cursor = cursor.AddDays(7);
             }
 

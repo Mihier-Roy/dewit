@@ -18,7 +18,11 @@ namespace Dewit.Core.Services
 
         public void ExportToFile<T>(IEnumerable<T> data, string filePath, DataFormats format)
         {
-            _logger.LogInformation("Exporting data to {FilePath} in {Format} format", filePath, format);
+            _logger.LogInformation(
+                "Exporting data to {FilePath} in {Format} format",
+                filePath,
+                format
+            );
 
             try
             {
@@ -31,7 +35,10 @@ namespace Dewit.Core.Services
                         ExportToCsv(data, filePath);
                         break;
                     default:
-                        throw new ArgumentException($"Unsupported format: {format}", nameof(format));
+                        throw new ArgumentException(
+                            $"Unsupported format: {format}",
+                            nameof(format)
+                        );
                 }
 
                 _logger.LogInformation("Successfully exported data to {FilePath}", filePath);
@@ -45,7 +52,11 @@ namespace Dewit.Core.Services
 
         public IEnumerable<T> ImportFromFile<T>(string filePath, DataFormats format)
         {
-            _logger.LogInformation("Importing data from {FilePath} in {Format} format", filePath, format);
+            _logger.LogInformation(
+                "Importing data from {FilePath} in {Format} format",
+                filePath,
+                format
+            );
 
             if (!File.Exists(filePath))
             {
@@ -59,7 +70,10 @@ namespace Dewit.Core.Services
                 {
                     DataFormats.Json => ImportFromJson<T>(filePath),
                     DataFormats.Csv => ImportFromCsv<T>(filePath),
-                    _ => throw new ArgumentException($"Unsupported format: {format}", nameof(format))
+                    _ => throw new ArgumentException(
+                        $"Unsupported format: {format}",
+                        nameof(format)
+                    ),
                 };
 
                 _logger.LogInformation("Successfully imported data from {FilePath}", filePath);
@@ -77,7 +91,7 @@ namespace Dewit.Core.Services
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             };
 
             var json = JsonSerializer.Serialize(data, options);
@@ -87,10 +101,7 @@ namespace Dewit.Core.Services
         private IEnumerable<T> ImportFromJson<T>(string filePath)
         {
             var json = File.ReadAllText(filePath);
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
             var data = JsonSerializer.Deserialize<IEnumerable<T>>(json, options);
             return data ?? Enumerable.Empty<T>();

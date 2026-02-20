@@ -130,7 +130,9 @@ public class TaskServiceTests
     [Test]
     public async Task CompleteTask_ThrowsExceptionForInvalidId()
     {
-        await Assert.That(() => _service.CompleteTask(999, string.Empty)).Throws<ApplicationException>();
+        await Assert
+            .That(() => _service.CompleteTask(999, string.Empty))
+            .Throws<ApplicationException>();
     }
 
     [Test]
@@ -187,7 +189,9 @@ public class TaskServiceTests
     [Test]
     public async Task UpdateTaskDetails_ThrowsExceptionForInvalidId()
     {
-        await Assert.That(() => _service.UpdateTaskDetails(999, title: "New")).Throws<ApplicationException>();
+        await Assert
+            .That(() => _service.UpdateTaskDetails(999, title: "New"))
+            .Throws<ApplicationException>();
     }
 
     [Test]
@@ -216,7 +220,7 @@ public class TaskServiceTests
             TaskDescription = "Imported task",
             Status = "Later",
             Tags = "imported",
-            AddedOn = DateTime.Now.AddDays(-1)
+            AddedOn = DateTime.Now.AddDays(-1),
         };
 
         _service.ImportTask(task);

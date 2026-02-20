@@ -50,7 +50,8 @@ public class MoodServiceTests
     {
         _service.AddEntry("Happy", "calm", DateTime.Today);
 
-        await Assert.That(() => _service.AddEntry("Meh", "tired", DateTime.Today))
+        await Assert
+            .That(() => _service.AddEntry("Meh", "tired", DateTime.Today))
             .Throws<InvalidOperationException>();
     }
 
@@ -79,7 +80,8 @@ public class MoodServiceTests
     [Test]
     public async Task UpdateEntry_ThrowsIfNoEntryExists()
     {
-        await Assert.That(() => _service.UpdateEntry(DateTime.Today, "Meh", null))
+        await Assert
+            .That(() => _service.UpdateEntry(DateTime.Today, "Meh", null))
             .Throws<ApplicationException>();
     }
 
@@ -106,13 +108,15 @@ public class MoodServiceTests
     public async Task GetDescriptors_ReturnsConfigValues()
     {
         // Seed a descriptor config entry manually
-        _configRepo.Add(new ConfigItem
-        {
-            Key = "mood.descriptors.happy",
-            Value = "calm,focused,cheerful",
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
-        });
+        _configRepo.Add(
+            new ConfigItem
+            {
+                Key = "mood.descriptors.happy",
+                Value = "calm,focused,cheerful",
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+            }
+        );
 
         var descriptors = _service.GetDescriptors("Happy").ToList();
 
