@@ -8,9 +8,9 @@ namespace Dewit.CLI.Commands.Mood
         public MoodCommand(IMoodService moodService)
             : base("mood", "Track and view your daily mood.")
         {
-            this.Subcommands.Add(new AddMoodCommand(moodService));
-            this.Subcommands.Add(new UpdateMoodCommand(moodService));
-            this.Subcommands.Add(new ViewMoodCommand(moodService));
+            Subcommands.Add(new AddMoodCommand(moodService));
+            Subcommands.Add(new UpdateMoodCommand(moodService));
+            Subcommands.Add(new ViewMoodCommand(moodService));
         }
     }
 }

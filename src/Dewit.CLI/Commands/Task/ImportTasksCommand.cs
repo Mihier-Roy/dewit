@@ -7,7 +7,7 @@ using Dewit.Core.Enums;
 using Dewit.Core.Interfaces;
 using Serilog;
 
-namespace Dewit.CLI.Commands
+namespace Dewit.CLI.Commands.Task
 {
     public class ImportTasksCommand : Command
     {
@@ -16,13 +16,8 @@ namespace Dewit.CLI.Commands
         private readonly Argument<FileInfo> _pathArg;
         private readonly Option<string> _formatOpt;
 
-        public ImportTasksCommand(
-            ITaskService taskService,
-            IDataConverter dataConverter,
-            string name,
-            string? description = null
-        )
-            : base(name, description)
+        public ImportTasksCommand(ITaskService taskService, IDataConverter dataConverter)
+            : base("import", "Import existing tasks from another Dewit database")
         {
             _taskService = taskService;
             _dataConverter = dataConverter;
@@ -35,10 +30,10 @@ namespace Dewit.CLI.Commands
             };
             _formatOpt.AcceptOnlyFromAmong("csv", "json");
 
-            this.Arguments.Add(_pathArg);
-            this.Options.Add(_formatOpt);
+            Arguments.Add(_pathArg);
+            Options.Add(_formatOpt);
 
-            this.SetAction(parseResult =>
+            SetAction(parseResult =>
             {
                 var path = parseResult.GetValue(_pathArg)!;
                 var format = parseResult.GetValue(_formatOpt)!;

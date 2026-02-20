@@ -18,10 +18,10 @@ namespace Dewit.CLI.Commands.Config
             _keyArg = new Argument<string>("key") { Description = "The configuration key to set." };
             _valueArg = new Argument<string>("value") { Description = "The value to assign." };
 
-            this.Arguments.Add(_keyArg);
-            this.Arguments.Add(_valueArg);
+            Arguments.Add(_keyArg);
+            Arguments.Add(_valueArg);
 
-            this.SetAction(parseResult =>
+            SetAction(parseResult =>
             {
                 var key = parseResult.GetValue(_keyArg)!;
                 var value = parseResult.GetValue(_valueArg)!;

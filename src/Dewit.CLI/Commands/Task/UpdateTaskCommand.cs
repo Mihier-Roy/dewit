@@ -4,7 +4,7 @@ using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
 using Serilog;
 
-namespace Dewit.CLI.Commands
+namespace Dewit.CLI.Commands.Task
 {
     public class UpdateTaskCommand : Command
     {
@@ -15,8 +15,8 @@ namespace Dewit.CLI.Commands
         private readonly Option<string?> _removeTagsOpt;
         private readonly Option<bool> _resetTagsOpt;
 
-        public UpdateTaskCommand(ITaskService taskService, string name, string? description = null)
-            : base(name, description)
+        public UpdateTaskCommand(ITaskService taskService)
+            : base("edit", "Edit an existing task")
         {
             _taskService = taskService;
 
@@ -39,13 +39,13 @@ namespace Dewit.CLI.Commands
                 Description = "Remove all tags from an existing task.",
             };
 
-            this.Arguments.Add(_idArg);
-            this.Options.Add(_titleOpt);
-            this.Options.Add(_addTagsOpt);
-            this.Options.Add(_removeTagsOpt);
-            this.Options.Add(_resetTagsOpt);
+            Arguments.Add(_idArg);
+            Options.Add(_titleOpt);
+            Options.Add(_addTagsOpt);
+            Options.Add(_removeTagsOpt);
+            Options.Add(_resetTagsOpt);
 
-            this.SetAction(parseResult =>
+            SetAction(parseResult =>
             {
                 var id = parseResult.GetValue(_idArg);
                 var title = parseResult.GetValue(_titleOpt);

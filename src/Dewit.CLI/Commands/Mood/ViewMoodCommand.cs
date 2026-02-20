@@ -35,10 +35,10 @@ namespace Dewit.CLI.Commands.Mood
                     + "Defaults to the current period.",
             };
 
-            this.Options.Add(_durationOpt);
-            this.Options.Add(_periodOpt);
+            Options.Add(_durationOpt);
+            Options.Add(_periodOpt);
 
-            this.SetAction(parseResult =>
+            SetAction(parseResult =>
             {
                 var duration = parseResult.GetValue(_durationOpt)!;
                 var period = parseResult.GetValue(_periodOpt);

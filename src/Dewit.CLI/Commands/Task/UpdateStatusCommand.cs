@@ -5,7 +5,7 @@ using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
 using Serilog;
 
-namespace Dewit.CLI.Commands
+namespace Dewit.CLI.Commands.Task
 {
     public class UpdateStatusCommand : Command
     {
@@ -13,12 +13,8 @@ namespace Dewit.CLI.Commands
         private readonly Argument<int> _idArg;
         private readonly Option<string?> _completedAtOpt;
 
-        public UpdateStatusCommand(
-            ITaskService taskService,
-            string name,
-            string? description = null
-        )
-            : base(name, description)
+        public UpdateStatusCommand(ITaskService taskService)
+            : base("done", "Complete a task")
         {
             _taskService = taskService;
 
@@ -28,10 +24,10 @@ namespace Dewit.CLI.Commands
                 Description = "Specify when the task was completed",
             };
 
-            this.Arguments.Add(_idArg);
-            this.Options.Add(_completedAtOpt);
+            Arguments.Add(_idArg);
+            Options.Add(_completedAtOpt);
 
-            this.SetAction(parseResult =>
+            SetAction(parseResult =>
             {
                 var id = parseResult.GetValue(_idArg);
                 var completedAt = parseResult.GetValue(_completedAtOpt);

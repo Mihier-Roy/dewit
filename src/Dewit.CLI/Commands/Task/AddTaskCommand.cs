@@ -4,20 +4,18 @@ using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
 using Serilog;
 
-namespace Dewit.CLI.Commands
+namespace Dewit.CLI.Commands.Task
 {
     public class AddTaskCommand : Command
     {
         private readonly ITaskService _taskService;
-        private readonly string _name;
         private readonly Argument<string> _titleArg;
         private readonly Option<string?> _tagsOpt;
 
-        public AddTaskCommand(ITaskService taskService, string name, string? description = null)
+        public AddTaskCommand(ITaskService taskService, string name, string description)
             : base(name, description)
         {
             _taskService = taskService;
-            _name = name;
 
             _titleArg = new Argument<string>("title")
             {
@@ -29,10 +27,10 @@ namespace Dewit.CLI.Commands
                     "Comma-separated list of tags to identify your task. Example : --tags work,testing",
             };
 
-            this.Arguments.Add(_titleArg);
-            this.Options.Add(_tagsOpt);
+            Arguments.Add(_titleArg);
+            Options.Add(_tagsOpt);
 
-            this.SetAction(parseResult =>
+            SetAction(parseResult =>
             {
                 var title = parseResult.GetValue(_titleArg)!;
                 var tags = parseResult.GetValue(_tagsOpt);
@@ -44,7 +42,7 @@ namespace Dewit.CLI.Commands
         {
             try
             {
-                var status = _name == "now" ? "Doing" : "Later";
+                var status = Name == "now" ? "Doing" : "Later";
                 _taskService.AddTask(title, status, tags);
 
                 Log.Information($"Added a new task : {title}, Status = {status}, Tags = {tags}");

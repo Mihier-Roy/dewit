@@ -30,10 +30,10 @@ namespace Dewit.CLI.Commands.Mood
                 Description = "Comma-separated descriptors, e.g. --descriptors calm,focused",
             };
 
-            this.Options.Add(_moodOpt);
-            this.Options.Add(_descriptorsOpt);
+            Options.Add(_moodOpt);
+            Options.Add(_descriptorsOpt);
 
-            this.SetAction(parseResult =>
+            SetAction(parseResult =>
             {
                 var moodInput = parseResult.GetValue(_moodOpt);
                 var descriptorsInput = parseResult.GetValue(_descriptorsOpt);

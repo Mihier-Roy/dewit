@@ -28,10 +28,10 @@ namespace Dewit.CLI.Commands.Config
                 Description = "Reset descriptors for all moods.",
             };
 
-            this.Arguments.Add(_moodArg);
-            this.Options.Add(_allOpt);
+            Arguments.Add(_moodArg);
+            Options.Add(_allOpt);
 
-            this.SetAction(parseResult =>
+            SetAction(parseResult =>
             {
                 var mood = parseResult.GetValue(_moodArg);
                 var all = parseResult.GetValue(_allOpt);

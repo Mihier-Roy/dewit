@@ -8,9 +8,9 @@ namespace Dewit.CLI.Commands.Config
         public DescriptorsCommand(IMoodService moodService)
             : base("descriptors", "View and manage mood descriptors.")
         {
-            this.Subcommands.Add(new DescriptorsListCommand(moodService));
-            this.Subcommands.Add(new DescriptorsSetCommand(moodService));
-            this.Subcommands.Add(new DescriptorsResetCommand(moodService));
+            Subcommands.Add(new DescriptorsListCommand(moodService));
+            Subcommands.Add(new DescriptorsSetCommand(moodService));
+            Subcommands.Add(new DescriptorsResetCommand(moodService));
         }
     }
 }

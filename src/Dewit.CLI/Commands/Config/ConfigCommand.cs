@@ -8,9 +8,9 @@ namespace Dewit.CLI.Commands.Config
         public ConfigCommand(IConfigurationService configService, IMoodService moodService)
             : base("config", "View and manage application configuration.")
         {
-            this.Subcommands.Add(new ConfigListCommand(configService));
-            this.Subcommands.Add(new ConfigSetCommand(configService));
-            this.Subcommands.Add(new DescriptorsCommand(moodService));
+            Subcommands.Add(new ConfigListCommand(configService));
+            Subcommands.Add(new ConfigSetCommand(configService));
+            Subcommands.Add(new DescriptorsCommand(moodService));
         }
     }
 }

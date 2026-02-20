@@ -17,7 +17,7 @@ namespace Dewit.CLI.Commands.Config
             : base("list", "List descriptors for all moods.")
         {
             _moodService = moodService;
-            this.SetAction(_ => Run());
+            SetAction(_ => Run());
         }
 
         private void Run()

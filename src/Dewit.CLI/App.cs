@@ -1,7 +1,7 @@
 using System.CommandLine;
-using Dewit.CLI.Commands;
 using Dewit.CLI.Commands.Config;
 using Dewit.CLI.Commands.Mood;
+using Dewit.CLI.Commands.Task;
 using Dewit.Core.Interfaces;
 
 namespace Dewit.CLI
@@ -30,14 +30,13 @@ namespace Dewit.CLI
         {
             var rootCommand = new RootCommand("dewit")
             {
-                new AddTaskCommand(_taskService, "now"),
-                new AddTaskCommand(_taskService, "later"),
-                new UpdateStatusCommand(_taskService, "done"),
-                new UpdateTaskCommand(_taskService, "edit"),
-                new GetTasksCommand(_taskService, "list"),
-                new DeleteTaskCommand(_taskService, "delete"),
-                new ExportTasksCommand(_taskService, _dataConverter, _configService, "export"),
-                new ImportTasksCommand(_taskService, _dataConverter, "import"),
+                new AddTaskCommand(_taskService, "now", "Create a new task and set it to 'Doing'"),
+                new AddTaskCommand(
+                    _taskService,
+                    "later",
+                    "Create a new task and set it to 'Later'"
+                ),
+                new TaskCommand(_taskService, _dataConverter, _configService),
                 new MoodCommand(_moodService),
                 new ConfigCommand(_configService, _moodService),
             };

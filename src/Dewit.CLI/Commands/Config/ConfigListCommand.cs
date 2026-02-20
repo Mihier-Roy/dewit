@@ -14,7 +14,7 @@ namespace Dewit.CLI.Commands.Config
             : base("list", "List all configuration values.")
         {
             _configService = configService;
-            this.SetAction(_ => Run());
+            SetAction(_ => Run());
         }
 
         private void Run()

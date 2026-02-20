@@ -25,10 +25,10 @@ namespace Dewit.CLI.Commands.Config
                 Description = "Comma-separated list of descriptors.",
             };
 
-            this.Arguments.Add(_moodArg);
-            this.Arguments.Add(_descriptorsArg);
+            Arguments.Add(_moodArg);
+            Arguments.Add(_descriptorsArg);
 
-            this.SetAction(parseResult =>
+            SetAction(parseResult =>
             {
                 var mood = parseResult.GetValue(_moodArg)!;
                 var descriptors = parseResult.GetValue(_descriptorsArg)!;

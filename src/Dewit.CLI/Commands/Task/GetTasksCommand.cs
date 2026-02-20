@@ -4,7 +4,7 @@ using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
 using Serilog;
 
-namespace Dewit.CLI.Commands
+namespace Dewit.CLI.Commands.Task
 {
     public class GetTasksCommand : Command
     {
@@ -15,8 +15,8 @@ namespace Dewit.CLI.Commands
         private readonly Option<string?> _tagsOpt;
         private readonly Option<string?> _searchOpt;
 
-        public GetTasksCommand(ITaskService taskService, string name, string? description = null)
-            : base(name, description)
+        public GetTasksCommand(ITaskService taskService)
+            : base("list", "List all your tasks (defaults to today)")
         {
             _taskService = taskService;
 
@@ -50,13 +50,13 @@ namespace Dewit.CLI.Commands
                 Description = "Search for tasks that contain the input string.",
             };
 
-            this.Options.Add(_sortOpt);
-            this.Options.Add(_durationOpt);
-            this.Options.Add(_statusOpt);
-            this.Options.Add(_tagsOpt);
-            this.Options.Add(_searchOpt);
+            Options.Add(_sortOpt);
+            Options.Add(_durationOpt);
+            Options.Add(_statusOpt);
+            Options.Add(_tagsOpt);
+            Options.Add(_searchOpt);
 
-            this.SetAction(parseResult =>
+            SetAction(parseResult =>
             {
                 var sort = parseResult.GetValue(_sortOpt)!;
                 var duration = parseResult.GetValue(_durationOpt)!;

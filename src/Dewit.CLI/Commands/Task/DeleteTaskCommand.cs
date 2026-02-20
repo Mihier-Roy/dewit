@@ -5,22 +5,22 @@ using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
 using Serilog;
 
-namespace Dewit.CLI.Commands
+namespace Dewit.CLI.Commands.Task
 {
     public class DeleteTaskCommand : Command
     {
         private readonly ITaskService _taskService;
         private readonly Argument<int> _idArg;
 
-        public DeleteTaskCommand(ITaskService taskService, string name, string? description = null)
-            : base(name, description)
+        public DeleteTaskCommand(ITaskService taskService)
+            : base("delete", "Delete a task from your list")
         {
             _taskService = taskService;
 
             _idArg = new Argument<int>("id") { Description = "ID of the task to be deleted." };
-            this.Arguments.Add(_idArg);
+            Arguments.Add(_idArg);
 
-            this.SetAction(parseResult =>
+            SetAction(parseResult =>
             {
                 var id = parseResult.GetValue(_idArg);
                 DeleteTask(id);

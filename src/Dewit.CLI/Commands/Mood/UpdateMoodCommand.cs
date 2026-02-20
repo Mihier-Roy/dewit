@@ -37,11 +37,11 @@ namespace Dewit.CLI.Commands.Mood
                 Description = "New comma-separated descriptors",
             };
 
-            this.Options.Add(_dateOpt);
-            this.Options.Add(_moodOpt);
-            this.Options.Add(_descriptorsOpt);
+            Options.Add(_dateOpt);
+            Options.Add(_moodOpt);
+            Options.Add(_descriptorsOpt);
 
-            this.SetAction(parseResult =>
+            SetAction(parseResult =>
             {
                 var dateInput = parseResult.GetValue(_dateOpt);
                 var moodInput = parseResult.GetValue(_moodOpt);

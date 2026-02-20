@@ -7,7 +7,7 @@ using Dewit.Core.Enums;
 using Dewit.Core.Interfaces;
 using Serilog;
 
-namespace Dewit.CLI.Commands
+namespace Dewit.CLI.Commands.Task
 {
     public class ExportTasksCommand : Command
     {
@@ -20,11 +20,9 @@ namespace Dewit.CLI.Commands
         public ExportTasksCommand(
             ITaskService taskService,
             IDataConverter dataConverter,
-            IConfigurationService configService,
-            string name,
-            string? description = null
+            IConfigurationService configService
         )
-            : base(name, description)
+            : base("export", "Export all your tasks to a CSV or JSON file")
         {
             _taskService = taskService;
             _dataConverter = dataConverter;
@@ -43,10 +41,10 @@ namespace Dewit.CLI.Commands
             };
             _formatOpt.AcceptOnlyFromAmong("csv", "json");
 
-            this.Options.Add(_pathOpt);
-            this.Options.Add(_formatOpt);
+            Options.Add(_pathOpt);
+            Options.Add(_formatOpt);
 
-            this.SetAction(parseResult =>
+            SetAction(parseResult =>
             {
                 var path = parseResult.GetValue(_pathOpt);
                 var format = parseResult.GetValue(_formatOpt)!;
