@@ -12,7 +12,7 @@ public class MoodServiceTests
 {
     private DewitDbContext _context = null!;
     private IRepository<MoodEntry> _moodRepo = null!;
-    private IRepository<ConfigItem> _configRepo = null!;
+    private IRepository<MoodDescriptorItem> _descriptorRepo = null!;
     private IMoodService _service = null!;
 
     [Before(Test)]
@@ -23,9 +23,9 @@ public class MoodServiceTests
             .Options;
         _context = new DewitDbContext(options);
         _moodRepo = new Repository<MoodEntry>(_context);
-        _configRepo = new Repository<ConfigItem>(_context);
+        _descriptorRepo = new Repository<MoodDescriptorItem>(_context);
         var logger = LoggerFactory.Create(b => { }).CreateLogger<MoodService>();
-        _service = new MoodService(_moodRepo, _configRepo, logger);
+        _service = new MoodService(_moodRepo, _descriptorRepo, logger);
     }
 
     [After(Test)]
@@ -107,15 +107,9 @@ public class MoodServiceTests
     [Test]
     public async Task GetDescriptors_ReturnsConfigValues()
     {
-        // Seed a descriptor config entry manually
-        _configRepo.Add(
-            new ConfigItem
-            {
-                Key = "mood.descriptors.happy",
-                Value = "calm,focused,cheerful",
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
-            }
+        // Seed a descriptor entry manually
+        _descriptorRepo.Add(
+            new MoodDescriptorItem { Mood = "Happy", Descriptors = "calm,focused,cheerful" }
         );
 
         var descriptors = _service.GetDescriptors("Happy").ToList();

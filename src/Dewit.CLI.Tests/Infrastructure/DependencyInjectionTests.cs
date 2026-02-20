@@ -4,7 +4,6 @@ using Dewit.Core.Services;
 using Dewit.Data.Data;
 using Dewit.Data.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -16,16 +15,6 @@ public class DependencyInjectionTests
     {
         var services = new ServiceCollection();
 
-        var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    { "ConnectionStrings:Sqlite", "Data Source=:memory:" },
-                }
-            )
-            .Build();
-
-        services.AddSingleton<IConfiguration>(config);
         services.AddDbContext<DewitDbContext>(opts =>
             opts.UseInMemoryDatabase($"Test_{Guid.NewGuid()}")
         );
