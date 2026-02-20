@@ -17,102 +17,121 @@
 dewit [command] [arguments] [options]
 ```
 
-`dewit` is organized into a set of sub-commands for each action. The commands available are listed below, but can always be found by running `dewit -h`.
+`dewit` is organized into sub-commands for each action. The commands available are listed below, but can always be found by running `dewit -h`.
 
 ```
 Commands:
-  now <title> 	- Adds a new task and sets it's status to 'Doing'.
-  later <title> - Adds a new task and sets it's status to 'Later'.
-  done <id>     - Set's a tasks status to 'Done'.
-  edit <id>     - Edit the title and tags of a task.
-  list          - List tasks entered.
-  delete <id>   - Delete a particular task.
-  export        - Export tasks to a CSV or JSON file.
-  import <path> - Import tasks from a CSV or JSON file.
-  mood          - Track and view your daily mood.
-    add         - Log your mood for today.
-    update      - Update a mood entry.
-    view        - Display your mood calendar.
+  now <title>       - Add a new task and set it to 'Doing'.
+  later <title>     - Add a new task and set it to 'Later'.
+  task              - Manage all of your tasks.
+    now <title>     - Add a new task and set it to 'Doing'.
+    later <title>   - Add a new task and set it to 'Later'.
+    done <id>       - Complete a task.
+    edit <id>       - Edit an existing task.
+    list            - List all your tasks.
+    delete <id>     - Delete a task from your list.
+    export          - Export all your tasks to a CSV or JSON file.
+    import <path>   - Import existing tasks from another Dewit database.
+  mood              - Track and view your daily mood.
+    add             - Log your mood for today.
+    update          - Update a mood entry.
+    view            - Display your mood calendar.
+  config            - View and manage application configuration.
+    list            - List all configuration values.
+    set <key> <val> - Set a configuration value.
+    descriptors     - View and manage mood descriptors.
+      list          - List descriptors for all moods.
+      set <mood> <descriptors> - Set descriptors for a mood.
+      reset [mood]  - Reset descriptors for a mood (or all moods) to defaults.
 ```
 
 ### Adding and completing tasks
 
--   You may add a task using the commands : `dewit now` or `dewit later`.
+-   Add a task using `dewit now` or `dewit later`. These shortcuts work at the top level and also as `dewit task now` / `dewit task later`.
 
     ```
     dewit [now|later] "New task" --tags tag1,tag2,tag_3
     ```
 
--   You can complete a task using the `dewit done` command.
+-   Complete a task using `dewit task done`. Use `--completed-at` to backdate the completion.
 
     ```
-    dewit done <task-ID>
+    dewit task done <task-ID>
+    dewit task done <task-ID> --completed-at yesterday
     ```
 
 ### Editing a task
 
-`dewit edit` allows you to edit the title and tags of a task. It accepts the following options which may be used independently or in combination.
+`dewit task edit` allows you to edit the title and tags of a task. Options may be used independently or in combination.
 
 -   Edit the title of a task
 
     ```
-    dewit edit <task-ID> --title "New title"
+    dewit task edit <task-ID> --title "New title"
     ```
 
 -   Add/Remove Tags
 
     ```
-    dewit edit <task-ID> --add-tags new_tag --remove-tags old_tag
+    dewit task edit <task-ID> --add-tags new_tag --remove-tags old_tag
     ```
 
 -   Reset Tags (remove all tags associated with a task)
 
     ```
-    dewit edit <task-ID> --reset-tags
+    dewit task edit <task-ID> --reset-tags
     ```
 
 ### Displaying tasks
 
-The `list` command is used to display tasks. By default, it will display only the tasks that have been created on the same day. The list command accepts a range of options which allow you to sort and filter the tasks displayed. The options listed below may be used individually or combined together to retrieve a specific list of tasks.
+`dewit task list` displays tasks. By default it shows only tasks created today. The options below may be used individually or combined.
 
--   The `--duration` option accepts the following values : `all|month|today|week|yesterday`.
-
-    ```
-    dewit list --duration week
-    ```
-
--   The list of tasks can be filtered by the `--status` option, which accepts the follwoing values : `doing|done|later`.
+-   The `--duration` option accepts: `all|month|today|week|yesterday`.
 
     ```
-    dewit list --status later
+    dewit task list --duration week
     ```
 
--   Tasks may also be filtered based on tags using the `--tags` option, where you can specify the tags you wish to search for.
+-   Filter by status using `--status`, which accepts: `doing|done|later`.
 
     ```
-    dewit list --tags tag1
+    dewit task list --status later
     ```
 
--   You may sort the returned values using the `--sort` option which allows you to sort by **date** or **status**.
+-   Filter by tags using `--tags`.
 
     ```
-    dewit list --sort date
+    dewit task list --tags tag1
     ```
 
--   If you want to search for tasks with particular word(s), you can do so using the `--search` tag.
+-   Sort results using `--sort`, which accepts: `date|status`.
 
     ```
-    dewit list --search "Search expression"
+    dewit task list --sort date
+    ```
+
+-   Search task titles using `--search`.
+
+    ```
+    dewit task list --search "search expression"
     ```
 
 ### Tags
 
-Tags can be added to a task by specifying all the tags in a comma-separated manner. Only alpha-numeric characters along with the underscore character are acccepted as tag names.
+Tags can be added to a task as a comma-separated list. Only alphanumeric characters and underscores are accepted as tag names.
 Example: `--tags tag1,tag2,tag_3`
 
 ### Import/Export
 
-`dewit` supports exporting all saved tasks to a CSV or JSON file so that users may view the data in an easily portable and editable format. Users may also use the `import` command to import data. The import command appends all the tasks in a file to the existing list of tasks.
+`dewit` supports exporting all saved tasks to a CSV or JSON file and importing them back. The import command appends tasks from the file to your existing list.
+
+```
+dewit task export --format json
+dewit task export --format csv --path /some/directory
+
+dewit task import /path/to/file.json
+dewit task import /path/to/file.csv --format csv
+```
 
 ### Mood tracking
 
@@ -144,7 +163,7 @@ dewit mood update --date 2026-02-15 --mood happy --descriptors content,relaxed
 #### Viewing the calendar
 
 ```
-dewit mood view                         # current week (default)
+dewit mood view                          # current week (default)
 dewit mood view --duration month
 dewit mood view --duration month  --period 2026-01
 dewit mood view --duration quarter --period 2026-Q1
@@ -152,6 +171,29 @@ dewit mood view --duration year   --period 2026
 ```
 
 Each logged day is shown as a colored block — green for Very Happy, through red for Extra Down — with a legend below.
+
+### Configuration
+
+`dewit config` lets you view and manage application settings.
+
+#### Listing and setting values
+
+```
+dewit config list
+dewit config set export.csv.title my_tasks
+dewit config set export.json.title my_tasks
+```
+
+#### Mood descriptors
+
+Descriptors are the words shown when logging or updating a mood. You can customize them per mood level.
+
+```
+dewit config descriptors list
+dewit config descriptors set happy calm,focused,productive
+dewit config descriptors reset happy
+dewit config descriptors reset --all
+```
 
 ## Development
 
@@ -184,7 +226,7 @@ Getting setup to build the project should be relatively straight-forward. The fo
 
 ## Contribute
 
-`dewit` was developed using C# and .NET5, mostly as a way for me to get familiar with using the `System.CommandLine` NuGet library to build command line applications.
+`dewit` was developed using C# and .NET, mostly as a way for me to get familiar with using the `System.CommandLine` NuGet library to build command line applications.
 
 Feel free to contribute any new features or fixes by submitting a PR or creating an Issue.
 
