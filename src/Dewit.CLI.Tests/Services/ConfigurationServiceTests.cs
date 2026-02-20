@@ -89,12 +89,10 @@ public class ConfigurationServiceTests
     }
 
     [Test]
-    public async Task DeleteValue_DoesNotThrowForNonExistentKey()
+    public void DeleteValue_DoesNotThrowForNonExistentKey()
     {
+        // Test passes if no exception is thrown
         _service.DeleteValue("NonExistent");
-
-        // Should not throw
-        await Assert.That(true).IsTrue();
     }
 
     [Test]

@@ -40,7 +40,7 @@ namespace Dewit.CLI.Commands.Mood
 
             this.SetAction(parseResult =>
             {
-                var duration = parseResult.GetValue(_durationOpt);
+                var duration = parseResult.GetValue(_durationOpt)!;
                 var period = parseResult.GetValue(_periodOpt);
                 Run(duration, period);
             });

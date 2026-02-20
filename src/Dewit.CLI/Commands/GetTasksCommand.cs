@@ -58,8 +58,8 @@ namespace Dewit.CLI.Commands
 
             this.SetAction(parseResult =>
             {
-                var sort = parseResult.GetValue(_sortOpt);
-                var duration = parseResult.GetValue(_durationOpt);
+                var sort = parseResult.GetValue(_sortOpt)!;
+                var duration = parseResult.GetValue(_durationOpt)!;
                 var status = parseResult.GetValue(_statusOpt);
                 var tags = parseResult.GetValue(_tagsOpt);
                 var search = parseResult.GetValue(_searchOpt);

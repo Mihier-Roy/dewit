@@ -49,7 +49,7 @@ namespace Dewit.CLI.Commands
             this.SetAction(parseResult =>
             {
                 var path = parseResult.GetValue(_pathOpt);
-                var format = parseResult.GetValue(_formatOpt);
+                var format = parseResult.GetValue(_formatOpt)!;
                 ExportTasks(path, format);
             });
         }
