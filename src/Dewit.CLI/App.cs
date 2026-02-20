@@ -1,5 +1,6 @@
 using System.CommandLine;
 using Dewit.CLI.Commands;
+using Dewit.CLI.Commands.Config;
 using Dewit.CLI.Commands.Mood;
 using Dewit.Core.Interfaces;
 
@@ -10,12 +11,14 @@ namespace Dewit.CLI
         private readonly ITaskService _taskService;
         private readonly IDataConverter _dataConverter;
         private readonly IMoodService _moodService;
+        private readonly IConfigurationService _configService;
 
-        public App(ITaskService taskService, IDataConverter dataConverter, IMoodService moodService)
+        public App(ITaskService taskService, IDataConverter dataConverter, IMoodService moodService, IConfigurationService configService)
         {
             _taskService = taskService;
             _dataConverter = dataConverter;
             _moodService = moodService;
+            _configService = configService;
         }
 
         public void Run(string[] args)
@@ -27,9 +30,10 @@ namespace Dewit.CLI
                 new UpdateTaskCommand(_taskService, "edit"),
                 new GetTasksCommand(_taskService, "list"),
                 new DeleteTaskCommand(_taskService, "delete"),
-                new ExportTasksCommand(_taskService, _dataConverter, "export"),
+                new ExportTasksCommand(_taskService, _dataConverter, _configService, "export"),
                 new ImportTasksCommand(_taskService, _dataConverter, "import"),
                 new MoodCommand(_moodService),
+                new ConfigCommand(_configService, _moodService),
             };
 
             rootCommand.Parse(args).Invoke();

@@ -1,12 +1,10 @@
 using System;
-using System.IO;
 using Dewit.Core.Interfaces;
 using Dewit.Core.Services;
 using Dewit.Core.Utils;
 using Dewit.Data.Data;
 using Dewit.Data.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -37,17 +35,19 @@ namespace Dewit.CLI
                 var _db = serviceProvider.GetRequiredService<DewitDbContext>();
                 _db.Database.Migrate();
 
-                // Seed default mood descriptors if missing
+                // Seed mood descriptors into dedicated table
+                var descriptorRepo = serviceProvider.GetRequiredService<IRepository<Dewit.Core.Entities.MoodDescriptorItem>>();
+                MoodDescriptorDefaults.SeedIfMissing(descriptorRepo);
+
+                // Seed default export filename config if missing
                 var configService = serviceProvider.GetRequiredService<IConfigurationService>();
-                MoodDescriptorDefaults.SeedIfMissing(configService);
+                if (!configService.KeyExists("export.csv.title"))
+                    configService.SetValue("export.csv.title", "dewit_tasks");
+                if (!configService.KeyExists("export.json.title"))
+                    configService.SetValue("export.json.title", "dewit_tasks");
 
                 // Start the application
                 serviceProvider.GetRequiredService<App>().Run(args);
-            }
-            catch (FileNotFoundException ex)
-            {
-                Log.Fatal(ex, "Unable to load config file. Exiting.");
-                Console.WriteLine("ERROR : Unable to load config file. Please try again.");
             }
             catch (Exception ex)
             {
@@ -65,12 +65,8 @@ namespace Dewit.CLI
         {
             IServiceCollection services = new ServiceCollection();
 
-            // Make config available throughout the application
-            var config = LoadConfiguration();
-            services.AddSingleton(config);
-
             // Connect to database context
-            services.AddDbContext<DewitDbContext>(opts => opts.UseSqlite(config.GetConnectionString("Sqlite")));
+            services.AddDbContext<DewitDbContext>(opts => opts.UseSqlite(DbConnectionString.Get()));
 
             // Register generic repository pattern
             services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
@@ -91,22 +87,6 @@ namespace Dewit.CLI
             services.AddTransient<App>();
 
             return services;
-        }
-
-        private static IConfiguration LoadConfiguration()
-        {
-            Log.Debug("Loading config file");
-            try
-            {
-                var builder = new ConfigurationBuilder()
-                                    .SetBasePath(Directory.GetCurrentDirectory())
-                                    .AddJsonFile("config.json");
-                return builder.Build();
-            }
-            catch (FileNotFoundException ex)
-            {
-                throw new FileNotFoundException($"Error : {ex.Message}");
-            }
         }
     }
 }

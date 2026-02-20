@@ -1,5 +1,7 @@
 using Dewit.Core.Entities;
+using Dewit.Core.Enums;
 using Dewit.Core.Interfaces;
+using Dewit.Core.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace Dewit.Core.Services
@@ -7,16 +9,16 @@ namespace Dewit.Core.Services
     public class MoodService : IMoodService
     {
         private readonly IRepository<MoodEntry> _moodRepo;
-        private readonly IRepository<ConfigItem> _configRepo;
+        private readonly IRepository<MoodDescriptorItem> _descriptorRepo;
         private readonly ILogger<MoodService> _logger;
 
         public MoodService(
             IRepository<MoodEntry> moodRepo,
-            IRepository<ConfigItem> configRepo,
+            IRepository<MoodDescriptorItem> descriptorRepo,
             ILogger<MoodService> logger)
         {
             _moodRepo = moodRepo;
-            _configRepo = configRepo;
+            _descriptorRepo = descriptorRepo;
             _logger = logger;
         }
 
@@ -92,14 +94,48 @@ namespace Dewit.Core.Services
 
         public IEnumerable<string> GetDescriptors(string mood)
         {
-            var key = $"mood.descriptors.{mood.ToLowerInvariant()}";
-            var configEntry = _configRepo.List()
-                .FirstOrDefault(c => c.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
+            var row = _descriptorRepo.List()
+                .FirstOrDefault(d => d.Mood.Equals(mood, StringComparison.OrdinalIgnoreCase));
 
-            if (configEntry == null) return [];
+            if (row == null) return [];
 
-            return configEntry.Value
+            return row.Descriptors
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        }
+
+        public IEnumerable<MoodDescriptorItem> GetAllDescriptors()
+        {
+            return _descriptorRepo.List().OrderBy(d => d.Mood);
+        }
+
+        public void SetDescriptors(string mood, string descriptors)
+        {
+            var existing = _descriptorRepo.List()
+                .FirstOrDefault(d => d.Mood.Equals(mood, StringComparison.OrdinalIgnoreCase));
+
+            if (existing != null)
+            {
+                existing.Descriptors = descriptors;
+                _descriptorRepo.Update(existing);
+            }
+            else
+            {
+                _descriptorRepo.Add(new MoodDescriptorItem { Mood = mood, Descriptors = descriptors });
+            }
+
+            _logger.LogInformation("Updated descriptors for mood {Mood}", mood);
+        }
+
+        public void ResetDescriptors(string mood)
+        {
+            if (!Enum.TryParse<Mood>(mood, ignoreCase: true, out var moodEnum))
+                throw new ArgumentException($"Unknown mood: {mood}");
+
+            if (!MoodDescriptorDefaults.Defaults.TryGetValue(moodEnum, out var defaults))
+                throw new ArgumentException($"No defaults found for mood: {mood}");
+
+            SetDescriptors(moodEnum.ToString(), defaults);
+            _logger.LogInformation("Reset descriptors for mood {Mood} to defaults", mood);
         }
     }
 }

@@ -13,13 +13,15 @@ namespace Dewit.CLI.Commands
     {
         private readonly ITaskService _taskService;
         private readonly IDataConverter _dataConverter;
+        private readonly IConfigurationService _configService;
         private readonly Option<FileInfo?> _pathOpt;
         private readonly Option<string> _formatOpt;
 
-        public ExportTasksCommand(ITaskService taskService, IDataConverter dataConverter, string name, string? description = null) : base(name, description)
+        public ExportTasksCommand(ITaskService taskService, IDataConverter dataConverter, IConfigurationService configService, string name, string? description = null) : base(name, description)
         {
             _taskService = taskService;
             _dataConverter = dataConverter;
+            _configService = configService;
 
             _pathOpt = new Option<FileInfo?>("--path")
             {
@@ -51,7 +53,8 @@ namespace Dewit.CLI.Commands
                 path = new FileInfo(Directory.GetCurrentDirectory());
             }
 
-            string filePath = Path.Combine(path.ToString(), $"dewit_tasks.{format}");
+            var title = _configService.GetValue($"export.{format}.title") ?? "dewit_tasks";
+            string filePath = Path.Combine(path.ToString(), $"{title}.{format}");
 
             Log.Debug($"Exporting all tasks to file. Format: {format}, Path : {path}");
             var tasks = _taskService.GetTasks(duration: "all").OrderBy(p => p.AddedOn);

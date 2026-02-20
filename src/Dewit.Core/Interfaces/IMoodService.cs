@@ -15,7 +15,14 @@ namespace Dewit.Core.Interfaces
         /// <summary>Throws ApplicationException if no entry exists for the given date.</summary>
         void UpdateEntry(DateTime date, string? mood, string? descriptors);
 
-        /// <summary>Returns descriptors for a mood from config, falling back to empty list.</summary>
+        /// <summary>Returns descriptors for a mood from the MoodDescriptors table, falling back to empty list.</summary>
         IEnumerable<string> GetDescriptors(string mood);
+
+        IEnumerable<MoodDescriptorItem> GetAllDescriptors();
+
+        void SetDescriptors(string mood, string descriptors);
+
+        /// <summary>Resets descriptors for the given mood to the built-in defaults.</summary>
+        void ResetDescriptors(string mood);
     }
 }
