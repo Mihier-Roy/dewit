@@ -97,7 +97,7 @@ namespace Dewit.CLI.Utils
                 table.AddColumn(new TableColumn("").Centered());
 
             // Row 1: day names + date numbers
-            table.AddRow(days.Select(d => $"[bold]{d:ddd}[/]\n[grey]{d.Day, 2}[/]").ToArray());
+            table.AddRow(days.Select(d => $"[bold]{d:ddd}[/]\n[grey]{d.Day,2}[/]").ToArray());
 
             // Row 2: colored blocks
             table.AddRow(days.Select(d => DayCell(d, entryMap)).ToArray());
@@ -131,7 +131,7 @@ namespace Dewit.CLI.Utils
                         {
                             if (d < firstDay || d > lastDay)
                                 return ""; // outside month
-                            return $"[grey]{d.Day, 2}[/] {DayCell(d, entryMap)}";
+                            return $"[grey]{d.Day,2}[/] {DayCell(d, entryMap)}";
                         })
                         .ToArray()
                 );
