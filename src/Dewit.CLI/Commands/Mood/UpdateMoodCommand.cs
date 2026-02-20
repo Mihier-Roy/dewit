@@ -5,7 +5,6 @@ using Dewit.CLI.Utils;
 using Dewit.Core.Enums;
 using Dewit.Core.Interfaces;
 using Dewit.Core.Utils;
-using Serilog;
 using Spectre.Console;
 using MoodEnum = Dewit.Core.Enums.Mood;
 
@@ -124,7 +123,7 @@ namespace Dewit.CLI.Commands.Mood
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Failed to update mood entry");
+                Output.WriteVerbose(ex, "Failed to update mood entry");
                 Output.WriteError("Failed to update mood entry. Please try again.");
             }
         }

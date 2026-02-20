@@ -5,7 +5,6 @@ using System.Linq;
 using Dewit.CLI.Utils;
 using Dewit.Core.Enums;
 using Dewit.Core.Interfaces;
-using Serilog;
 
 namespace Dewit.CLI.Commands.Task
 {
@@ -62,7 +61,7 @@ namespace Dewit.CLI.Commands.Task
             var title = _configService.GetValue($"export.{format}.title") ?? "dewit_tasks";
             string filePath = Path.Combine(path.ToString(), $"{title}.{format}");
 
-            Log.Debug($"Exporting all tasks to file. Format: {format}, Path : {path}");
+            Output.WriteVerbose($"Exporting all tasks to file. Format: {format}, Path : {path}");
             var tasks = _taskService.GetTasks(duration: "all").OrderBy(p => p.AddedOn);
 
             try
@@ -73,7 +72,7 @@ namespace Dewit.CLI.Commands.Task
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"Failed to export data.");
+                Output.WriteVerbose(ex, "Failed to export data");
                 Output.WriteError("Failed to export data to file. Please try again.");
             }
         }

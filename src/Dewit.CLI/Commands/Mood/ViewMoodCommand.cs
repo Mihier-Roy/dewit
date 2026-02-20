@@ -3,7 +3,6 @@ using System.CommandLine;
 using System.Globalization;
 using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
-using Serilog;
 
 namespace Dewit.CLI.Commands.Mood
 {
@@ -72,7 +71,7 @@ namespace Dewit.CLI.Commands.Mood
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Failed to render mood calendar");
+                Output.WriteVerbose(ex, "Failed to render mood calendar");
                 Output.WriteError("Failed to display mood calendar. Please try again.");
             }
         }

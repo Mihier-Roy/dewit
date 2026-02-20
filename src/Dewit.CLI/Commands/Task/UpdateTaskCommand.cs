@@ -2,7 +2,6 @@ using System;
 using System.CommandLine;
 using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
-using Serilog;
 
 namespace Dewit.CLI.Commands.Task
 {
@@ -74,7 +73,7 @@ namespace Dewit.CLI.Commands.Task
                     resetTags
                 );
 
-                Log.Information(
+                Output.WriteVerbose(
                     $"Successfully updated task : {task.Id} | {task.TaskDescription} | {task.Tags}"
                 );
                 Output.WriteText(
@@ -83,12 +82,12 @@ namespace Dewit.CLI.Commands.Task
             }
             catch (ApplicationException ex)
             {
-                Log.Error(ex, "Failed to update task");
+                Output.WriteVerbose(ex, "Failed to update task");
                 Output.WriteError(ex.Message);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Unexpected error");
+                Output.WriteVerbose(ex, "Unexpected error updating task");
                 Output.WriteError("Failed to update task details. Please try again.");
             }
         }

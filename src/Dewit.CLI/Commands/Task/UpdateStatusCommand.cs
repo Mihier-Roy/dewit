@@ -3,7 +3,6 @@ using System.CommandLine;
 using System.Linq;
 using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
-using Serilog;
 
 namespace Dewit.CLI.Commands.Task
 {
@@ -47,7 +46,7 @@ namespace Dewit.CLI.Commands.Task
 
                 if (task != null)
                 {
-                    Log.Information($"Completed task : {task.Id} | {task.TaskDescription}");
+                    Output.WriteVerbose($"Completed task : {task.Id} | {task.TaskDescription}");
                     Output.WriteText(
                         $"[green]Completed task[/] : {task.Id} | {task.TaskDescription}"
                     );
@@ -55,17 +54,17 @@ namespace Dewit.CLI.Commands.Task
             }
             catch (ApplicationException ex)
             {
-                Log.Error(ex, "Failed to complete task");
+                Output.WriteVerbose(ex, "Failed to complete task");
                 Output.WriteError(ex.Message);
             }
             catch (ArgumentException ex)
             {
-                Log.Error(ex, "Invalid completion date");
+                Output.WriteVerbose(ex, "Invalid completion date");
                 Output.WriteError("Invalid date format. Please try again.");
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Unexpected error");
+                Output.WriteVerbose(ex, "Unexpected error completing task");
                 Output.WriteError("Failed to set task as completed. Please try again.");
             }
         }

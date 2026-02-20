@@ -4,7 +4,6 @@ using System.Linq;
 using Dewit.CLI.Utils;
 using Dewit.Core.Enums;
 using Dewit.Core.Interfaces;
-using Serilog;
 using Spectre.Console;
 using MoodEnum = Dewit.Core.Enums.Mood;
 
@@ -84,7 +83,7 @@ namespace Dewit.CLI.Commands.Mood
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Failed to add mood entry");
+                Output.WriteVerbose(ex, "Failed to add mood entry");
                 Output.WriteError("Failed to log mood. Please try again.");
             }
         }

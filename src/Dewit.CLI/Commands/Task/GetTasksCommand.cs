@@ -2,7 +2,6 @@ using System;
 using System.CommandLine;
 using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
-using Serilog;
 
 namespace Dewit.CLI.Commands.Task
 {
@@ -89,7 +88,7 @@ namespace Dewit.CLI.Commands.Task
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Failed to retrieve tasks");
+                Output.WriteVerbose(ex, "Failed to retrieve tasks");
                 Output.WriteError("Failed to retrieve tasks. Please try again.");
             }
         }

@@ -3,7 +3,6 @@ using System.CommandLine;
 using System.Linq;
 using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
-using Serilog;
 
 namespace Dewit.CLI.Commands.Task
 {
@@ -37,7 +36,7 @@ namespace Dewit.CLI.Commands.Task
 
                 if (task == null)
                 {
-                    Log.Error($"Task with ID {id} does not exist.");
+                    Output.WriteVerbose($"Task with ID {id} does not exist.");
                     Output.WriteError(
                         $"Task with ID {id} does not exist. View all tasks with -> dewit list"
                     );
@@ -47,17 +46,17 @@ namespace Dewit.CLI.Commands.Task
                 var taskDescription = task.TaskDescription;
                 _taskService.DeleteTask(id);
 
-                Log.Information($"Deleted task : {id} | {taskDescription}");
+                Output.WriteVerbose($"Deleted task : {id} | {taskDescription}");
                 Output.WriteText($"[yellow]Deleted task[/] : {id} | {taskDescription}");
             }
             catch (ApplicationException ex)
             {
-                Log.Error(ex, "Failed to delete task");
+                Output.WriteVerbose(ex, "Failed to delete task");
                 Output.WriteError(ex.Message);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Unexpected error");
+                Output.WriteVerbose(ex, "Unexpected error deleting task");
                 Output.WriteError("Failed to delete. Please try again.");
             }
         }

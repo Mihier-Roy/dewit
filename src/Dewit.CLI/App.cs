@@ -1,7 +1,9 @@
+using System;
 using System.CommandLine;
 using Dewit.CLI.Commands.Config;
 using Dewit.CLI.Commands.Mood;
 using Dewit.CLI.Commands.Task;
+using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
 
 namespace Dewit.CLI
@@ -28,6 +30,12 @@ namespace Dewit.CLI
 
         public void Run(string[] args)
         {
+            var verboseOption = new Option<bool>("--verbose")
+            {
+                Description = "Show verbose output.",
+                Recursive = true,
+            };
+
             var rootCommand = new RootCommand("dewit")
             {
                 new AddTaskCommand(_taskService, "now", "Create a new task and set it to 'Doing'"),
@@ -40,7 +48,9 @@ namespace Dewit.CLI
                 new MoodCommand(_moodService),
                 new ConfigCommand(_configService, _moodService),
             };
+            rootCommand.Options.Add(verboseOption);
 
+            Output.IsVerbose = Array.IndexOf(args, "--verbose") >= 0;
             rootCommand.Parse(args).Invoke();
         }
     }

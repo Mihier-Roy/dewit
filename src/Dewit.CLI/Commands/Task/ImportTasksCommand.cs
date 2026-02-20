@@ -5,7 +5,6 @@ using Dewit.CLI.Utils;
 using Dewit.Core.Entities;
 using Dewit.Core.Enums;
 using Dewit.Core.Interfaces;
-using Serilog;
 
 namespace Dewit.CLI.Commands.Task
 {
@@ -43,10 +42,10 @@ namespace Dewit.CLI.Commands.Task
 
         private void ImportTasks(FileInfo path, string format)
         {
-            Log.Debug($"Importing data from file. Format: {format}, Path: {path}");
+            Output.WriteVerbose($"Importing data from file. Format: {format}, Path: {path}");
             if (!path.Exists)
             {
-                Log.Error("File to import does not exist.");
+                Output.WriteVerbose("File to import does not exist.");
                 Output.WriteError($"The entered path does not exist. Please try again.");
                 return;
             }
@@ -72,7 +71,7 @@ namespace Dewit.CLI.Commands.Task
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"Failed to import data.");
+                Output.WriteVerbose(ex, "Failed to import data");
                 Output.WriteError("Failed to import data from file. Please try again.");
             }
         }

@@ -7,6 +7,8 @@ namespace Dewit.CLI.Utils
 {
     public static class Output
     {
+        public static bool IsVerbose { get; set; }
+
         public static void WriteText(string text)
         {
             AnsiConsole.MarkupLine(text);
@@ -15,6 +17,18 @@ namespace Dewit.CLI.Utils
         public static void WriteError(string text)
         {
             AnsiConsole.MarkupLine($"[red]ERROR[/] : {text}");
+        }
+
+        public static void WriteVerbose(string message)
+        {
+            if (!IsVerbose) return;
+            AnsiConsole.MarkupLine($"[grey]{Markup.Escape(message)}[/]");
+        }
+
+        public static void WriteVerbose(Exception ex, string context)
+        {
+            if (!IsVerbose) return;
+            AnsiConsole.MarkupLine($"[grey]{Markup.Escape(context)}: {Markup.Escape(ex.ToString())}[/]");
         }
 
         public static void WriteTable(string[] columnNames, IEnumerable<TaskItem> data)
