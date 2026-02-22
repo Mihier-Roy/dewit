@@ -43,17 +43,20 @@ jobs:
         run: dotnet test --solution src/Dewit.sln --configuration Release
 
   release:
-    name: Create Release
+    name: Create Release (${{ matrix.platform }})
     needs: build-and-test
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runs-on }}
     if: github.event_name == 'workflow_dispatch' && inputs.create_release
     strategy:
       matrix:
         include:
           - runtime: win-x64
             platform: windows
+            runs-on: windows-latest
           - runtime: linux-x64
             platform: linux
+            runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -69,19 +72,25 @@ jobs:
           --configuration Release
           --runtime ${{ matrix.runtime }}
           --self-contained
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:StripSymbols=true
+          -p:InvariantGlobalization=true
+          -p:StackTraceSupport=false
+          -p:EventSourceSupport=false
           -p:PublishSingleFile=true
-          -p:PublishTrimmed=true
-          -p:TrimMode=Link
           -p:PublishReadyToRun=true
           -p:DebugType=None
           -p:DebugSymbols=false
           --output ./publish
 
-      - name: Create release archive
-        run: |
-          cd publish
-          zip -r ../dewit-${{ matrix.platform }}-x64.zip .
-          cd ..
+      - name: Create release archive (Linux)
+        if: runner.os == 'Linux'
+        run: cd publish && zip -r ../dewit-${{ matrix.platform }}-x64.zip . && cd ..
+
+      - name: Create release archive (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path ./publish/* -DestinationPath ./dewit-${{ matrix.platform }}-x64.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
