@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.Globalization;
+using System.Linq;
 using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
+using Spectre.Console;
 
 namespace Dewit.CLI.Commands.Mood
 {
@@ -80,8 +83,8 @@ namespace Dewit.CLI.Commands.Mood
         {
             var monday = GetMonday(DateTime.Today);
             var sunday = monday.AddDays(6);
-            var entries = _moodService.GetEntriesInRange(monday, sunday);
-            MoodCalendar.RenderWeek(DateTime.Today, entries);
+            var entries = _moodService.GetEntriesInRange(monday, sunday).ToList();
+            RunWithToggle(show => MoodCalendar.RenderWeek(DateTime.Today, entries, show));
         }
 
         private void RenderMonth(string? period)
@@ -115,8 +118,8 @@ namespace Dewit.CLI.Commands.Mood
 
             var from = new DateTime(year, month, 1);
             var to = from.AddMonths(1).AddDays(-1);
-            var entries = _moodService.GetEntriesInRange(from, to);
-            MoodCalendar.RenderMonth(year, month, entries);
+            var entries = _moodService.GetEntriesInRange(from, to).ToList();
+            RunWithToggle(show => MoodCalendar.RenderMonth(year, month, entries, show));
         }
 
         private void RenderQuarter(string? period)
@@ -151,8 +154,8 @@ namespace Dewit.CLI.Commands.Mood
             var startMonth = (quarter - 1) * 3 + 1;
             var from = new DateTime(year, startMonth, 1);
             var to = from.AddMonths(3).AddDays(-1);
-            var entries = _moodService.GetEntriesInRange(from, to);
-            MoodCalendar.RenderQuarter(year, quarter, entries);
+            var entries = _moodService.GetEntriesInRange(from, to).ToList();
+            RunWithToggle(show => MoodCalendar.RenderQuarter(year, quarter, entries, show));
         }
 
         private void RenderYear(string? period)
@@ -171,8 +174,23 @@ namespace Dewit.CLI.Commands.Mood
 
             var from = new DateTime(year, 1, 1);
             var to = new DateTime(year, 12, 31);
-            var entries = _moodService.GetEntriesInRange(from, to);
-            MoodCalendar.RenderYear(year, entries);
+            var entries = _moodService.GetEntriesInRange(from, to).ToList();
+            RunWithToggle(show => MoodCalendar.RenderYear(year, entries, show));
+        }
+
+        private static void RunWithToggle(Action<bool> render)
+        {
+            var showDescriptors = false;
+            while (true)
+            {
+                AnsiConsole.Clear();
+                render(showDescriptors);
+                var key = Console.ReadKey(intercept: true);
+                if (key.Key == ConsoleKey.D)
+                    showDescriptors = !showDescriptors;
+                else
+                    break;
+            }
         }
 
         private static DateTime GetMonday(DateTime date)

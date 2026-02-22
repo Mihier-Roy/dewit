@@ -23,34 +23,57 @@ namespace Dewit.CLI.Utils
         ];
 
         /// <summary>Renders a week grid (Mon–Sun of the given week containing 'weekDay').</summary>
-        public static void RenderWeek(DateTime weekDay, IEnumerable<MoodEntry> entries)
+        public static void RenderWeek(
+            DateTime weekDay,
+            IEnumerable<MoodEntry> entries,
+            bool showDescriptors = false
+        )
         {
+            var entryList = entries.ToList();
             var monday = GetMonday(weekDay);
             var days = Enumerable.Range(0, 7).Select(i => monday.AddDays(i)).ToList();
-            var entryMap = entries.ToDictionary(e => e.Date, e => e);
+            var entryMap = entryList.ToDictionary(e => e.Date, e => e);
 
             AnsiConsole.MarkupLine($"\n[bold]Mood Calendar — Week of {monday:MMM d, yyyy}[/]\n");
             RenderWeekGrid(days, entryMap);
             RenderLegend();
+            RenderHint();
+            if (showDescriptors)
+                RenderDescriptorDetails(entryList);
         }
 
         /// <summary>Renders a monthly grid (all weeks covering the month).</summary>
-        public static void RenderMonth(int year, int month, IEnumerable<MoodEntry> entries)
+        public static void RenderMonth(
+            int year,
+            int month,
+            IEnumerable<MoodEntry> entries,
+            bool showDescriptors = false
+        )
         {
+            var entryList = entries.ToList();
             var firstDay = new DateTime(year, month, 1);
             var lastDay = firstDay.AddMonths(1).AddDays(-1);
-            var entryMap = entries.ToDictionary(e => e.Date, e => e);
+            var entryMap = entryList.ToDictionary(e => e.Date, e => e);
 
             AnsiConsole.MarkupLine($"\n[bold]Mood Calendar — {firstDay:MMMM yyyy}[/]\n");
             RenderMonthGrid(firstDay, lastDay, entryMap);
             RenderLegend();
+            RenderHint();
+            if (showDescriptors)
+                RenderDescriptorDetails(entryList);
         }
 
         /// <summary>Renders a quarter grid (3 months side by side).</summary>
-        public static void RenderQuarter(int year, int quarter, IEnumerable<MoodEntry> entries)
+        public static void RenderQuarter(
+            int year,
+            int quarter,
+            IEnumerable<MoodEntry> entries,
+            bool showDescriptors = false
+        )
         {
+            var entryList = entries.ToList();
             var startMonth = (quarter - 1) * 3 + 1;
-            var entryMap = entries.ToDictionary(e => e.Date, e => e);
+            var entryMap = entryList.ToDictionary(e => e.Date, e => e);
 
             AnsiConsole.MarkupLine($"\n[bold]Mood Calendar — Q{quarter} {year}[/]\n");
 
@@ -64,12 +87,20 @@ namespace Dewit.CLI.Utils
             }
 
             RenderLegend();
+            RenderHint();
+            if (showDescriptors)
+                RenderDescriptorDetails(entryList);
         }
 
         /// <summary>Renders a year grid (12 months).</summary>
-        public static void RenderYear(int year, IEnumerable<MoodEntry> entries)
+        public static void RenderYear(
+            int year,
+            IEnumerable<MoodEntry> entries,
+            bool showDescriptors = false
+        )
         {
-            var entryMap = entries.ToDictionary(e => e.Date, e => e);
+            var entryList = entries.ToList();
+            var entryMap = entryList.ToDictionary(e => e.Date, e => e);
 
             AnsiConsole.MarkupLine($"\n[bold]Mood Calendar — {year}[/]\n");
 
@@ -83,6 +114,9 @@ namespace Dewit.CLI.Utils
             }
 
             RenderLegend();
+            RenderHint();
+            if (showDescriptors)
+                RenderDescriptorDetails(entryList);
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────────
@@ -159,6 +193,44 @@ namespace Dewit.CLI.Utils
             var moods = Enum.GetValues<Mood>();
             var parts = moods.Select(m => $"[{m.ToSpectreColor()}]██[/] {m.ToDisplayName()}");
             AnsiConsole.MarkupLine("Legend: " + string.Join("  ", parts));
+            AnsiConsole.WriteLine();
+        }
+
+        private static void RenderHint()
+        {
+            AnsiConsole.MarkupLine("[grey]  d: toggle descriptors   any other key: exit[/]");
+        }
+
+        private static void RenderDescriptorDetails(List<MoodEntry> entries)
+        {
+            var withDescriptors = entries
+                .Where(e => !string.IsNullOrWhiteSpace(e.Descriptors))
+                .OrderBy(e => e.Date)
+                .ToList();
+
+            if (withDescriptors.Count == 0)
+                return;
+
+            AnsiConsole.WriteLine();
+            AnsiConsole.MarkupLine("[bold]Details:[/]");
+            foreach (var entry in withDescriptors)
+            {
+                if (!Enum.TryParse<Mood>(entry.Mood, out var mood))
+                    continue;
+
+                var color = mood.ToSpectreColor();
+                var descriptors = string.Join(
+                    ", ",
+                    entry.Descriptors.Split(
+                        ',',
+                        StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+                    )
+                );
+                AnsiConsole.MarkupLine(
+                    $"  {entry.Date.ToString("ddd, MMM d"),-14}  [{color}]{mood.ToDisplayName(),-12}[/]  [aqua]{descriptors}[/]"
+                );
+            }
+
             AnsiConsole.WriteLine();
         }
 
