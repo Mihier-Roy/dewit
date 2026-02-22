@@ -13,6 +13,7 @@ namespace Dewit.Data.Data
         public DbSet<ConfigItem> ConfigItems { get; set; }
         public DbSet<MoodEntry> MoodEntries { get; set; }
         public DbSet<MoodDescriptorItem> MoodDescriptors { get; set; }
+        public DbSet<JournalEntry> JournalEntries { get; set; }
     }
 
     public class DewitDbContextFactory : IDesignTimeDbContextFactory<DewitDbContext>

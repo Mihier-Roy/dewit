@@ -8,19 +8,24 @@ using Dewit.Core.Utils;
 using Spectre.Console;
 using MoodEnum = Dewit.Core.Enums.Mood;
 
-namespace Dewit.CLI.Commands.Mood
+namespace Dewit.CLI.Commands.Journal
 {
-    public class UpdateMoodCommand : Command
+    public class UpdateJournalCommand : Command
     {
         private readonly IMoodService _moodService;
+        private readonly IJournalService _journalService;
         private readonly Option<string?> _dateOpt;
         private readonly Option<string?> _moodOpt;
         private readonly Option<string?> _descriptorsOpt;
 
-        public UpdateMoodCommand(IMoodService moodService)
-            : base("update", "Update a mood entry. Defaults to today.")
+        public UpdateJournalCommand(IMoodService moodService, IJournalService journalService)
+            : base(
+                "update",
+                "Update a mood entry and optionally open the journal. Defaults to today."
+            )
         {
             _moodService = moodService;
+            _journalService = journalService;
 
             _dateOpt = new Option<string?>("--date")
             {
@@ -68,7 +73,7 @@ namespace Dewit.CLI.Commands.Mood
                 if (existing == null)
                 {
                     Output.WriteError(
-                        $"No mood entry found for {date:yyyy-MM-dd}. Use 'mood add' to create one."
+                        $"No mood entry found for {date:yyyy-MM-dd}. Use 'journal add' to create one."
                     );
                     return;
                 }
@@ -120,12 +125,31 @@ namespace Dewit.CLI.Commands.Mood
 
                 _moodService.UpdateEntry(date, mood, descriptors);
                 Output.WriteText($"[green]Updated mood entry for {date:yyyy-MM-dd}.[/]");
+
+                // Journal prompt
+                PromptJournal(date, mood ?? existing.Mood, descriptors ?? existing.Descriptors);
             }
             catch (Exception ex)
             {
-                Output.WriteVerbose(ex, "Failed to update mood entry");
+                Output.WriteVerbose(ex, "Failed to update mood/journal entry");
                 Output.WriteError("Failed to update mood entry. Please try again.");
             }
+        }
+
+        private void PromptJournal(DateTime date, string mood, string descriptors)
+        {
+            if (
+                !AnsiConsole.Confirm(
+                    "Would you like to open the journal entry for this date?",
+                    defaultValue: false
+                )
+            )
+                return;
+
+            var entry = _journalService.CreateOrGetEntry(date, mood, descriptors);
+            Output.WriteText($"[grey]Opening {Markup.Escape(entry.FilePath)}...[/]");
+            EditorHelper.Open(entry.FilePath);
+            _journalService.TouchUpdatedAt(date);
         }
     }
 }

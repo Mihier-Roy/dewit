@@ -1,6 +1,6 @@
 # dewit
 
-**dewit** is a simple CLI application for you to track what you're working on.
+**dewit** is a simple CLI application for you to track what you're working on, log your mood, and keep a daily journal.
 
 ![dewit sample](assets/dewit-gif.gif)
 
@@ -10,6 +10,18 @@
 2. Extract the files to a folder of your choice.
 3. (Optional) Add the folder to your PATH so that you have access to the executable at all times.
 4. If 3 has not been done, navigate to the folder with the extracted files and run the application!
+
+## Data Storage
+
+All data is stored in a single directory. By default this is `~/.dewit`, but you can override it by setting the `DEWIT_DIR` environment variable:
+
+```bash
+export DEWIT_DIR=/path/to/your/directory   # Linux/macOS
+$env:DEWIT_DIR = "C:\path\to\your\dir"    # Windows (PowerShell)
+```
+
+- **Database:** `$DEWIT_DIR/dewit.db`
+- **Journal entries:** `$DEWIT_DIR/{year}/{MM-dd}.md` (e.g. `~/.dewit/2026/02-22.md`)
 
 ## Usage
 
@@ -39,10 +51,10 @@ Commands:
     delete <id>     - Delete a task from your list.
     export          - Export all your tasks to a CSV or JSON file.
     import <path>   - Import existing tasks from another Dewit database.
-  mood              - Track and view your daily mood.
-    add             - Log your mood for today.
-    update          - Update a mood entry.
-    view            - Display your mood calendar.
+  journal           - Log your mood and keep a daily journal.
+    add             - Log today's mood (with optional journal entry).
+    update          - Update a mood entry and optionally open its journal.
+    view            - Display your mood calendar with journal indicators.
   config            - View and manage application configuration.
     list            - List all configuration values.
     set <key> <val> - Set a configuration value.
@@ -140,44 +152,70 @@ dewit task import /path/to/file.json
 dewit task import /path/to/file.csv --format csv
 ```
 
-### Mood tracking
+### Mood & Journal
 
-`dewit mood` lets you log a daily mood, update past entries, and view a color-coded calendar.
+`dewit journal` lets you log a daily mood, write journal entries, and view a color-coded calendar.
 
 #### Logging today's mood
 
-Run without flags for an interactive prompt, or pass flags to skip it:
+Run without flags for an interactive wizard, or pass flags to skip prompts:
 
 ```
-dewit mood add
-dewit mood add --mood happy --descriptors calm,focused
+dewit journal add
+dewit journal add --mood happy --descriptors calm,focused
 ```
 
-Moods: `veryhappy` · `happy` · `meh` · `down` · `extradown`
+The wizard walks you through:
+1. **Mood selection** (required) — choose from `veryhappy` · `happy` · `meh` · `down` · `extradown`
+2. **Descriptors** (optional) — multi-select words that describe why you feel that way
+3. **Journal entry** (optional) — if you confirm, your default editor opens a markdown file pre-filled with frontmatter
 
-#### Updating a mood entry
+#### Journal file format
+
+Each journal entry is a markdown file stored at `$DEWIT_DIR/{year}/{MM-dd}.md`:
+
+```markdown
+---
+date: 2026-02-22
+mood: Happy
+mood-descriptors: calm, focused, productive
+---
+
+Your notes here...
+```
+
+The editor used is determined by the `$EDITOR` or `$VISUAL` environment variable. If neither is set, the file opens with your system's default application for `.md` files.
+
+#### Updating an entry
 
 Defaults to today. Use `--date` to target a different day:
 
 ```
-dewit mood update
-dewit mood update --date yesterday --mood meh
-dewit mood update --date 2026-02-15 --mood happy --descriptors content,relaxed
+dewit journal update
+dewit journal update --date yesterday --mood meh
+dewit journal update --date 2026-02-15 --mood happy --descriptors content,relaxed
 ```
 
 `--date` accepts: `today`, `yesterday`, `last monday`, `YYYY-MM-DD`, `MM-DD`
 
+After updating the mood you'll be prompted to open the journal file for that day.
+
 #### Viewing the calendar
 
 ```
-dewit mood view                          # current week (default)
-dewit mood view --duration month
-dewit mood view --duration month  --period 2026-01
-dewit mood view --duration quarter --period 2026-Q1
-dewit mood view --duration year   --period 2026
+dewit journal view                           # current week (default)
+dewit journal view --duration month
+dewit journal view --duration month  --period 2026-01
+dewit journal view --duration quarter --period 2026-Q1
+dewit journal view --duration year   --period 2026
 ```
 
-Each logged day is shown as a colored block — green for Very Happy, through red for Extra Down — with a legend below.
+Each logged day is shown as a colored block — green for Very Happy through red for Extra Down. Days that also have a journal entry show a `J` marker.
+
+**Interactive controls:**
+- `d` — toggle descriptor details
+- `j` — pick a journal entry to open in your editor
+- any other key — exit
 
 ### Configuration
 
@@ -222,6 +260,12 @@ Getting setup to build the project should be relatively straight-forward. The fo
     ```
 
     Note: Run commands from the `Dewit.CLI` directory so the config file can be found.
+
+### Running Tests
+
+```bash
+dotnet test --project src/Dewit.CLI.Tests/Dewit.CLI.Tests.csproj
+```
 
 ### Dependencies/Libraries Used
 

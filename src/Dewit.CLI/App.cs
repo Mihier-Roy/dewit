@@ -1,7 +1,7 @@
 using System;
 using System.CommandLine;
 using Dewit.CLI.Commands.Config;
-using Dewit.CLI.Commands.Mood;
+using Dewit.CLI.Commands.Journal;
 using Dewit.CLI.Commands.Task;
 using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
@@ -13,18 +13,21 @@ namespace Dewit.CLI
         private readonly ITaskService _taskService;
         private readonly IDataConverter _dataConverter;
         private readonly IMoodService _moodService;
+        private readonly IJournalService _journalService;
         private readonly IConfigurationService _configService;
 
         public App(
             ITaskService taskService,
             IDataConverter dataConverter,
             IMoodService moodService,
+            IJournalService journalService,
             IConfigurationService configService
         )
         {
             _taskService = taskService;
             _dataConverter = dataConverter;
             _moodService = moodService;
+            _journalService = journalService;
             _configService = configService;
         }
 
@@ -45,7 +48,7 @@ namespace Dewit.CLI
                     "Create a new task and set it to 'Later'"
                 ),
                 new TaskCommand(_taskService, _dataConverter, _configService),
-                new MoodCommand(_moodService),
+                new JournalCommand(_moodService, _journalService),
                 new ConfigCommand(_configService, _moodService),
             };
             rootCommand.Options.Add(verboseOption);

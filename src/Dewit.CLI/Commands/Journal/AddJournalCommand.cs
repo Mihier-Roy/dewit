@@ -7,18 +7,20 @@ using Dewit.Core.Interfaces;
 using Spectre.Console;
 using MoodEnum = Dewit.Core.Enums.Mood;
 
-namespace Dewit.CLI.Commands.Mood
+namespace Dewit.CLI.Commands.Journal
 {
-    public class AddMoodCommand : Command
+    public class AddJournalCommand : Command
     {
         private readonly IMoodService _moodService;
+        private readonly IJournalService _journalService;
         private readonly Option<string?> _moodOpt;
         private readonly Option<string?> _descriptorsOpt;
 
-        public AddMoodCommand(IMoodService moodService)
-            : base("add", "Log your mood for today.")
+        public AddJournalCommand(IMoodService moodService, IJournalService journalService)
+            : base("add", "Log your mood for today. Optionally add a journal entry.")
         {
             _moodService = moodService;
+            _journalService = journalService;
 
             _moodOpt = new Option<string?>("--mood")
             {
@@ -63,6 +65,7 @@ namespace Dewit.CLI.Commands.Mood
                     );
                     _moodService.UpdateEntry(today, mood, descriptors);
                     Output.WriteText($"[green]Updated today's mood to[/] {mood}.");
+                    PromptJournal(today, mood, descriptors);
                     return;
                 }
 
@@ -80,12 +83,25 @@ namespace Dewit.CLI.Commands.Mood
                                 : $" | [aqua]{selectedDescriptors}[/]"
                         )
                 );
+
+                PromptJournal(today, selectedMood, selectedDescriptors);
             }
             catch (Exception ex)
             {
-                Output.WriteVerbose(ex, "Failed to add mood entry");
+                Output.WriteVerbose(ex, "Failed to add mood/journal entry");
                 Output.WriteError("Failed to log mood. Please try again.");
             }
+        }
+
+        private void PromptJournal(DateTime date, string mood, string descriptors)
+        {
+            if (!AnsiConsole.Confirm("Would you like to add a journal entry?", defaultValue: false))
+                return;
+
+            var entry = _journalService.CreateOrGetEntry(date, mood, descriptors);
+            Output.WriteText($"[grey]Opening {Markup.Escape(entry.FilePath)}...[/]");
+            EditorHelper.Open(entry.FilePath);
+            _journalService.TouchUpdatedAt(date);
         }
 
         private (string mood, string descriptors) ResolveMoodAndDescriptors(
@@ -102,7 +118,6 @@ namespace Dewit.CLI.Commands.Mood
             }
             else
             {
-                // Interactive mood selection
                 var prompt = new SelectionPrompt<MoodEnum>()
                     .Title("How are you feeling [bold]today[/]?")
                     .UseConverter(m => m.ToDisplayName());
@@ -121,7 +136,6 @@ namespace Dewit.CLI.Commands.Mood
             }
             else
             {
-                // Interactive descriptor selection
                 var available = _moodService.GetDescriptors(mood).ToList();
                 if (available.Count == 0)
                 {
