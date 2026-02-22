@@ -22,11 +22,24 @@ namespace Dewit.CLI.Utils
             "Sun",
         ];
 
+        /// <summary>Returns entries that have descriptors or journal entries, ordered by date.</summary>
+        public static List<MoodEntry> GetDetailEntries(
+            IEnumerable<MoodEntry> entries,
+            HashSet<DateTime>? journalDates = null
+        ) =>
+            entries
+                .Where(e =>
+                    !string.IsNullOrWhiteSpace(e.Descriptors)
+                    || (journalDates?.Contains(e.Date) == true)
+                )
+                .OrderBy(e => e.Date)
+                .ToList();
+
         /// <summary>Renders a week grid (Mon–Sun of the given week containing 'weekDay').</summary>
         public static void RenderWeek(
             DateTime weekDay,
             IEnumerable<MoodEntry> entries,
-            bool showDescriptors = false,
+            int selectedDescriptorIndex = -1,
             HashSet<DateTime>? journalDates = null
         )
         {
@@ -38,9 +51,16 @@ namespace Dewit.CLI.Utils
             AnsiConsole.MarkupLine($"\n[bold]Mood Calendar — Week of {monday:MMM d, yyyy}[/]\n");
             RenderWeekGrid(days, entryMap, journalDates);
             RenderLegend();
-            RenderHint(journalDates?.Count > 0);
-            if (showDescriptors)
-                RenderDescriptorDetails(entryList);
+
+            if (selectedDescriptorIndex >= 0)
+            {
+                RenderDescriptorDetails(entryList, journalDates, selectedDescriptorIndex);
+                RenderHint(inNavMode: true);
+            }
+            else
+            {
+                RenderHint(inNavMode: false);
+            }
         }
 
         /// <summary>Renders a monthly grid (all weeks covering the month).</summary>
@@ -48,7 +68,7 @@ namespace Dewit.CLI.Utils
             int year,
             int month,
             IEnumerable<MoodEntry> entries,
-            bool showDescriptors = false,
+            int selectedDescriptorIndex = -1,
             HashSet<DateTime>? journalDates = null
         )
         {
@@ -60,9 +80,16 @@ namespace Dewit.CLI.Utils
             AnsiConsole.MarkupLine($"\n[bold]Mood Calendar — {firstDay:MMMM yyyy}[/]\n");
             RenderMonthGrid(firstDay, lastDay, entryMap, journalDates);
             RenderLegend();
-            RenderHint(journalDates?.Count > 0);
-            if (showDescriptors)
-                RenderDescriptorDetails(entryList);
+
+            if (selectedDescriptorIndex >= 0)
+            {
+                RenderDescriptorDetails(entryList, journalDates, selectedDescriptorIndex);
+                RenderHint(inNavMode: true);
+            }
+            else
+            {
+                RenderHint(inNavMode: false);
+            }
         }
 
         /// <summary>Renders a quarter grid (3 months side by side).</summary>
@@ -70,7 +97,7 @@ namespace Dewit.CLI.Utils
             int year,
             int quarter,
             IEnumerable<MoodEntry> entries,
-            bool showDescriptors = false,
+            int selectedDescriptorIndex = -1,
             HashSet<DateTime>? journalDates = null
         )
         {
@@ -90,16 +117,23 @@ namespace Dewit.CLI.Utils
             }
 
             RenderLegend();
-            RenderHint(journalDates?.Count > 0);
-            if (showDescriptors)
-                RenderDescriptorDetails(entryList);
+
+            if (selectedDescriptorIndex >= 0)
+            {
+                RenderDescriptorDetails(entryList, journalDates, selectedDescriptorIndex);
+                RenderHint(inNavMode: true);
+            }
+            else
+            {
+                RenderHint(inNavMode: false);
+            }
         }
 
         /// <summary>Renders a year grid (12 months).</summary>
         public static void RenderYear(
             int year,
             IEnumerable<MoodEntry> entries,
-            bool showDescriptors = false,
+            int selectedDescriptorIndex = -1,
             HashSet<DateTime>? journalDates = null
         )
         {
@@ -118,9 +152,16 @@ namespace Dewit.CLI.Utils
             }
 
             RenderLegend();
-            RenderHint(journalDates?.Count > 0);
-            if (showDescriptors)
-                RenderDescriptorDetails(entryList);
+
+            if (selectedDescriptorIndex >= 0)
+            {
+                RenderDescriptorDetails(entryList, journalDates, selectedDescriptorIndex);
+                RenderHint(inNavMode: true);
+            }
+            else
+            {
+                RenderHint(inNavMode: false);
+            }
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────────
@@ -209,41 +250,58 @@ namespace Dewit.CLI.Utils
             AnsiConsole.WriteLine();
         }
 
-        private static void RenderHint(bool hasJournalEntries = false)
+        private static void RenderHint(bool inNavMode = false)
         {
-            var hint = hasJournalEntries
-                ? "[grey]  d: toggle descriptors   j: open journal   any other key: exit[/]"
-                : "[grey]  d: toggle descriptors   any other key: exit[/]";
+            var hint = inNavMode
+                ? "[grey]  ↑↓: navigate   enter: open journal   b: back   esc: exit[/]"
+                : "[grey]  d: details   any other key: exit[/]";
             AnsiConsole.MarkupLine(hint);
         }
 
-        private static void RenderDescriptorDetails(List<MoodEntry> entries)
+        private static void RenderDescriptorDetails(
+            List<MoodEntry> entries,
+            HashSet<DateTime>? journalDates = null,
+            int selectedIndex = -1
+        )
         {
-            var withDescriptors = entries
-                .Where(e => !string.IsNullOrWhiteSpace(e.Descriptors))
-                .OrderBy(e => e.Date)
-                .ToList();
+            var detailEntries = GetDetailEntries(entries, journalDates);
 
-            if (withDescriptors.Count == 0)
+            if (detailEntries.Count == 0)
                 return;
 
             AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine("[bold]Details:[/]");
-            foreach (var entry in withDescriptors)
+
+            for (int i = 0; i < detailEntries.Count; i++)
             {
+                var entry = detailEntries[i];
                 if (!Enum.TryParse<Mood>(entry.Mood, out var mood))
                     continue;
 
                 var color = mood.ToSpectreColor();
-                var descriptors = string.Join(
-                    ", ",
-                    entry.Descriptors.Split(
-                        ',',
-                        StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
-                    )
-                );
+                var hasJournal = journalDates?.Contains(entry.Date) == true;
+                var journalTag = hasJournal ? " [aqua][[J]][/]" : "";
+
+                string descriptorText;
+                if (string.IsNullOrWhiteSpace(entry.Descriptors))
+                {
+                    descriptorText = "[grey](no descriptors)[/]";
+                }
+                else
+                {
+                    var descriptors = string.Join(
+                        ", ",
+                        entry.Descriptors.Split(
+                            ',',
+                            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+                        )
+                    );
+                    descriptorText = $"[aqua]{descriptors}[/]";
+                }
+
+                var cursor = i == selectedIndex ? "[bold]>[/] " : "  ";
                 AnsiConsole.MarkupLine(
-                    $"  {entry.Date.ToString("ddd, MMM d"), -14}  [{color}]{mood.ToDisplayName(), -12}[/]  [aqua]{descriptors}[/]"
+                    $"{cursor}{entry.Date.ToString("ddd, MMM d"), -14}  [{color}]{mood.ToDisplayName(), -12}[/]  {descriptorText}{journalTag}"
                 );
             }
 

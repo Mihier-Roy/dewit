@@ -5,6 +5,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using Dewit.CLI.Utils;
+using Dewit.Core.Entities;
+using Dewit.Core.Enums;
 using Dewit.Core.Interfaces;
 using Spectre.Console;
 
@@ -88,9 +90,10 @@ namespace Dewit.CLI.Commands.Journal
             var sunday = monday.AddDays(6);
             var moodEntries = _moodService.GetEntriesInRange(monday, sunday).ToList();
             var journalDates = GetJournalDates(monday, sunday);
-            RunWithToggle(
-                (show, jDates) =>
-                    MoodCalendar.RenderWeek(DateTime.Today, moodEntries, show, jDates),
+            RunInteractive(
+                moodEntries,
+                (selectedIndex, jDates) =>
+                    MoodCalendar.RenderWeek(DateTime.Today, moodEntries, selectedIndex, jDates),
                 journalDates
             );
         }
@@ -128,8 +131,10 @@ namespace Dewit.CLI.Commands.Journal
             var to = from.AddMonths(1).AddDays(-1);
             var moodEntries = _moodService.GetEntriesInRange(from, to).ToList();
             var journalDates = GetJournalDates(from, to);
-            RunWithToggle(
-                (show, jDates) => MoodCalendar.RenderMonth(year, month, moodEntries, show, jDates),
+            RunInteractive(
+                moodEntries,
+                (selectedIndex, jDates) =>
+                    MoodCalendar.RenderMonth(year, month, moodEntries, selectedIndex, jDates),
                 journalDates
             );
         }
@@ -167,9 +172,10 @@ namespace Dewit.CLI.Commands.Journal
             var to = from.AddMonths(3).AddDays(-1);
             var moodEntries = _moodService.GetEntriesInRange(from, to).ToList();
             var journalDates = GetJournalDates(from, to);
-            RunWithToggle(
-                (show, jDates) =>
-                    MoodCalendar.RenderQuarter(year, quarter, moodEntries, show, jDates),
+            RunInteractive(
+                moodEntries,
+                (selectedIndex, jDates) =>
+                    MoodCalendar.RenderQuarter(year, quarter, moodEntries, selectedIndex, jDates),
                 journalDates
             );
         }
@@ -192,8 +198,10 @@ namespace Dewit.CLI.Commands.Journal
             var to = new DateTime(year, 12, 31);
             var moodEntries = _moodService.GetEntriesInRange(from, to).ToList();
             var journalDates = GetJournalDates(from, to);
-            RunWithToggle(
-                (show, jDates) => MoodCalendar.RenderYear(year, moodEntries, show, jDates),
+            RunInteractive(
+                moodEntries,
+                (selectedIndex, jDates) =>
+                    MoodCalendar.RenderYear(year, moodEntries, selectedIndex, jDates),
                 journalDates
             );
         }
@@ -201,55 +209,167 @@ namespace Dewit.CLI.Commands.Journal
         private HashSet<DateTime> GetJournalDates(DateTime from, DateTime to) =>
             _journalService.GetEntriesInRange(from, to).Select(e => e.Date).ToHashSet();
 
-        private void RunWithToggle(
-            Action<bool, HashSet<DateTime>?> render,
+        private void RunInteractive(
+            List<MoodEntry> moodEntries,
+            Action<int, HashSet<DateTime>?> render,
             HashSet<DateTime> journalDates
         )
         {
-            var showDescriptors = false;
+            var jDates = journalDates.Count > 0 ? journalDates : null;
+            var selectedIndex = -1;
+
             while (true)
             {
                 AnsiConsole.Clear();
-                render(showDescriptors, journalDates.Count > 0 ? journalDates : null);
+                render(selectedIndex, jDates);
                 var key = Console.ReadKey(intercept: true);
 
-                if (key.Key == ConsoleKey.D)
+                if (selectedIndex < 0)
                 {
-                    showDescriptors = !showDescriptors;
-                }
-                else if (key.Key == ConsoleKey.J && journalDates.Count > 0)
-                {
-                    OpenJournalEntry(journalDates);
+                    // Calendar mode: d enters detail nav, anything else exits
+                    if (key.Key == ConsoleKey.D)
+                    {
+                        var entries = MoodCalendar.GetDetailEntries(moodEntries, jDates);
+                        if (entries.Count > 0)
+                            selectedIndex = 0;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
                 else
                 {
-                    break;
+                    // Detail nav mode
+                    var detailEntries = MoodCalendar.GetDetailEntries(moodEntries, jDates);
+
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.UpArrow:
+                            selectedIndex = Math.Max(0, selectedIndex - 1);
+                            break;
+
+                        case ConsoleKey.DownArrow:
+                            selectedIndex = Math.Min(
+                                detailEntries.Count - 1,
+                                selectedIndex + 1
+                            );
+                            break;
+
+                        case ConsoleKey.Enter when detailEntries.Count > 0:
+                        {
+                            var moodEntry = detailEntries[selectedIndex];
+                            var hasJournal = jDates?.Contains(moodEntry.Date) == true;
+
+                            if (hasJournal)
+                            {
+                                var journalEntry = _journalService.GetEntryForDate(moodEntry.Date);
+                                if (journalEntry != null && File.Exists(journalEntry.FilePath))
+                                {
+                                    RunJournalView(journalEntry, moodEntry);
+                                }
+                                else
+                                {
+                                    AnsiConsole.Clear();
+                                    AnsiConsole.MarkupLine(
+                                        $"[yellow]Journal file not found for {moodEntry.Date:yyyy-MM-dd}.[/]"
+                                    );
+                                    AnsiConsole.MarkupLine("[grey]Press any key to continue.[/]");
+                                    Console.ReadKey(intercept: true);
+                                }
+                            }
+                            break;
+                        }
+
+                        case ConsoleKey.B:
+                        case ConsoleKey.Backspace:
+                            selectedIndex = -1;
+                            break;
+
+                        case ConsoleKey.Escape:
+                            return;
+                    }
                 }
             }
         }
 
-        private void OpenJournalEntry(HashSet<DateTime> journalDates)
+        private void RunJournalView(JournalEntry journalEntry, MoodEntry moodEntry)
         {
-            AnsiConsole.Clear();
-            var sorted = journalDates.OrderByDescending(d => d).ToList();
-
-            var prompt = new SelectionPrompt<DateTime>()
-                .Title("Select a journal entry to open:")
-                .UseConverter(d => d.ToString("ddd, MMM d, yyyy"))
-                .AddChoices(sorted);
-
-            var selected = AnsiConsole.Prompt(prompt);
-            var entry = _journalService.GetEntryForDate(selected);
-
-            if (entry == null || !File.Exists(entry.FilePath))
+            while (true)
             {
-                Output.WriteText($"[yellow]Journal file not found for {selected:yyyy-MM-dd}.[/]");
-                Console.ReadKey(intercept: true);
-                return;
+                AnsiConsole.Clear();
+                RenderJournalContent(journalEntry, moodEntry);
+                var key = Console.ReadKey(intercept: true);
+
+                if (key.Key == ConsoleKey.E)
+                {
+                    EditorHelper.Open(journalEntry.FilePath);
+                    _journalService.TouchUpdatedAt(journalEntry.Date);
+                }
+                else
+                {
+                    return; // any other key goes back
+                }
+            }
+        }
+
+        private static void RenderJournalContent(JournalEntry journalEntry, MoodEntry moodEntry)
+        {
+            if (Enum.TryParse<Mood>(moodEntry.Mood, out var mood))
+            {
+                var color = mood.ToSpectreColor();
+                AnsiConsole.MarkupLine(
+                    $"\n[bold]{journalEntry.Date:ddd, MMM d, yyyy}[/]  [{color}]{mood.ToDisplayName()}[/]"
+                );
+
+                if (!string.IsNullOrWhiteSpace(moodEntry.Descriptors))
+                {
+                    var descriptors = string.Join(
+                        ", ",
+                        moodEntry.Descriptors.Split(
+                            ',',
+                            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+                        )
+                    );
+                    AnsiConsole.MarkupLine($"[aqua]{descriptors}[/]");
+                }
+            }
+            else
+            {
+                AnsiConsole.MarkupLine($"\n[bold]{journalEntry.Date:ddd, MMM d, yyyy}[/]");
             }
 
-            EditorHelper.Open(entry.FilePath);
-            _journalService.TouchUpdatedAt(selected);
+            AnsiConsole.WriteLine();
+
+            if (File.Exists(journalEntry.FilePath))
+            {
+                var content = File.ReadAllText(journalEntry.FilePath).Trim();
+
+                if (string.IsNullOrWhiteSpace(content))
+                {
+                    AnsiConsole.MarkupLine("[grey](no journal content)[/]");
+                }
+                else
+                {
+                    var termWidth = AnsiConsole.Console.Profile.Width;
+                    var maxWidth = Math.Min(80, termWidth);
+                    var hPad = Math.Max(0, (termWidth - maxWidth) / 2);
+
+                    AnsiConsole.Write(
+                        new Padder(
+                            new Panel(new Text(content)).RoundedBorder().Expand(),
+                            new Padding(hPad, 0, hPad, 0)
+                        )
+                    );
+                }
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[grey](journal file not found)[/]");
+            }
+
+            AnsiConsole.WriteLine();
+            AnsiConsole.MarkupLine("[grey]  e: edit   any other key: back[/]");
         }
 
         private static DateTime GetMonday(DateTime date)
