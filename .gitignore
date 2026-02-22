@@ -366,3 +366,5 @@ FodyWeavers.xsd
 
 *.csv
 *.db
+
+.claude
