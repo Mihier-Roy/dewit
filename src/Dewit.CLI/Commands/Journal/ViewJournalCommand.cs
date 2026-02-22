@@ -2,23 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
 using Spectre.Console;
 
-namespace Dewit.CLI.Commands.Mood
+namespace Dewit.CLI.Commands.Journal
 {
-    public class ViewMoodCommand : Command
+    public class ViewJournalCommand : Command
     {
         private readonly IMoodService _moodService;
+        private readonly IJournalService _journalService;
         private readonly Option<string> _durationOpt;
         private readonly Option<string?> _periodOpt;
 
-        public ViewMoodCommand(IMoodService moodService)
-            : base("view", "Display your mood calendar.")
+        public ViewJournalCommand(IMoodService moodService, IJournalService journalService)
+            : base("view", "Display your mood calendar with journal entry indicators.")
         {
             _moodService = moodService;
+            _journalService = journalService;
 
             _durationOpt = new Option<string>("--duration")
             {
@@ -74,8 +77,8 @@ namespace Dewit.CLI.Commands.Mood
             }
             catch (Exception ex)
             {
-                Output.WriteVerbose(ex, "Failed to render mood calendar");
-                Output.WriteError("Failed to display mood calendar. Please try again.");
+                Output.WriteVerbose(ex, "Failed to render journal calendar");
+                Output.WriteError("Failed to display calendar. Please try again.");
             }
         }
 
@@ -83,8 +86,13 @@ namespace Dewit.CLI.Commands.Mood
         {
             var monday = GetMonday(DateTime.Today);
             var sunday = monday.AddDays(6);
-            var entries = _moodService.GetEntriesInRange(monday, sunday).ToList();
-            RunWithToggle(show => MoodCalendar.RenderWeek(DateTime.Today, entries, show));
+            var moodEntries = _moodService.GetEntriesInRange(monday, sunday).ToList();
+            var journalDates = GetJournalDates(monday, sunday);
+            RunWithToggle(
+                (show, jDates) =>
+                    MoodCalendar.RenderWeek(DateTime.Today, moodEntries, show, jDates),
+                journalDates
+            );
         }
 
         private void RenderMonth(string? period)
@@ -118,8 +126,12 @@ namespace Dewit.CLI.Commands.Mood
 
             var from = new DateTime(year, month, 1);
             var to = from.AddMonths(1).AddDays(-1);
-            var entries = _moodService.GetEntriesInRange(from, to).ToList();
-            RunWithToggle(show => MoodCalendar.RenderMonth(year, month, entries, show));
+            var moodEntries = _moodService.GetEntriesInRange(from, to).ToList();
+            var journalDates = GetJournalDates(from, to);
+            RunWithToggle(
+                (show, jDates) => MoodCalendar.RenderMonth(year, month, moodEntries, show, jDates),
+                journalDates
+            );
         }
 
         private void RenderQuarter(string? period)
@@ -133,7 +145,6 @@ namespace Dewit.CLI.Commands.Mood
             }
             else
             {
-                // Expects "YYYY-Q#"
                 var parts = period.Split('-');
                 if (
                     parts.Length != 2
@@ -154,8 +165,13 @@ namespace Dewit.CLI.Commands.Mood
             var startMonth = (quarter - 1) * 3 + 1;
             var from = new DateTime(year, startMonth, 1);
             var to = from.AddMonths(3).AddDays(-1);
-            var entries = _moodService.GetEntriesInRange(from, to).ToList();
-            RunWithToggle(show => MoodCalendar.RenderQuarter(year, quarter, entries, show));
+            var moodEntries = _moodService.GetEntriesInRange(from, to).ToList();
+            var journalDates = GetJournalDates(from, to);
+            RunWithToggle(
+                (show, jDates) =>
+                    MoodCalendar.RenderQuarter(year, quarter, moodEntries, show, jDates),
+                journalDates
+            );
         }
 
         private void RenderYear(string? period)
@@ -174,23 +190,66 @@ namespace Dewit.CLI.Commands.Mood
 
             var from = new DateTime(year, 1, 1);
             var to = new DateTime(year, 12, 31);
-            var entries = _moodService.GetEntriesInRange(from, to).ToList();
-            RunWithToggle(show => MoodCalendar.RenderYear(year, entries, show));
+            var moodEntries = _moodService.GetEntriesInRange(from, to).ToList();
+            var journalDates = GetJournalDates(from, to);
+            RunWithToggle(
+                (show, jDates) => MoodCalendar.RenderYear(year, moodEntries, show, jDates),
+                journalDates
+            );
         }
 
-        private static void RunWithToggle(Action<bool> render)
+        private HashSet<DateTime> GetJournalDates(DateTime from, DateTime to) =>
+            _journalService.GetEntriesInRange(from, to).Select(e => e.Date).ToHashSet();
+
+        private void RunWithToggle(
+            Action<bool, HashSet<DateTime>?> render,
+            HashSet<DateTime> journalDates
+        )
         {
             var showDescriptors = false;
             while (true)
             {
                 AnsiConsole.Clear();
-                render(showDescriptors);
+                render(showDescriptors, journalDates.Count > 0 ? journalDates : null);
                 var key = Console.ReadKey(intercept: true);
+
                 if (key.Key == ConsoleKey.D)
+                {
                     showDescriptors = !showDescriptors;
+                }
+                else if (key.Key == ConsoleKey.J && journalDates.Count > 0)
+                {
+                    OpenJournalEntry(journalDates);
+                }
                 else
+                {
                     break;
+                }
             }
+        }
+
+        private void OpenJournalEntry(HashSet<DateTime> journalDates)
+        {
+            AnsiConsole.Clear();
+            var sorted = journalDates.OrderByDescending(d => d).ToList();
+
+            var prompt = new SelectionPrompt<DateTime>()
+                .Title("Select a journal entry to open:")
+                .UseConverter(d => d.ToString("ddd, MMM d, yyyy"))
+                .AddChoices(sorted);
+
+            var selected = AnsiConsole.Prompt(prompt);
+            var entry = _journalService.GetEntryForDate(selected);
+
+            if (entry == null || !File.Exists(entry.FilePath))
+            {
+                Output.WriteText($"[yellow]Journal file not found for {selected:yyyy-MM-dd}.[/]");
+                Console.ReadKey(intercept: true);
+                return;
+            }
+
+            EditorHelper.Open(entry.FilePath);
+            _journalService.TouchUpdatedAt(selected);
         }
 
         private static DateTime GetMonday(DateTime date)

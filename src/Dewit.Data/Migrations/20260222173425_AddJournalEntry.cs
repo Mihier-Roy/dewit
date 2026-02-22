@@ -1,3 +1,4 @@
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -5,29 +6,26 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Dewit.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AddMoodEntry : Migration
+    public partial class AddJournalEntry : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "MoodEntries",
+                name: "JournalEntries",
                 columns: table => new
                 {
                     Id = table
                         .Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Mood = table.Column<string>(type: "TEXT", maxLength: 32, nullable: false),
-                    Descriptors = table.Column<string>(
-                        type: "TEXT",
-                        maxLength: 1024,
-                        nullable: false
-                    ),
                     Date = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    FilePath = table.Column<string>(type: "TEXT", maxLength: 512, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MoodEntries", x => x.Id);
+                    table.PrimaryKey("PK_JournalEntries", x => x.Id);
                 }
             );
         }
@@ -35,7 +33,7 @@ namespace Dewit.Data.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(name: "MoodEntries");
+            migrationBuilder.DropTable(name: "JournalEntries");
         }
     }
 }

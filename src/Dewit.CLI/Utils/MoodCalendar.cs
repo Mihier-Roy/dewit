@@ -26,7 +26,8 @@ namespace Dewit.CLI.Utils
         public static void RenderWeek(
             DateTime weekDay,
             IEnumerable<MoodEntry> entries,
-            bool showDescriptors = false
+            bool showDescriptors = false,
+            HashSet<DateTime>? journalDates = null
         )
         {
             var entryList = entries.ToList();
@@ -35,9 +36,9 @@ namespace Dewit.CLI.Utils
             var entryMap = entryList.ToDictionary(e => e.Date, e => e);
 
             AnsiConsole.MarkupLine($"\n[bold]Mood Calendar — Week of {monday:MMM d, yyyy}[/]\n");
-            RenderWeekGrid(days, entryMap);
+            RenderWeekGrid(days, entryMap, journalDates);
             RenderLegend();
-            RenderHint();
+            RenderHint(journalDates?.Count > 0);
             if (showDescriptors)
                 RenderDescriptorDetails(entryList);
         }
@@ -47,7 +48,8 @@ namespace Dewit.CLI.Utils
             int year,
             int month,
             IEnumerable<MoodEntry> entries,
-            bool showDescriptors = false
+            bool showDescriptors = false,
+            HashSet<DateTime>? journalDates = null
         )
         {
             var entryList = entries.ToList();
@@ -56,9 +58,9 @@ namespace Dewit.CLI.Utils
             var entryMap = entryList.ToDictionary(e => e.Date, e => e);
 
             AnsiConsole.MarkupLine($"\n[bold]Mood Calendar — {firstDay:MMMM yyyy}[/]\n");
-            RenderMonthGrid(firstDay, lastDay, entryMap);
+            RenderMonthGrid(firstDay, lastDay, entryMap, journalDates);
             RenderLegend();
-            RenderHint();
+            RenderHint(journalDates?.Count > 0);
             if (showDescriptors)
                 RenderDescriptorDetails(entryList);
         }
@@ -68,7 +70,8 @@ namespace Dewit.CLI.Utils
             int year,
             int quarter,
             IEnumerable<MoodEntry> entries,
-            bool showDescriptors = false
+            bool showDescriptors = false,
+            HashSet<DateTime>? journalDates = null
         )
         {
             var entryList = entries.ToList();
@@ -82,12 +85,12 @@ namespace Dewit.CLI.Utils
                 var firstDay = new DateTime(year, m, 1);
                 var lastDay = firstDay.AddMonths(1).AddDays(-1);
                 AnsiConsole.MarkupLine($"[bold]{firstDay:MMMM}[/]");
-                RenderMonthGrid(firstDay, lastDay, entryMap);
+                RenderMonthGrid(firstDay, lastDay, entryMap, journalDates);
                 AnsiConsole.WriteLine();
             }
 
             RenderLegend();
-            RenderHint();
+            RenderHint(journalDates?.Count > 0);
             if (showDescriptors)
                 RenderDescriptorDetails(entryList);
         }
@@ -96,7 +99,8 @@ namespace Dewit.CLI.Utils
         public static void RenderYear(
             int year,
             IEnumerable<MoodEntry> entries,
-            bool showDescriptors = false
+            bool showDescriptors = false,
+            HashSet<DateTime>? journalDates = null
         )
         {
             var entryList = entries.ToList();
@@ -109,12 +113,12 @@ namespace Dewit.CLI.Utils
                 var firstDay = new DateTime(year, m, 1);
                 var lastDay = firstDay.AddMonths(1).AddDays(-1);
                 AnsiConsole.MarkupLine($"[bold]{firstDay:MMMM}[/]");
-                RenderMonthGrid(firstDay, lastDay, entryMap);
+                RenderMonthGrid(firstDay, lastDay, entryMap, journalDates);
                 AnsiConsole.WriteLine();
             }
 
             RenderLegend();
-            RenderHint();
+            RenderHint(journalDates?.Count > 0);
             if (showDescriptors)
                 RenderDescriptorDetails(entryList);
         }
@@ -123,7 +127,8 @@ namespace Dewit.CLI.Utils
 
         private static void RenderWeekGrid(
             List<DateTime> days,
-            Dictionary<DateTime, MoodEntry> entryMap
+            Dictionary<DateTime, MoodEntry> entryMap,
+            HashSet<DateTime>? journalDates
         )
         {
             var table = new Table().NoBorder().HideHeaders();
@@ -131,10 +136,10 @@ namespace Dewit.CLI.Utils
                 table.AddColumn(new TableColumn("").Centered());
 
             // Row 1: day names + date numbers
-            table.AddRow(days.Select(d => $"[bold]{d:ddd}[/]\n[grey]{d.Day,2}[/]").ToArray());
+            table.AddRow(days.Select(d => $"[bold]{d:ddd}[/]\n[grey]{d.Day, 2}[/]").ToArray());
 
             // Row 2: colored blocks
-            table.AddRow(days.Select(d => DayCell(d, entryMap)).ToArray());
+            table.AddRow(days.Select(d => DayCell(d, entryMap, journalDates)).ToArray());
 
             AnsiConsole.Write(table);
         }
@@ -142,7 +147,8 @@ namespace Dewit.CLI.Utils
         private static void RenderMonthGrid(
             DateTime firstDay,
             DateTime lastDay,
-            Dictionary<DateTime, MoodEntry> entryMap
+            Dictionary<DateTime, MoodEntry> entryMap,
+            HashSet<DateTime>? journalDates
         )
         {
             // Find the Monday on or before the first day of the month
@@ -165,7 +171,7 @@ namespace Dewit.CLI.Utils
                         {
                             if (d < firstDay || d > lastDay)
                                 return ""; // outside month
-                            return $"[grey]{d.Day,2}[/] {DayCell(d, entryMap)}";
+                            return $"[grey]{d.Day, 2}[/] {DayCell(d, entryMap, journalDates)}";
                         })
                         .ToArray()
                 );
@@ -175,16 +181,23 @@ namespace Dewit.CLI.Utils
             AnsiConsole.Write(table);
         }
 
-        private static string DayCell(DateTime day, Dictionary<DateTime, MoodEntry> entryMap)
+        private static string DayCell(
+            DateTime day,
+            Dictionary<DateTime, MoodEntry> entryMap,
+            HashSet<DateTime>? journalDates
+        )
         {
+            var hasJournal = journalDates?.Contains(day.Date) == true;
+            var journalMark = hasJournal ? "[aqua]J[/]" : "";
+
             if (!entryMap.TryGetValue(day.Date, out var entry))
-                return EmptyCell;
+                return EmptyCell + journalMark;
 
             if (!Enum.TryParse<Mood>(entry.Mood, out var mood))
-                return EmptyCell;
+                return EmptyCell + journalMark;
 
             var color = mood.ToSpectreColor();
-            return $"[{color}]{BlockCell}[/]";
+            return $"[{color}]{BlockCell}[/]{journalMark}";
         }
 
         private static void RenderLegend()
@@ -196,9 +209,12 @@ namespace Dewit.CLI.Utils
             AnsiConsole.WriteLine();
         }
 
-        private static void RenderHint()
+        private static void RenderHint(bool hasJournalEntries = false)
         {
-            AnsiConsole.MarkupLine("[grey]  d: toggle descriptors   any other key: exit[/]");
+            var hint = hasJournalEntries
+                ? "[grey]  d: toggle descriptors   j: open journal   any other key: exit[/]"
+                : "[grey]  d: toggle descriptors   any other key: exit[/]";
+            AnsiConsole.MarkupLine(hint);
         }
 
         private static void RenderDescriptorDetails(List<MoodEntry> entries)
@@ -227,7 +243,7 @@ namespace Dewit.CLI.Utils
                     )
                 );
                 AnsiConsole.MarkupLine(
-                    $"  {entry.Date.ToString("ddd, MMM d"),-14}  [{color}]{mood.ToDisplayName(),-12}[/]  [aqua]{descriptors}[/]"
+                    $"  {entry.Date.ToString("ddd, MMM d"), -14}  [{color}]{mood.ToDisplayName(), -12}[/]  [aqua]{descriptors}[/]"
                 );
             }
 

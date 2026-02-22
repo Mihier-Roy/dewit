@@ -1,18 +1,36 @@
+using Dewit.Core.Utils;
+
 namespace Dewit.Data.Data
 {
     public static class DbConnectionString
     {
         public static string Get()
         {
-            var configDir = Path.Combine(
+            var baseDir = DewitDirectory.GetBaseDir();
+            Directory.CreateDirectory(baseDir);
+
+            var newDbPath = Path.Combine(baseDir, "dewit.db");
+
+            // One-time migration from old location
+            var oldDbPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
                 ".config",
-                "dewit"
+                "dewit",
+                "dewit_tasks.db"
             );
 
-            Directory.CreateDirectory(configDir);
+            if (!File.Exists(newDbPath) && File.Exists(oldDbPath))
+            {
+                try
+                {
+                    File.Copy(oldDbPath, newDbPath);
+                }
+                catch (IOException)
+                { /* Concurrent startup or file already appeared */
+                }
+            }
 
-            return $"Data Source={Path.Combine(configDir, "dewit_tasks.db")}";
+            return $"Data Source={newDbPath}";
         }
     }
 }

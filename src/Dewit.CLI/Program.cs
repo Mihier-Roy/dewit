@@ -56,6 +56,7 @@ namespace Dewit.CLI
             services.AddTransient<IConfigurationService, ConfigurationService>();
             services.AddTransient<IDataConverter, DataConverterService>();
             services.AddTransient<IMoodService, MoodService>();
+            services.AddTransient<IJournalService, JournalService>();
 
             services.AddTransient<App>();
 
