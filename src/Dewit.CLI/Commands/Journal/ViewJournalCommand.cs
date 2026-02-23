@@ -280,29 +280,29 @@ namespace Dewit.CLI.Commands.Journal
                             break;
 
                         case ConsoleKey.Enter when detailEntries.Count > 0:
-                        {
-                            var moodEntry = detailEntries[selectedIndex];
-                            var hasJournal = jDates?.Contains(moodEntry.Date) == true;
-
-                            if (hasJournal)
                             {
-                                var journalEntry = _journalService.GetEntryForDate(moodEntry.Date);
-                                if (journalEntry != null && File.Exists(journalEntry.FilePath))
+                                var moodEntry = detailEntries[selectedIndex];
+                                var hasJournal = jDates?.Contains(moodEntry.Date) == true;
+
+                                if (hasJournal)
                                 {
-                                    RunJournalView(journalEntry, moodEntry);
+                                    var journalEntry = _journalService.GetEntryForDate(moodEntry.Date);
+                                    if (journalEntry != null && File.Exists(journalEntry.FilePath))
+                                    {
+                                        RunJournalView(journalEntry, moodEntry);
+                                    }
+                                    else
+                                    {
+                                        AnsiConsole.Clear();
+                                        AnsiConsole.MarkupLine(
+                                            $"[yellow]Journal file not found for {moodEntry.Date:yyyy-MM-dd}.[/]"
+                                        );
+                                        AnsiConsole.MarkupLine("[grey]Press any key to continue.[/]");
+                                        Console.ReadKey(intercept: true);
+                                    }
                                 }
-                                else
-                                {
-                                    AnsiConsole.Clear();
-                                    AnsiConsole.MarkupLine(
-                                        $"[yellow]Journal file not found for {moodEntry.Date:yyyy-MM-dd}.[/]"
-                                    );
-                                    AnsiConsole.MarkupLine("[grey]Press any key to continue.[/]");
-                                    Console.ReadKey(intercept: true);
-                                }
+                                break;
                             }
-                            break;
-                        }
 
                         case ConsoleKey.B:
                         case ConsoleKey.Backspace:
