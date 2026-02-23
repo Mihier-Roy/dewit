@@ -35,7 +35,11 @@ namespace Dewit.CLI.Utils
             );
         }
 
-        public static void WriteTable(string[] columnNames, IEnumerable<TaskItem> data)
+        public static void WriteTable(
+            IAnsiConsole console,
+            string[] columnNames,
+            IEnumerable<TaskItem> data
+        )
         {
             var table = new Table() { Border = TableBorder.Simple };
 
@@ -65,7 +69,7 @@ namespace Dewit.CLI.Utils
                 );
             }
 
-            AnsiConsole.Write(table);
+            console.Write(table);
         }
     }
 }

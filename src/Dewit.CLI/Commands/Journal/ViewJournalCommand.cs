@@ -93,7 +93,13 @@ namespace Dewit.CLI.Commands.Journal
             RunInteractive(
                 moodEntries,
                 (selectedIndex, jDates) =>
-                    MoodCalendar.RenderWeek(DateTime.Today, moodEntries, selectedIndex, jDates),
+                    MoodCalendar.RenderWeek(
+                        AnsiConsole.Console,
+                        DateTime.Today,
+                        moodEntries,
+                        selectedIndex,
+                        jDates
+                    ),
                 journalDates
             );
         }
@@ -134,7 +140,14 @@ namespace Dewit.CLI.Commands.Journal
             RunInteractive(
                 moodEntries,
                 (selectedIndex, jDates) =>
-                    MoodCalendar.RenderMonth(year, month, moodEntries, selectedIndex, jDates),
+                    MoodCalendar.RenderMonth(
+                        AnsiConsole.Console,
+                        year,
+                        month,
+                        moodEntries,
+                        selectedIndex,
+                        jDates
+                    ),
                 journalDates
             );
         }
@@ -175,7 +188,14 @@ namespace Dewit.CLI.Commands.Journal
             RunInteractive(
                 moodEntries,
                 (selectedIndex, jDates) =>
-                    MoodCalendar.RenderQuarter(year, quarter, moodEntries, selectedIndex, jDates),
+                    MoodCalendar.RenderQuarter(
+                        AnsiConsole.Console,
+                        year,
+                        quarter,
+                        moodEntries,
+                        selectedIndex,
+                        jDates
+                    ),
                 journalDates
             );
         }
@@ -201,7 +221,13 @@ namespace Dewit.CLI.Commands.Journal
             RunInteractive(
                 moodEntries,
                 (selectedIndex, jDates) =>
-                    MoodCalendar.RenderYear(year, moodEntries, selectedIndex, jDates),
+                    MoodCalendar.RenderYear(
+                        AnsiConsole.Console,
+                        year,
+                        moodEntries,
+                        selectedIndex,
+                        jDates
+                    ),
                 journalDates
             );
         }
@@ -250,10 +276,7 @@ namespace Dewit.CLI.Commands.Journal
                             break;
 
                         case ConsoleKey.DownArrow:
-                            selectedIndex = Math.Min(
-                                detailEntries.Count - 1,
-                                selectedIndex + 1
-                            );
+                            selectedIndex = Math.Min(detailEntries.Count - 1, selectedIndex + 1);
                             break;
 
                         case ConsoleKey.Enter when detailEntries.Count > 0:

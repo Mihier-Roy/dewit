@@ -2,6 +2,7 @@ using System;
 using System.CommandLine;
 using Dewit.CLI.Utils;
 using Dewit.Core.Interfaces;
+using Spectre.Console;
 
 namespace Dewit.CLI.Commands.Task
 {
@@ -82,6 +83,7 @@ namespace Dewit.CLI.Commands.Task
                     $"Displaying tasks using parameters -> [aqua]sort[/]: {sort}, [aqua]duration[/] : {duration}, [aqua]status[/]: {status ?? "n/a"}, [aqua]tags[/]:{tags}"
                 );
                 Output.WriteTable(
+                    AnsiConsole.Console,
                     new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" },
                     tasks
                 );

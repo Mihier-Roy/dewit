@@ -5,6 +5,7 @@ using Dewit.CLI.Utils;
 using Dewit.Core.Entities;
 using Dewit.Core.Enums;
 using Dewit.Core.Interfaces;
+using Spectre.Console;
 
 namespace Dewit.CLI.Commands.Task
 {
@@ -65,6 +66,7 @@ namespace Dewit.CLI.Commands.Task
 
                 Output.WriteText($"[green]Succesfully imported data.[/] Path : {path}");
                 Output.WriteTable(
+                    AnsiConsole.Console,
                     new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" },
                     tasksFromFile
                 );

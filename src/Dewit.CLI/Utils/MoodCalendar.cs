@@ -37,6 +37,7 @@ namespace Dewit.CLI.Utils
 
         /// <summary>Renders a week grid (Mon–Sun of the given week containing 'weekDay').</summary>
         public static void RenderWeek(
+            IAnsiConsole console,
             DateTime weekDay,
             IEnumerable<MoodEntry> entries,
             int selectedDescriptorIndex = -1,
@@ -48,23 +49,24 @@ namespace Dewit.CLI.Utils
             var days = Enumerable.Range(0, 7).Select(i => monday.AddDays(i)).ToList();
             var entryMap = entryList.ToDictionary(e => e.Date, e => e);
 
-            AnsiConsole.MarkupLine($"\n[bold]Mood Calendar — Week of {monday:MMM d, yyyy}[/]\n");
-            RenderWeekGrid(days, entryMap, journalDates);
-            RenderLegend();
+            console.MarkupLine($"\n[bold]Mood Calendar — Week of {monday:MMM d, yyyy}[/]\n");
+            RenderWeekGrid(console, days, entryMap, journalDates);
+            RenderLegend(console);
 
             if (selectedDescriptorIndex >= 0)
             {
-                RenderDescriptorDetails(entryList, journalDates, selectedDescriptorIndex);
-                RenderHint(inNavMode: true);
+                RenderDescriptorDetails(console, entryList, journalDates, selectedDescriptorIndex);
+                RenderHint(console, inNavMode: true);
             }
             else
             {
-                RenderHint(inNavMode: false);
+                RenderHint(console, inNavMode: false);
             }
         }
 
         /// <summary>Renders a monthly grid (all weeks covering the month).</summary>
         public static void RenderMonth(
+            IAnsiConsole console,
             int year,
             int month,
             IEnumerable<MoodEntry> entries,
@@ -77,23 +79,24 @@ namespace Dewit.CLI.Utils
             var lastDay = firstDay.AddMonths(1).AddDays(-1);
             var entryMap = entryList.ToDictionary(e => e.Date, e => e);
 
-            AnsiConsole.MarkupLine($"\n[bold]Mood Calendar — {firstDay:MMMM yyyy}[/]\n");
-            RenderMonthGrid(firstDay, lastDay, entryMap, journalDates);
-            RenderLegend();
+            console.MarkupLine($"\n[bold]Mood Calendar — {firstDay:MMMM yyyy}[/]\n");
+            RenderMonthGrid(console, firstDay, lastDay, entryMap, journalDates);
+            RenderLegend(console);
 
             if (selectedDescriptorIndex >= 0)
             {
-                RenderDescriptorDetails(entryList, journalDates, selectedDescriptorIndex);
-                RenderHint(inNavMode: true);
+                RenderDescriptorDetails(console, entryList, journalDates, selectedDescriptorIndex);
+                RenderHint(console, inNavMode: true);
             }
             else
             {
-                RenderHint(inNavMode: false);
+                RenderHint(console, inNavMode: false);
             }
         }
 
         /// <summary>Renders a quarter grid (3 months side by side).</summary>
         public static void RenderQuarter(
+            IAnsiConsole console,
             int year,
             int quarter,
             IEnumerable<MoodEntry> entries,
@@ -105,32 +108,33 @@ namespace Dewit.CLI.Utils
             var startMonth = (quarter - 1) * 3 + 1;
             var entryMap = entryList.ToDictionary(e => e.Date, e => e);
 
-            AnsiConsole.MarkupLine($"\n[bold]Mood Calendar — Q{quarter} {year}[/]\n");
+            console.MarkupLine($"\n[bold]Mood Calendar — Q{quarter} {year}[/]\n");
 
             for (int m = startMonth; m < startMonth + 3; m++)
             {
                 var firstDay = new DateTime(year, m, 1);
                 var lastDay = firstDay.AddMonths(1).AddDays(-1);
-                AnsiConsole.MarkupLine($"[bold]{firstDay:MMMM}[/]");
-                RenderMonthGrid(firstDay, lastDay, entryMap, journalDates);
-                AnsiConsole.WriteLine();
+                console.MarkupLine($"[bold]{firstDay:MMMM}[/]");
+                RenderMonthGrid(console, firstDay, lastDay, entryMap, journalDates);
+                console.WriteLine();
             }
 
-            RenderLegend();
+            RenderLegend(console);
 
             if (selectedDescriptorIndex >= 0)
             {
-                RenderDescriptorDetails(entryList, journalDates, selectedDescriptorIndex);
-                RenderHint(inNavMode: true);
+                RenderDescriptorDetails(console, entryList, journalDates, selectedDescriptorIndex);
+                RenderHint(console, inNavMode: true);
             }
             else
             {
-                RenderHint(inNavMode: false);
+                RenderHint(console, inNavMode: false);
             }
         }
 
         /// <summary>Renders a year grid (12 months).</summary>
         public static void RenderYear(
+            IAnsiConsole console,
             int year,
             IEnumerable<MoodEntry> entries,
             int selectedDescriptorIndex = -1,
@@ -140,33 +144,34 @@ namespace Dewit.CLI.Utils
             var entryList = entries.ToList();
             var entryMap = entryList.ToDictionary(e => e.Date, e => e);
 
-            AnsiConsole.MarkupLine($"\n[bold]Mood Calendar — {year}[/]\n");
+            console.MarkupLine($"\n[bold]Mood Calendar — {year}[/]\n");
 
             for (int m = 1; m <= 12; m++)
             {
                 var firstDay = new DateTime(year, m, 1);
                 var lastDay = firstDay.AddMonths(1).AddDays(-1);
-                AnsiConsole.MarkupLine($"[bold]{firstDay:MMMM}[/]");
-                RenderMonthGrid(firstDay, lastDay, entryMap, journalDates);
-                AnsiConsole.WriteLine();
+                console.MarkupLine($"[bold]{firstDay:MMMM}[/]");
+                RenderMonthGrid(console, firstDay, lastDay, entryMap, journalDates);
+                console.WriteLine();
             }
 
-            RenderLegend();
+            RenderLegend(console);
 
             if (selectedDescriptorIndex >= 0)
             {
-                RenderDescriptorDetails(entryList, journalDates, selectedDescriptorIndex);
-                RenderHint(inNavMode: true);
+                RenderDescriptorDetails(console, entryList, journalDates, selectedDescriptorIndex);
+                RenderHint(console, inNavMode: true);
             }
             else
             {
-                RenderHint(inNavMode: false);
+                RenderHint(console, inNavMode: false);
             }
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────────
 
         private static void RenderWeekGrid(
+            IAnsiConsole console,
             List<DateTime> days,
             Dictionary<DateTime, MoodEntry> entryMap,
             HashSet<DateTime>? journalDates
@@ -182,10 +187,11 @@ namespace Dewit.CLI.Utils
             // Row 2: colored blocks
             table.AddRow(days.Select(d => DayCell(d, entryMap, journalDates)).ToArray());
 
-            AnsiConsole.Write(table);
+            console.Write(table);
         }
 
         private static void RenderMonthGrid(
+            IAnsiConsole console,
             DateTime firstDay,
             DateTime lastDay,
             Dictionary<DateTime, MoodEntry> entryMap,
@@ -219,7 +225,7 @@ namespace Dewit.CLI.Utils
                 cursor = cursor.AddDays(7);
             }
 
-            AnsiConsole.Write(table);
+            console.Write(table);
         }
 
         private static string DayCell(
@@ -241,24 +247,25 @@ namespace Dewit.CLI.Utils
             return $"[{color}]{BlockCell}[/]{journalMark}";
         }
 
-        private static void RenderLegend()
+        private static void RenderLegend(IAnsiConsole console)
         {
-            AnsiConsole.WriteLine();
+            console.WriteLine();
             var moods = Enum.GetValues<Mood>();
             var parts = moods.Select(m => $"[{m.ToSpectreColor()}]██[/] {m.ToDisplayName()}");
-            AnsiConsole.MarkupLine("Legend: " + string.Join("  ", parts));
-            AnsiConsole.WriteLine();
+            console.MarkupLine("Legend: " + string.Join("  ", parts));
+            console.WriteLine();
         }
 
-        private static void RenderHint(bool inNavMode = false)
+        private static void RenderHint(IAnsiConsole console, bool inNavMode = false)
         {
             var hint = inNavMode
                 ? "[grey]  ↑↓: navigate   enter: open journal   b: back   esc: exit[/]"
                 : "[grey]  d: details   any other key: exit[/]";
-            AnsiConsole.MarkupLine(hint);
+            console.MarkupLine(hint);
         }
 
         private static void RenderDescriptorDetails(
+            IAnsiConsole console,
             List<MoodEntry> entries,
             HashSet<DateTime>? journalDates = null,
             int selectedIndex = -1
@@ -269,8 +276,8 @@ namespace Dewit.CLI.Utils
             if (detailEntries.Count == 0)
                 return;
 
-            AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine("[bold]Details:[/]");
+            console.WriteLine();
+            console.MarkupLine("[bold]Details:[/]");
 
             for (int i = 0; i < detailEntries.Count; i++)
             {
@@ -300,12 +307,12 @@ namespace Dewit.CLI.Utils
                 }
 
                 var cursor = i == selectedIndex ? "[bold]>[/] " : "  ";
-                AnsiConsole.MarkupLine(
+                console.MarkupLine(
                     $"{cursor}{entry.Date.ToString("ddd, MMM d"),-14}  [{color}]{mood.ToDisplayName(),-12}[/]  {descriptorText}{journalTag}"
                 );
             }
 
-            AnsiConsole.WriteLine();
+            console.WriteLine();
         }
 
         private static DateTime GetMonday(DateTime date)

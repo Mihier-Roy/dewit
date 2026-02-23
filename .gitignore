@@ -367,4 +367,7 @@ FodyWeavers.xsd
 *.csv
 *.db
 
+# Verify snapshot testing - received files are transient, only verified files are committed
+*.received.txt
+
 .claude
