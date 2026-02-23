@@ -11,6 +11,8 @@
   <ItemGroup>
     <PackageReference Include="TUnit" Version="1.13.51" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.3" />
+    <PackageReference Include="Verify.TUnit" Version="31.4.3" />
+    <PackageReference Include="Spectre.Console.Testing" Version="0.54.0" />
   </ItemGroup>
 
   <ItemGroup>

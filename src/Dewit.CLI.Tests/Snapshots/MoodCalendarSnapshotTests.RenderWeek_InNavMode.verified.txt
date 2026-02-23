@@ -1,0 +1,15 @@
+﻿
+Mood Calendar — Week of Jun 3, 2024
+
+ Mon    Tue    Wed    Thu    Fri    Sat    Sun  
+   3      4      5      6      7      8      9  
+██████ ██████ ░░░░░░ ██████ ░░░░░░ ██████ ░░░░░░
+
+Legend: ██ Very Happy  ██ Happy  ██ Meh  ██ Down  ██ Extra Down
+
+
+Details:
+> Mon, Jun 3      Happy         calm, focused
+  Thu, Jun 6      Meh           tired
+
+  ↑↓: navigate   enter: open journal   b: back   esc: exit

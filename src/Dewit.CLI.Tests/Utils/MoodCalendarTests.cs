@@ -6,7 +6,12 @@ namespace Dewit.CLI.Tests.Utils;
 public class MoodCalendarTests
 {
     private static MoodEntry Entry(DateTime date, string mood = "Happy", string descriptors = "") =>
-        new() { Date = date.Date, Mood = mood, Descriptors = descriptors };
+        new()
+        {
+            Date = date.Date,
+            Mood = mood,
+            Descriptors = descriptors,
+        };
 
     [Test]
     public async Task GetDetailEntries_ReturnsEntriesWithDescriptors()
@@ -30,7 +35,7 @@ public class MoodCalendarTests
         var today = DateTime.Today;
         var entries = new[]
         {
-            Entry(today, descriptors: ""),         // no descriptors
+            Entry(today, descriptors: ""), // no descriptors
             Entry(today.AddDays(-1), descriptors: ""), // no descriptors, no journal
         };
         var journalDates = new HashSet<DateTime> { today };
