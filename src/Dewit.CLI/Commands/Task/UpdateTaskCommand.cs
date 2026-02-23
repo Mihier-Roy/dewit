@@ -13,6 +13,8 @@ namespace Dewit.CLI.Commands.Task
         private readonly Option<string?> _addTagsOpt;
         private readonly Option<string?> _removeTagsOpt;
         private readonly Option<bool> _resetTagsOpt;
+        private readonly Option<string?> _recurOpt;
+        private readonly Option<bool> _removeRecurOpt;
 
         public UpdateTaskCommand(ITaskService taskService)
             : base("edit", "Edit an existing task")
@@ -37,12 +39,24 @@ namespace Dewit.CLI.Commands.Task
             {
                 Description = "Remove all tags from an existing task.",
             };
+            _recurOpt = new Option<string?>("--recur")
+            {
+                Description =
+                    "Assign or change the recurrence schedule. "
+                    + "Examples: daily, weekly, monthly, yearly, 2d, 3w, 2m.",
+            };
+            _removeRecurOpt = new Option<bool>("--remove-recur")
+            {
+                Description = "Remove the recurrence schedule from this task.",
+            };
 
             Arguments.Add(_idArg);
             Options.Add(_titleOpt);
             Options.Add(_addTagsOpt);
             Options.Add(_removeTagsOpt);
             Options.Add(_resetTagsOpt);
+            Options.Add(_recurOpt);
+            Options.Add(_removeRecurOpt);
 
             SetAction(parseResult =>
             {
@@ -51,7 +65,9 @@ namespace Dewit.CLI.Commands.Task
                 var addTags = parseResult.GetValue(_addTagsOpt);
                 var removeTags = parseResult.GetValue(_removeTagsOpt);
                 var resetTags = parseResult.GetValue(_resetTagsOpt);
-                UpdateTaskDetails(id, title, addTags, removeTags, resetTags);
+                var recur = parseResult.GetValue(_recurOpt);
+                var removeRecur = parseResult.GetValue(_removeRecurOpt);
+                UpdateTaskDetails(id, title, addTags, removeTags, resetTags, recur, removeRecur);
             });
         }
 
@@ -60,7 +76,9 @@ namespace Dewit.CLI.Commands.Task
             string? title = null,
             string? addTags = null,
             string? removeTags = null,
-            bool resetTags = false
+            bool resetTags = false,
+            string? recur = null,
+            bool removeRecur = false
         )
         {
             try
@@ -70,15 +88,27 @@ namespace Dewit.CLI.Commands.Task
                     title,
                     addTags,
                     removeTags,
-                    resetTags
+                    resetTags,
+                    recur,
+                    removeRecur
                 );
+
+                var recurInfo =
+                    task.RecurringSchedule != null
+                        ? $" | [blue]Recur[/] = {task.RecurringSchedule.ToLabel()}"
+                        : "";
 
                 Output.WriteVerbose(
                     $"Successfully updated task : {task.Id} | {task.TaskDescription} | {task.Tags}"
                 );
                 Output.WriteText(
-                    $"[green]Successfully updated task[/] : {task.Id} | {task.TaskDescription} | {task.Tags}"
+                    $"[green]Successfully updated task[/] : {task.Id} | {task.TaskDescription} | {task.Tags}{recurInfo}"
                 );
+            }
+            catch (ArgumentException ex)
+            {
+                Output.WriteVerbose(ex, "Invalid argument updating task");
+                Output.WriteError(ex.Message);
             }
             catch (ApplicationException ex)
             {

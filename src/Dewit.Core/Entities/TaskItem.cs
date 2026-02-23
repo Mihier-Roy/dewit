@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Dewit.Core.Entities
 {
@@ -14,5 +15,10 @@ namespace Dewit.Core.Entities
         public string Tags { get; set; } = string.Empty;
         public DateTime AddedOn { get; set; }
         public DateTime CompletedOn { get; set; }
+
+        public int? RecurringScheduleId { get; set; }
+
+        [NotMapped]
+        public RecurringSchedule? RecurringSchedule { get; set; }
     }
 }

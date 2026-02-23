@@ -50,6 +50,11 @@ namespace Dewit.CLI.Utils
 
             foreach (var item in data)
             {
+                var recurCell =
+                    item.RecurringSchedule != null
+                        ? $"[blue]↻ {item.RecurringSchedule.ToLabel()}[/]"
+                        : "";
+
                 table.AddRow(
                     new string[]
                     {
@@ -65,6 +70,7 @@ namespace Dewit.CLI.Utils
                         item.CompletedOn == DateTime.Parse("0001-01-01")
                             ? ""
                             : item.CompletedOn.ToString("dd-MMM-yy HH:MM"),
+                        recurCell,
                     }
                 );
             }

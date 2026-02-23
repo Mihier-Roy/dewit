@@ -15,6 +15,7 @@ public class OutputSnapshotTests
         "Tags",
         "Added On",
         "Completed On",
+        "Recur",
     ];
 
     private static string Render(Action<IAnsiConsole> renderAction)
@@ -48,6 +49,7 @@ public class OutputSnapshotTests
                 Status = "Later",
                 Tags = "",
                 AddedOn = new DateTime(2024, 6, 4, 8, 15, 0),
+                RecurringSchedule = new RecurringSchedule { FrequencyType = "weekly", Interval = 1 },
             },
         ];
 

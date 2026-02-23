@@ -38,7 +38,7 @@ namespace Dewit.CLI.Commands.Task
         {
             try
             {
-                _taskService.CompleteTask(id, completedAt ?? string.Empty);
+                var nextTask = _taskService.CompleteTask(id, completedAt ?? string.Empty);
 
                 // Get the task to display its details
                 var tasks = _taskService.GetTasks(duration: "all");
@@ -49,6 +49,13 @@ namespace Dewit.CLI.Commands.Task
                     Output.WriteVerbose($"Completed task : {task.Id} | {task.TaskDescription}");
                     Output.WriteText(
                         $"[green]Completed task[/] : {task.Id} | {task.TaskDescription}"
+                    );
+                }
+
+                if (nextTask != null)
+                {
+                    Output.WriteText(
+                        $"[blue]Next occurrence scheduled:[/] {nextTask.AddedOn:dd-MMM-yy}"
                     );
                 }
             }
