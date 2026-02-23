@@ -267,6 +267,25 @@ Getting setup to build the project should be relatively straight-forward. The fo
 dotnet test --project src/Dewit.CLI.Tests/Dewit.CLI.Tests.csproj
 ```
 
+#### Snapshot tests
+
+TUI screens are snapshot-tested using [VerifyTests/Verify](https://github.com/VerifyTests/Verify) with [Spectre.Console.Testing](https://spectreconsole.net/testing). The verified snapshots live in `src/Dewit.CLI.Tests/Snapshots/*.verified.txt`.
+
+When a snapshot test fails, Verify writes a `*.received.txt` file next to the corresponding `*.verified.txt` file so you can diff them. If the change is intentional, accept it by renaming the received file to the verified file:
+
+```bash
+# Accept a single snapshot
+mv src/Dewit.CLI.Tests/Snapshots/MoodCalendarSnapshotTests.RenderWeek_WithMoods.received.txt \
+   src/Dewit.CLI.Tests/Snapshots/MoodCalendarSnapshotTests.RenderWeek_WithMoods.verified.txt
+
+# Accept all pending snapshots at once (bash)
+for f in src/Dewit.CLI.Tests/Snapshots/*.received.txt; do
+  mv "$f" "${f/.received./.verified.}"
+done
+```
+
+`*.received.txt` files are git-ignored and should never be committed.
+
 ### Dependencies/Libraries Used
 
 -   [System.CommandLine](https://github.com/dotnet/command-line-api)
