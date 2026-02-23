@@ -8,10 +8,15 @@ namespace Dewit.Core.Services
     public class TaskService : ITaskService
     {
         private readonly IRepository<TaskItem> _repository;
+        private readonly IRepository<RecurringSchedule> _scheduleRepository;
 
-        public TaskService(IRepository<TaskItem> repository)
+        public TaskService(
+            IRepository<TaskItem> repository,
+            IRepository<RecurringSchedule> scheduleRepository
+        )
         {
             _repository = repository;
+            _scheduleRepository = scheduleRepository;
         }
 
         public IEnumerable<TaskItem> GetTasks(
@@ -72,10 +77,36 @@ namespace Dewit.Core.Services
                 _ => tasks.OrderByDescending(p => p.AddedOn),
             };
 
-            return tasks;
+            var result = tasks.ToList();
+
+            // Populate RecurringSchedule on tasks that have one (batch load to avoid N+1)
+            var scheduleIds = result
+                .Where(t => t.RecurringScheduleId.HasValue)
+                .Select(t => t.RecurringScheduleId!.Value)
+                .ToHashSet();
+
+            if (scheduleIds.Count > 0)
+            {
+                var schedules = _scheduleRepository
+                    .List()
+                    .Where(s => scheduleIds.Contains(s.Id))
+                    .ToDictionary(s => s.Id);
+
+                foreach (var task in result.Where(t => t.RecurringScheduleId.HasValue))
+                    task.RecurringSchedule = schedules.GetValueOrDefault(
+                        task.RecurringScheduleId!.Value
+                    );
+            }
+
+            return result;
         }
 
-        public void AddTask(string title, string status, string? tags = null)
+        public void AddTask(
+            string title,
+            string status,
+            string? tags = null,
+            string? recur = null
+        )
         {
             if (string.IsNullOrWhiteSpace(title))
                 throw new ArgumentException("Task title cannot be empty", nameof(title));
@@ -87,12 +118,21 @@ namespace Dewit.Core.Services
                 tags = Sanitizer.DeduplicateTags(tags);
             }
 
+            int? scheduleId = null;
+            if (!string.IsNullOrEmpty(recur))
+            {
+                var schedule = RecurParser.Parse(recur);
+                _scheduleRepository.Add(schedule);
+                scheduleId = schedule.Id;
+            }
+
             var newTask = new TaskItem
             {
                 TaskDescription = title,
                 AddedOn = DateTime.Now,
                 Status = status,
                 Tags = tags ?? string.Empty,
+                RecurringScheduleId = scheduleId,
             };
 
             try
@@ -121,7 +161,7 @@ namespace Dewit.Core.Services
             }
         }
 
-        public void CompleteTask(int id, string completedAt)
+        public TaskItem? CompleteTask(int id, string completedAt)
         {
             var task = _repository.GetById(id);
             if (task == null)
@@ -160,6 +200,42 @@ namespace Dewit.Core.Services
             {
                 throw new ApplicationException($"Failed to complete task with ID {id}", ex);
             }
+
+            // If not recurring, nothing more to do
+            if (!task.RecurringScheduleId.HasValue)
+                return null;
+
+            var schedule = _scheduleRepository.GetById(task.RecurringScheduleId.Value);
+            if (schedule == null)
+                return null; // orphaned FK — graceful no-op
+
+            var nextDue = schedule.ComputeNextDueDate(task.AddedOn);
+
+            // Ensure next occurrence is always in the future
+            if (nextDue.Date < DateTime.Today)
+                nextDue = schedule.ComputeNextDueDate(DateTime.Today);
+
+            var nextTask = new TaskItem
+            {
+                TaskDescription = task.TaskDescription,
+                Status = "Doing",
+                Tags = task.Tags,
+                AddedOn = nextDue,
+                RecurringScheduleId = task.RecurringScheduleId,
+            };
+
+            try
+            {
+                _repository.Add(nextTask);
+                return nextTask;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException(
+                    "Failed to create next recurring task occurrence",
+                    ex
+                );
+            }
         }
 
         public TaskItem UpdateTaskDetails(
@@ -167,7 +243,9 @@ namespace Dewit.Core.Services
             string? title = null,
             string? addTags = null,
             string? removeTags = null,
-            bool resetTags = false
+            bool resetTags = false,
+            string? recur = null,
+            bool removeRecur = false
         )
         {
             var task = _repository.GetById(id);
@@ -205,9 +283,28 @@ namespace Dewit.Core.Services
                 }
             }
 
+            // Handle recurrence — removeRecur takes precedence
+            if (removeRecur)
+            {
+                task.RecurringScheduleId = null;
+            }
+            else if (!string.IsNullOrEmpty(recur))
+            {
+                var schedule = RecurParser.Parse(recur);
+                _scheduleRepository.Add(schedule);
+                task.RecurringScheduleId = schedule.Id;
+            }
+
             try
             {
                 _repository.Update(task);
+
+                // Reload RecurringSchedule for the returned task
+                if (task.RecurringScheduleId.HasValue)
+                    task.RecurringSchedule = _scheduleRepository.GetById(
+                        task.RecurringScheduleId.Value
+                    );
+
                 return task;
             }
             catch (Exception ex)

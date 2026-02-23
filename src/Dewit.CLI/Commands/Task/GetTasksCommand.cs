@@ -84,7 +84,7 @@ namespace Dewit.CLI.Commands.Task
                 );
                 Output.WriteTable(
                     AnsiConsole.Console,
-                    new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On" },
+                    new string[] { "ID", "Task", "Status", "Tags", "Added On", "Completed On", "Recur" },
                     tasks
                 );
             }

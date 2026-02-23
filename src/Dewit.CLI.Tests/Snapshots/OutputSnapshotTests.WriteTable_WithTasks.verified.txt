@@ -1,7 +1,7 @@
-﻿                                                                                              
-  ID   Task                        Status   Tags           Added On          Completed On     
-──────────────────────────────────────────────────────────────────────────────────────────────
-  0    Implement login screen      Doing    feature,auth   03-Jun-24 09:00                    
-  0    Fix signup validation bug   Done     bug            01-Jun-24 10:30   02-Jun-24 14:06  
-  0    Write documentation         Later                   04-Jun-24 08:15                    
-                                                                                              
+﻿                                                                                                         
+  ID   Task                        Status   Tags           Added On          Completed On      Recur     
+─────────────────────────────────────────────────────────────────────────────────────────────────────────
+  0    Implement login screen      Doing    feature,auth   03-Jun-24 09:00                               
+  0    Fix signup validation bug   Done     bug            01-Jun-24 10:30   02-Jun-24 14:06             
+  0    Write documentation         Later                   04-Jun-24 08:15                     ↻ Weekly  
+                                                                                                         
