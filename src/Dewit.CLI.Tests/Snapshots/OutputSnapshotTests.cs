@@ -11,6 +11,7 @@ public class OutputSnapshotTests
     [
         "ID",
         "Task",
+        "Description",
         "Status",
         "Tags",
         "Added On",
@@ -30,14 +31,15 @@ public class OutputSnapshotTests
         [
             new()
             {
-                TaskDescription = "Implement login screen",
+                Title = "Implement login screen",
                 Status = "Doing",
                 Tags = "feature,auth",
                 AddedOn = new DateTime(2024, 6, 3, 9, 0, 0),
+                Description = "See Figma designs at https://figma.com/file/abc and follow the auth spec doc for implementation details.",
             },
             new()
             {
-                TaskDescription = "Fix signup validation bug",
+                Title = "Fix signup validation bug",
                 Status = "Done",
                 Tags = "bug",
                 AddedOn = new DateTime(2024, 6, 1, 10, 30, 0),
@@ -45,7 +47,7 @@ public class OutputSnapshotTests
             },
             new()
             {
-                TaskDescription = "Write documentation",
+                Title = "Write documentation",
                 Status = "Later",
                 Tags = "",
                 AddedOn = new DateTime(2024, 6, 4, 8, 15, 0),

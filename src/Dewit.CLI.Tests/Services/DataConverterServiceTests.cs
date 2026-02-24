@@ -34,13 +34,13 @@ public class DataConverterServiceTests
         {
             new TaskItem
             {
-                TaskDescription = "Test 1",
+                Title = "Test 1",
                 Status = "Doing",
                 AddedOn = DateTime.Now,
             },
             new TaskItem
             {
-                TaskDescription = "Test 2",
+                Title = "Test 2",
                 Status = "Done",
                 AddedOn = DateTime.Now,
             },
@@ -59,13 +59,13 @@ public class DataConverterServiceTests
         {
             new TaskItem
             {
-                TaskDescription = "Test 1",
+                Title = "Test 1",
                 Status = "Doing",
                 AddedOn = DateTime.Now,
             },
             new TaskItem
             {
-                TaskDescription = "Test 2",
+                Title = "Test 2",
                 Status = "Done",
                 AddedOn = DateTime.Now,
             },
@@ -84,14 +84,14 @@ public class DataConverterServiceTests
         {
             new TaskItem
             {
-                TaskDescription = "Test 1",
+                Title = "Test 1",
                 Status = "Doing",
                 Tags = "test",
                 AddedOn = DateTime.Now,
             },
             new TaskItem
             {
-                TaskDescription = "Test 2",
+                Title = "Test 2",
                 Status = "Done",
                 Tags = "work",
                 AddedOn = DateTime.Now,
@@ -103,8 +103,8 @@ public class DataConverterServiceTests
         var imported = _converter.ImportFromFile<TaskItem>(filePath, DataFormats.Json).ToList();
 
         await Assert.That(imported.Count).IsEqualTo(2);
-        await Assert.That(imported[0].TaskDescription).IsEqualTo("Test 1");
-        await Assert.That(imported[1].TaskDescription).IsEqualTo("Test 2");
+        await Assert.That(imported[0].Title).IsEqualTo("Test 1");
+        await Assert.That(imported[1].Title).IsEqualTo("Test 2");
     }
 
     [Test]
@@ -114,14 +114,14 @@ public class DataConverterServiceTests
         {
             new TaskItem
             {
-                TaskDescription = "CSV Test 1",
+                Title = "CSV Test 1",
                 Status = "Doing",
                 Tags = "csv",
                 AddedOn = DateTime.Now,
             },
             new TaskItem
             {
-                TaskDescription = "CSV Test 2",
+                Title = "CSV Test 2",
                 Status = "Later",
                 Tags = "test",
                 AddedOn = DateTime.Now,
@@ -133,8 +133,8 @@ public class DataConverterServiceTests
         var imported = _converter.ImportFromFile<TaskItem>(filePath, DataFormats.Csv).ToList();
 
         await Assert.That(imported.Count).IsEqualTo(2);
-        await Assert.That(imported[0].TaskDescription).IsEqualTo("CSV Test 1");
-        await Assert.That(imported[1].TaskDescription).IsEqualTo("CSV Test 2");
+        await Assert.That(imported[0].Title).IsEqualTo("CSV Test 1");
+        await Assert.That(imported[1].Title).IsEqualTo("CSV Test 2");
     }
 
     [Test]
@@ -154,7 +154,7 @@ public class DataConverterServiceTests
         {
             new TaskItem
             {
-                TaskDescription = "Round trip test",
+                Title = "Round trip test",
                 Status = "Doing",
                 Tags = "test,roundtrip",
                 AddedOn = new DateTime(2026, 1, 1, 12, 0, 0),
@@ -166,7 +166,7 @@ public class DataConverterServiceTests
         _converter.ExportToFile(original, filePath, DataFormats.Json);
         var imported = _converter.ImportFromFile<TaskItem>(filePath, DataFormats.Json).ToList();
 
-        await Assert.That(imported[0].TaskDescription).IsEqualTo(original[0].TaskDescription);
+        await Assert.That(imported[0].Title).IsEqualTo(original[0].Title);
         await Assert.That(imported[0].Status).IsEqualTo(original[0].Status);
         await Assert.That(imported[0].Tags).IsEqualTo(original[0].Tags);
     }
@@ -178,7 +178,7 @@ public class DataConverterServiceTests
         {
             new TaskItem
             {
-                TaskDescription = "CSV round trip",
+                Title = "CSV round trip",
                 Status = "Later",
                 Tags = "csv,test",
                 AddedOn = new DateTime(2026, 1, 1, 12, 0, 0),
@@ -190,7 +190,7 @@ public class DataConverterServiceTests
         _converter.ExportToFile(original, filePath, DataFormats.Csv);
         var imported = _converter.ImportFromFile<TaskItem>(filePath, DataFormats.Csv).ToList();
 
-        await Assert.That(imported[0].TaskDescription).IsEqualTo(original[0].TaskDescription);
+        await Assert.That(imported[0].Title).IsEqualTo(original[0].Title);
         await Assert.That(imported[0].Status).IsEqualTo(original[0].Status);
         await Assert.That(imported[0].Tags).IsEqualTo(original[0].Tags);
     }

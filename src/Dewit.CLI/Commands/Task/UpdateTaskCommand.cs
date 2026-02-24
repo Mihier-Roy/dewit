@@ -15,6 +15,7 @@ namespace Dewit.CLI.Commands.Task
         private readonly Option<bool> _resetTagsOpt;
         private readonly Option<string?> _recurOpt;
         private readonly Option<bool> _removeRecurOpt;
+        private readonly Option<string?> _descriptionOpt;
 
         public UpdateTaskCommand(ITaskService taskService)
             : base("edit", "Edit an existing task")
@@ -24,7 +25,11 @@ namespace Dewit.CLI.Commands.Task
             _idArg = new Argument<int>("id") { Description = "ID of the task you wish to update." };
             _titleOpt = new Option<string?>("--title")
             {
-                Description = "Change the description of the task.",
+                Description = "Change the title of the task.",
+            };
+            _descriptionOpt = new Option<string?>("--description")
+            {
+                Description = "Set additional context for the task (notes, links, etc.).",
             };
             _addTagsOpt = new Option<string?>("--add-tags")
             {
@@ -52,6 +57,7 @@ namespace Dewit.CLI.Commands.Task
 
             Arguments.Add(_idArg);
             Options.Add(_titleOpt);
+            Options.Add(_descriptionOpt);
             Options.Add(_addTagsOpt);
             Options.Add(_removeTagsOpt);
             Options.Add(_resetTagsOpt);
@@ -62,18 +68,20 @@ namespace Dewit.CLI.Commands.Task
             {
                 var id = parseResult.GetValue(_idArg);
                 var title = parseResult.GetValue(_titleOpt);
+                var description = parseResult.GetValue(_descriptionOpt);
                 var addTags = parseResult.GetValue(_addTagsOpt);
                 var removeTags = parseResult.GetValue(_removeTagsOpt);
                 var resetTags = parseResult.GetValue(_resetTagsOpt);
                 var recur = parseResult.GetValue(_recurOpt);
                 var removeRecur = parseResult.GetValue(_removeRecurOpt);
-                UpdateTaskDetails(id, title, addTags, removeTags, resetTags, recur, removeRecur);
+                UpdateTaskDetails(id, title, description, addTags, removeTags, resetTags, recur, removeRecur);
             });
         }
 
         private void UpdateTaskDetails(
             int id,
             string? title = null,
+            string? description = null,
             string? addTags = null,
             string? removeTags = null,
             bool resetTags = false,
@@ -90,7 +98,8 @@ namespace Dewit.CLI.Commands.Task
                     removeTags,
                     resetTags,
                     recur,
-                    removeRecur
+                    removeRecur,
+                    description
                 );
 
                 var recurInfo =
@@ -99,10 +108,10 @@ namespace Dewit.CLI.Commands.Task
                         : "";
 
                 Output.WriteVerbose(
-                    $"Successfully updated task : {task.Id} | {task.TaskDescription} | {task.Tags}"
+                    $"Successfully updated task : {task.Id} | {task.Title} | {task.Tags}"
                 );
                 Output.WriteText(
-                    $"[green]Successfully updated task[/] : {task.Id} | {task.TaskDescription} | {task.Tags}{recurInfo}"
+                    $"[green]Successfully updated task[/] : {task.Id} | {task.Title} | {task.Tags}{recurInfo}"
                 );
             }
             catch (ArgumentException ex)

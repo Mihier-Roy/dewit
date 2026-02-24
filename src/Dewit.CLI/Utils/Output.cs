@@ -55,11 +55,18 @@ namespace Dewit.CLI.Utils
                         ? $"[blue]↻ {item.RecurringSchedule.ToLabel()}[/]"
                         : "";
 
+                var descCell = string.IsNullOrWhiteSpace(item.Description)
+                    ? ""
+                    : (item.Description.Length > 50
+                        ? item.Description[..50] + "…"
+                        : item.Description);
+
                 table.AddRow(
                     new string[]
                     {
                         item.Id.ToString(),
-                        item.TaskDescription,
+                        item.Title,
+                        descCell,
                         item.Status == "Done"
                             ? "[green]Done[/]"
                             : (
@@ -76,6 +83,57 @@ namespace Dewit.CLI.Utils
             }
 
             console.Write(table);
+        }
+
+        public static void WriteTaskDetail(IAnsiConsole console, TaskItem task)
+        {
+            var statusMarkup = task.Status switch
+            {
+                "Done" => "[green]Done[/]",
+                "Later" => "[darkorange]Later[/]",
+                _ => "[yellow]Doing[/]",
+            };
+
+            var recurText =
+                task.RecurringSchedule != null
+                    ? $"[blue]↻ {task.RecurringSchedule.ToLabel()}[/]"
+                    : "[grey]—[/]";
+
+            var completedText =
+                task.CompletedOn == DateTime.Parse("0001-01-01")
+                    ? "[grey]—[/]"
+                    : task.CompletedOn.ToString("dd-MMM-yy HH:mm");
+
+            var grid = new Grid();
+            grid.AddColumn(new GridColumn().NoWrap());
+            grid.AddColumn(new GridColumn());
+
+            grid.AddRow("[bold]ID[/]", task.Id.ToString());
+            grid.AddRow("[bold]Title[/]", Markup.Escape(task.Title));
+            grid.AddRow("[bold]Status[/]", statusMarkup);
+            grid.AddRow("[bold]Tags[/]", string.IsNullOrEmpty(task.Tags) ? "[grey]—[/]" : Markup.Escape(task.Tags));
+            grid.AddRow("[bold]Added[/]", task.AddedOn.ToString("dd-MMM-yy HH:mm"));
+            grid.AddRow("[bold]Completed[/]", completedText);
+            grid.AddRow("[bold]Recur[/]", recurText);
+
+            var descriptionContent = string.IsNullOrWhiteSpace(task.Description)
+                ? "[grey]No description.[/]"
+                : Markup.Escape(task.Description);
+
+            var content = new Rows(
+                grid,
+                new Rule("[grey]Description[/]") { Style = Style.Parse("grey") },
+                new Markup(descriptionContent)
+            );
+
+            console.Write(
+                new Panel(content)
+                {
+                    Header = new PanelHeader($" Task #{task.Id} "),
+                    Border = BoxBorder.Rounded,
+                    Padding = new Padding(1, 0),
+                }
+            );
         }
     }
 }
