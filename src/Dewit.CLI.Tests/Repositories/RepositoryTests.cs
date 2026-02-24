@@ -32,7 +32,7 @@ public class RepositoryTests
     {
         var task = new TaskItem
         {
-            TaskDescription = "Test",
+            Title = "Test",
             Status = "Doing",
             AddedOn = DateTime.Now,
         };
@@ -48,7 +48,7 @@ public class RepositoryTests
     {
         var task = new TaskItem
         {
-            TaskDescription = "Test",
+            Title = "Test",
             Status = "Doing",
             AddedOn = DateTime.Now,
         };
@@ -63,7 +63,7 @@ public class RepositoryTests
     {
         var task = new TaskItem
         {
-            TaskDescription = "Test",
+            Title = "Test",
             Status = "Doing",
             AddedOn = DateTime.Now,
         };
@@ -72,7 +72,7 @@ public class RepositoryTests
         var retrieved = _repository.GetById(task.Id);
 
         await Assert.That(retrieved).IsNotNull();
-        await Assert.That(retrieved!.TaskDescription).IsEqualTo("Test");
+        await Assert.That(retrieved!.Title).IsEqualTo("Test");
     }
 
     [Test]
@@ -88,17 +88,17 @@ public class RepositoryTests
     {
         var task = new TaskItem
         {
-            TaskDescription = "Original",
+            Title = "Original",
             Status = "Doing",
             AddedOn = DateTime.Now,
         };
         _repository.Add(task);
 
-        task.TaskDescription = "Updated";
+        task.Title = "Updated";
         _repository.Update(task);
 
         var updated = _repository.GetById(task.Id);
-        await Assert.That(updated!.TaskDescription).IsEqualTo("Updated");
+        await Assert.That(updated!.Title).IsEqualTo("Updated");
     }
 
     [Test]
@@ -106,7 +106,7 @@ public class RepositoryTests
     {
         var task = new TaskItem
         {
-            TaskDescription = "Test",
+            Title = "Test",
             Status = "Doing",
             AddedOn = DateTime.Now,
         };
@@ -123,13 +123,13 @@ public class RepositoryTests
     {
         var task1 = new TaskItem
         {
-            TaskDescription = "Task 1",
+            Title = "Task 1",
             Status = "Doing",
             AddedOn = DateTime.Now,
         };
         var task2 = new TaskItem
         {
-            TaskDescription = "Task 2",
+            Title = "Task 2",
             Status = "Later",
             AddedOn = DateTime.Now,
         };
@@ -159,7 +159,7 @@ public class RepositoryTests
             _repository.Add(
                 new TaskItem
                 {
-                    TaskDescription = $"Task {i}",
+                    Title = $"Task {i}",
                     Status = "Doing",
                     AddedOn = DateTime.Now,
                 }

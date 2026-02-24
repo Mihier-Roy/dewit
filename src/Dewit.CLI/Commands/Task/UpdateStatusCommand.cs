@@ -46,9 +46,9 @@ namespace Dewit.CLI.Commands.Task
 
                 if (task != null)
                 {
-                    Output.WriteVerbose($"Completed task : {task.Id} | {task.TaskDescription}");
+                    Output.WriteVerbose($"Completed task : {task.Id} | {task.Title}");
                     Output.WriteText(
-                        $"[green]Completed task[/] : {task.Id} | {task.TaskDescription}"
+                        $"[green]Completed task[/] : {task.Id} | {task.Title}"
                     );
                 }
 

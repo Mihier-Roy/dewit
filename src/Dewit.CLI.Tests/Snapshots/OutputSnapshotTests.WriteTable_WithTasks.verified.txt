@@ -1,7 +1,11 @@
-﻿                                                                                                         
-  ID   Task                        Status   Tags           Added On          Completed On      Recur     
-─────────────────────────────────────────────────────────────────────────────────────────────────────────
-  0    Implement login screen      Doing    feature,auth   03-Jun-24 09:00                               
-  0    Fix signup validation bug   Done     bug            01-Jun-24 10:30   02-Jun-24 14:06             
-  0    Write documentation         Later                   04-Jun-24 08:15                     ↻ Weekly  
-                                                                                                         
+﻿                                                                                                                        
+  ID   Task                  Description          Status   Tags           Added On          Completed On      Recur     
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  0    Implement login       See Figma designs    Doing    feature,auth   03-Jun-24 09:00                               
+       screen                at                                                                                         
+                             https://figma.com/                                                                         
+                             file/abc an…                                                                               
+  0    Fix signup                                 Done     bug            01-Jun-24 10:30   02-Jun-24 14:06             
+       validation bug                                                                                                   
+  0    Write documentation                        Later                   04-Jun-24 08:15                     ↻ Weekly  
+                                                                                                                        

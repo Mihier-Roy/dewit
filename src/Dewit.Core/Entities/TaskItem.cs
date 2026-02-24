@@ -6,7 +6,9 @@ namespace Dewit.Core.Entities
     public class TaskItem : EntityBase
     {
         [Required]
-        public string TaskDescription { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+
+        public string? Description { get; set; }
 
         [Required]
         public string Status { get; set; } = string.Empty;

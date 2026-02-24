@@ -43,7 +43,7 @@ namespace Dewit.CLI.Commands.Task
                     return;
                 }
 
-                var taskDescription = task.TaskDescription;
+                var taskDescription = task.Title;
                 _taskService.DeleteTask(id);
 
                 Output.WriteVerbose($"Deleted task : {id} | {taskDescription}");

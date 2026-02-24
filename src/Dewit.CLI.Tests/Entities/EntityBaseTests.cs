@@ -9,7 +9,7 @@ public class EntityBaseTests
     {
         var task = new TaskItem
         {
-            TaskDescription = "Test task",
+            Title = "Test task",
             Status = "Doing",
             AddedOn = DateTime.Now,
         };
@@ -24,7 +24,7 @@ public class EntityBaseTests
     {
         var task = new TaskItem
         {
-            TaskDescription = "Test task",
+            Title = "Test task",
             Status = "Doing",
             AddedOn = DateTime.Now,
         };
@@ -37,7 +37,7 @@ public class EntityBaseTests
     {
         var task = new TaskItem
         {
-            TaskDescription = "Test task",
+            Title = "Test task",
             Status = "Doing",
             AddedOn = DateTime.Now,
         };
@@ -51,14 +51,14 @@ public class EntityBaseTests
         var now = DateTime.Now;
         var task = new TaskItem
         {
-            TaskDescription = "Test task from Core",
+            Title = "Test task from Core",
             Status = "Doing",
             Tags = "test,core",
             AddedOn = now,
             CompletedOn = DateTime.MinValue,
         };
 
-        await Assert.That(task.TaskDescription).IsEqualTo("Test task from Core");
+        await Assert.That(task.Title).IsEqualTo("Test task from Core");
         await Assert.That(task.Status).IsEqualTo("Doing");
         await Assert.That(task.Tags).IsEqualTo("test,core");
         await Assert.That(task.AddedOn).IsEqualTo(now);

@@ -58,7 +58,8 @@ namespace Dewit.Core.Services
             if (!string.IsNullOrEmpty(search))
             {
                 tasks = tasks.Where(p =>
-                    p.TaskDescription.Contains(search, StringComparison.OrdinalIgnoreCase)
+                    p.Title.Contains(search, StringComparison.OrdinalIgnoreCase)
+                    || (p.Description != null && p.Description.Contains(search, StringComparison.OrdinalIgnoreCase))
                 );
             }
 
@@ -105,7 +106,8 @@ namespace Dewit.Core.Services
             string title,
             string status,
             string? tags = null,
-            string? recur = null
+            string? recur = null,
+            string? description = null
         )
         {
             if (string.IsNullOrWhiteSpace(title))
@@ -128,7 +130,8 @@ namespace Dewit.Core.Services
 
             var newTask = new TaskItem
             {
-                TaskDescription = title,
+                Title = title,
+                Description = string.IsNullOrEmpty(description) ? null : description,
                 AddedOn = DateTime.Now,
                 Status = status,
                 Tags = tags ?? string.Empty,
@@ -217,7 +220,8 @@ namespace Dewit.Core.Services
 
             var nextTask = new TaskItem
             {
-                TaskDescription = task.TaskDescription,
+                Title = task.Title,
+                Description = task.Description,
                 Status = "Doing",
                 Tags = task.Tags,
                 AddedOn = nextDue,
@@ -245,7 +249,8 @@ namespace Dewit.Core.Services
             string? removeTags = null,
             bool resetTags = false,
             string? recur = null,
-            bool removeRecur = false
+            bool removeRecur = false,
+            string? description = null
         )
         {
             var task = _repository.GetById(id);
@@ -255,7 +260,13 @@ namespace Dewit.Core.Services
             // Update title
             if (!string.IsNullOrEmpty(title))
             {
-                task.TaskDescription = title;
+                task.Title = title;
+            }
+
+            // Update description
+            if (description != null)
+            {
+                task.Description = string.IsNullOrEmpty(description) ? null : description;
             }
 
             // Reset tags if requested

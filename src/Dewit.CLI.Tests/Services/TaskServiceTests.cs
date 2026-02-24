@@ -39,7 +39,7 @@ public class TaskServiceTests
         var tasks = _service.GetTasks(duration: "all");
 
         await Assert.That(tasks.Count()).IsEqualTo(1);
-        await Assert.That(tasks.First().TaskDescription).IsEqualTo("Test task");
+        await Assert.That(tasks.First().Title).IsEqualTo("Test task");
     }
 
     [Test]
@@ -137,8 +137,8 @@ public class TaskServiceTests
         _service.AddTask("One-off", "Doing", null);
 
         var tasks = _service.GetTasks(duration: "all").ToList();
-        var recurring = tasks.First(t => t.TaskDescription == "Daily standup");
-        var oneOff = tasks.First(t => t.TaskDescription == "One-off");
+        var recurring = tasks.First(t => t.Title == "Daily standup");
+        var oneOff = tasks.First(t => t.Title == "One-off");
 
         await Assert.That(recurring.RecurringSchedule).IsNotNull();
         await Assert.That(recurring.RecurringSchedule!.FrequencyType).IsEqualTo("daily");
@@ -179,7 +179,7 @@ public class TaskServiceTests
         var nextTask = _service.CompleteTask(originalId, string.Empty);
 
         await Assert.That(nextTask).IsNotNull();
-        await Assert.That(nextTask!.TaskDescription).IsEqualTo("Daily standup");
+        await Assert.That(nextTask!.Title).IsEqualTo("Daily standup");
         await Assert.That(nextTask.Status).IsEqualTo("Doing");
         await Assert.That(nextTask.RecurringScheduleId).IsEqualTo(tasks[0].RecurringScheduleId);
     }
@@ -225,7 +225,7 @@ public class TaskServiceTests
         _service.UpdateTaskDetails(tasks[0].Id, title: "Updated");
 
         var updated = _repository.GetById(tasks[0].Id);
-        await Assert.That(updated!.TaskDescription).IsEqualTo("Updated");
+        await Assert.That(updated!.Title).IsEqualTo("Updated");
     }
 
     [Test]
@@ -334,7 +334,7 @@ public class TaskServiceTests
     {
         var task = new TaskItem
         {
-            TaskDescription = "Imported task",
+            Title = "Imported task",
             Status = "Later",
             Tags = "imported",
             AddedOn = DateTime.Now.AddDays(-1),
@@ -344,6 +344,51 @@ public class TaskServiceTests
 
         var tasks = _service.GetTasks(duration: "all");
         await Assert.That(tasks.Count()).IsEqualTo(1);
-        await Assert.That(tasks.First().TaskDescription).IsEqualTo("Imported task");
+        await Assert.That(tasks.First().Title).IsEqualTo("Imported task");
+    }
+
+    [Test]
+    public async Task AddTask_WithDescription_StoresDescription()
+    {
+        _service.AddTask("Task with notes", "Doing", description: "See https://example.com for details");
+        var tasks = _service.GetTasks(duration: "all").ToList();
+
+        await Assert.That(tasks[0].Description).IsEqualTo("See https://example.com for details");
+    }
+
+    [Test]
+    public async Task UpdateTaskDetails_UpdatesDescription()
+    {
+        _service.AddTask("Task", "Doing", description: "Original notes");
+        var tasks = _service.GetTasks(duration: "all").ToList();
+
+        _service.UpdateTaskDetails(tasks[0].Id, description: "Updated notes");
+
+        var updated = _repository.GetById(tasks[0].Id);
+        await Assert.That(updated!.Description).IsEqualTo("Updated notes");
+    }
+
+    [Test]
+    public async Task GetTasks_FiltersBySearch_InDescription()
+    {
+        _service.AddTask("Task A", "Doing", description: "important context");
+        _service.AddTask("Task B", "Doing");
+
+        var results = _service.GetTasks(duration: "all", search: "important").ToList();
+
+        await Assert.That(results.Count).IsEqualTo(1);
+        await Assert.That(results[0].Title).IsEqualTo("Task A");
+    }
+
+    [Test]
+    public async Task CompleteTask_Recurring_CarriesDescriptionForward()
+    {
+        _service.AddTask("Daily standup", "Doing", recur: "daily", description: "Join at https://meet.example.com");
+        var tasks = _service.GetTasks(duration: "all").ToList();
+
+        var nextTask = _service.CompleteTask(tasks[0].Id, string.Empty);
+
+        await Assert.That(nextTask).IsNotNull();
+        await Assert.That(nextTask!.Description).IsEqualTo("Join at https://meet.example.com");
     }
 }

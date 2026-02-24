@@ -12,7 +12,7 @@ namespace Dewit.Core.Interfaces
             string? search = null
         );
 
-        void AddTask(string title, string status, string? tags = null, string? recur = null);
+        void AddTask(string title, string status, string? tags = null, string? recur = null, string? description = null);
 
         void DeleteTask(int id);
 
@@ -25,7 +25,8 @@ namespace Dewit.Core.Interfaces
             string? removeTags = null,
             bool resetTags = false,
             string? recur = null,
-            bool removeRecur = false
+            bool removeRecur = false,
+            string? description = null
         );
 
         void ImportTask(TaskItem taskItem);

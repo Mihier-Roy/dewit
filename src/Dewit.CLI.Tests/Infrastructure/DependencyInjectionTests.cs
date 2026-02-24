@@ -73,7 +73,7 @@ public class DependencyInjectionTests
         // Verify the task was added
         var tasks = taskService.GetTasks(duration: "all");
         await Assert.That(tasks.Count()).IsEqualTo(1);
-        await Assert.That(tasks.First().TaskDescription).IsEqualTo("Test DI task");
+        await Assert.That(tasks.First().Title).IsEqualTo("Test DI task");
     }
 
     [Test]
@@ -84,7 +84,7 @@ public class DependencyInjectionTests
 
         var task = new TaskItem
         {
-            TaskDescription = "Test repo via DI",
+            Title = "Test repo via DI",
             Status = "Doing",
             AddedOn = DateTime.Now,
         };
