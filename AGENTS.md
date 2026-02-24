@@ -2,15 +2,18 @@
 
 ## Project Overview
 
-**dewit** is a CLI task management application built with C# and .NET. It provides a simple command-line interface for tracking tasks with statuses (doing, later, done), tags, and filtering capabilities. It also includes mood tracking with customisable descriptors and a DB-backed configuration system. Data is persisted in a local SQLite database using Entity Framework Core.
+**dewit** is a CLI task management application built with C# and .NET. It provides a simple command-line interface for tracking tasks with statuses (doing, later, done), tags, descriptions, and recurring schedules. It also includes mood tracking with a markdown journal system and customisable mood descriptors. Data is persisted in a local SQLite database using Entity Framework Core.
 
 ### Key Features
 - Add tasks with immediate ("now") or deferred ("later") status
-- Mark tasks as complete
-- Tag-based organization and filtering
-- Search and sort capabilities
+- Task descriptions and full edit support (title, description, tags, recurrence)
+- Recurring task support with flexible schedules (daily, weekly, monthly, yearly)
+- Mark tasks as complete (auto-creates next occurrence for recurring tasks)
+- Tag-based organisation, filtering, search, and sort capabilities
 - Export/import functionality (CSV/JSON)
-- Mood tracking with per-mood descriptor customisation
+- Mood tracking with a linked markdown journal system
+- Per-mood descriptor customisation with interactive multi-select
+- Interactive mood calendar with multiple views (week/month/quarter/year)
 - DB-backed configuration system
 - Cross-platform potential (currently Windows-focused)
 
@@ -22,7 +25,7 @@
 - **Console UI**: Spectre.Console
 - **Logging**: Serilog (file-based)
 - **Data Export**: CsvHelper
-- **Testing**: xUnit
+- **Testing**: xUnit + Verify (snapshot testing)
 
 ---
 
@@ -34,14 +37,14 @@ dewit/
 ├── src/
 │   ├── Dewit.sln
 │   ├── Dewit.Core/                    # Domain logic (entities, interfaces, services, utils)
-│   │   ├── Entities/                  # Domain models: TaskItem, ConfigItem, MoodEntry, MoodDescriptorItem, EntityBase
-│   │   ├── Enums/                     # DataFormats, Mood
-│   │   ├── Interfaces/                # IRepository<T>, ITaskService, IConfigurationService, IMoodService, IDataConverter
-│   │   ├── Services/                  # TaskService, ConfigurationService, MoodService, DataConverterService
-│   │   └── Utils/                     # Sanitizer, DateParser, MoodDescriptorDefaults
+│   │   ├── Entities/                  # Domain models: TaskItem, ConfigItem, MoodEntry, MoodDescriptorItem, JournalEntry, RecurringSchedule, EntityBase
+│   │   ├── Enums/                     # DataFormats, Mood (+ MoodExtensions)
+│   │   ├── Interfaces/                # IRepository<T>, ITaskService, IConfigurationService, IMoodService, IJournalService, IDataConverter
+│   │   ├── Services/                  # TaskService, ConfigurationService, MoodService, JournalService, DataConverterService
+│   │   └── Utils/                     # Sanitizer, DateParser, RecurParser, DewitDirectory, MoodDescriptorDefaults
 │   ├── Dewit.Data/                    # Data access layer
 │   │   ├── Data/
-│   │   │   ├── DewitDbContext.cs      # EF Core DbContext (Tasks, ConfigItems, MoodEntries, MoodDescriptors)
+│   │   │   ├── DewitDbContext.cs      # EF Core DbContext (Tasks, ConfigItems, MoodEntries, MoodDescriptors, JournalEntries, RecurringSchedules)
 │   │   │   ├── DbConnectionString.cs  # Resolves SQLite path relative to executable
 │   │   │   └── Repositories/
 │   │   │       └── Repository.cs      # Generic IRepository<T> implementation
@@ -49,15 +52,19 @@ dewit/
 │   ├── Dewit.CLI/                     # CLI presentation layer
 │   │   ├── Commands/                  # Task command implementations
 │   │   │   ├── Config/               # config + descriptors subcommands
-│   │   │   └── Mood/                 # mood subcommands
-│   │   ├── Utils/                     # Output (table formatting), MoodCalendar
+│   │   │   ├── Journal/              # journal subcommands (add, update, view)
+│   │   │   └── Task/                 # task subcommands (add, edit, get, delete, export, import, complete)
+│   │   ├── Utils/                     # Output (table formatting), MoodCalendar, EditorHelper
 │   │   ├── App.cs                     # Command registration
 │   │   └── Program.cs                 # Entry point + DI setup + startup seeding
 │   └── Dewit.CLI.Tests/               # xUnit test project
+│       ├── Data/
 │       ├── Entities/
+│       ├── Enums/
 │       ├── Infrastructure/
 │       ├── Repositories/
 │       ├── Services/
+│       ├── Snapshots/
 │       └── Utils/
 ├── assets/                            # Documentation assets
 ├── README.md
@@ -76,52 +83,58 @@ dewit/
 - Global exception handling
 
 #### 2. **App.cs** - Command Router
-Registers all commands with System.CommandLine:
-- Task commands: `now`, `later`, `done`, `edit`, `list`, `delete`, `export`, `import`
-- `MoodCommand` — mood tracking command group
-- `ConfigCommand` — configuration command group
+Registers all commands with System.CommandLine, with a global `--verbose` recursive option:
+- Top-level task commands: `now`, `later`
+- `TaskCommand` — task management command group (`complete`, `edit`, `get`/`list`, `delete`/`rm`, `export`, `import`)
+- `JournalCommand` — mood & journal command group (`add`, `update`, `view`)
+- `ConfigCommand` — configuration command group (`list`, `set`, `descriptors`)
 
 #### 3. **Data Layer (Dewit.Data)**
-- **`DewitDbContext`**: EF Core DbContext with four `DbSet`s: `Tasks`, `ConfigItems`, `MoodEntries`, `MoodDescriptors`
-- **`IRepository<T>`**: Generic repository abstraction with `List`, `Add`, `Update`, `Remove`
+- **`DewitDbContext`**: EF Core DbContext with six `DbSet`s: `Tasks`, `ConfigItems`, `MoodEntries`, `MoodDescriptors`, `JournalEntries`, `RecurringSchedules`
+- **`IRepository<T>`**: Generic repository abstraction with `List`, `GetById`, `Add`, `Update`, `Remove`
 - **`Repository<T>`**: SQLite implementation using EF Core
 - **`DbConnectionString`**: Resolves the SQLite path relative to the executable
 
 #### 4. **Domain Layer (Dewit.Core)**
 
 ##### Entities
-- **`EntityBase`**: Base class with `Id`, `CreatedAt`, `UpdatedAt`
-- **`TaskItem`**: Task with title, status, tags
-- **`ConfigItem`**: Key/value configuration entry
-- **`MoodEntry`**: Daily mood record with mood enum value and descriptors string
+- **`EntityBase`**: Abstract base class with `Id`
+- **`TaskItem`**: Task with `Title` (required), `Description` (optional), status, tags, `AddedOn`, `CompletedOn`, and optional `RecurringScheduleId` FK
+- **`RecurringSchedule`**: Recurrence definition with `FrequencyType` ("daily"/"weekly"/"monthly"/"yearly") and `Interval`; includes `ComputeNextDueDate(DateTime)` and `ToLabel()` methods
+- **`ConfigItem`**: Key/value configuration entry with `CreatedAt`/`UpdatedAt`
+- **`MoodEntry`**: Daily mood record with mood enum name and comma-separated descriptors string
 - **`MoodDescriptorItem`**: Per-mood descriptor list, customisable by the user
+- **`JournalEntry`**: Tracks a journal markdown file by date; stores `FilePath` (format: `{baseDir}/{YYYY}/{MM-dd}.md`) and timestamps
 
 ##### Services
-- **`ITaskService` / `TaskService`**: CRUD for tasks
+- **`ITaskService` / `TaskService`**: Full task CRUD with filtering (duration, status, tags, search), recurring task support (auto-creates next occurrence on completion), and tag sanitization/deduplication
 - **`IConfigurationService` / `ConfigurationService`**: DB-backed key/value config (`GetValue`, `SetValue`, `DeleteValue`, `KeyExists`, `GetAll`)
 - **`IMoodService` / `MoodService`**: Mood entry CRUD (`GetEntryForDate`, `GetEntriesInRange`, `AddEntry`, `UpdateEntry`) + descriptor management (`GetDescriptors`, `GetAllDescriptors`, `SetDescriptors`, `ResetDescriptors`)
+- **`IJournalService` / `JournalService`**: Manages journal markdown files with YAML frontmatter (date, mood, mood-descriptors); lazy-creates files on first access; tracks `CreatedAt`/`UpdatedAt` in the database; provides `CreateOrGetEntry`, `GetEntryForDate`, `GetEntriesInRange`, `GetFilePath`, `TouchUpdatedAt`
 - **`IDataConverter` / `DataConverterService`**: CSV/JSON export and import
 
 ##### Utils
-- **`Sanitizer`**: Tag validation (alphanumeric + underscore only)
-- **`DateParser`**: Parses natural-language date strings (e.g. "today", "yesterday")
-- **`MoodDescriptorDefaults`**: Built-in default descriptors per mood; seeds DB on startup
+- **`Sanitizer`**: Tag validation (`SanitizeTags` — alphanumeric + underscore only) and `DeduplicateTags`
+- **`DateParser`**: Parses natural-language date strings (e.g. "today", "yesterday", "last monday", "YYYY-MM-DD", "MM-DD"); only allows past or today dates
+- **`RecurParser`**: Parses recurrence shorthand ("daily", "weekly", "monthly", "yearly", or "Nd"/"Nw"/"Nm"/"Ny" for intervals); returns `RecurringSchedule`; provides `TryParse` variant
+- **`DewitDirectory`**: Resolves base data directory from `DEWIT_DIR` env var or defaults to `~/.dewit`; provides `EnsureExists()`
+- **`MoodDescriptorDefaults`**: Built-in default descriptors per mood; seeds DB on startup via `SeedIfMissing()`
 
 #### 5. **Commands (Dewit.CLI)**
 
 ##### Task Commands
-- `AddTaskCommand`: Creates tasks with `now` or `later` status
-- `UpdateStatusCommand` (`done`): Marks tasks as done
-- `UpdateTaskCommand` (`edit`): Edits title and tags
-- `GetTasksCommand` (`list`): Lists/filters tasks
-- `DeleteTaskCommand` (`delete`): Removes tasks
-- `ExportTasksCommand` (`export`): Exports to CSV/JSON using config for default filename
-- `ImportTasksCommand` (`import`): Imports from CSV/JSON
+- `AddTaskCommand` (`now` / `later`): Creates tasks with optional title, description, tags, and recurrence
+- `UpdateStatusCommand` (`task complete`): Marks tasks as done with optional completion date; auto-creates next occurrence for recurring tasks
+- `UpdateTaskCommand` (`task edit`): Edits title, description, tags (add/remove/reset), and recurrence (set/remove)
+- `GetTasksCommand` (`task get` / `task list`): Lists/filters tasks by duration, status, tags, search term, and sort order
+- `DeleteTaskCommand` (`task delete` / `task rm`): Removes tasks
+- `ExportTasksCommand` (`task export`): Exports to CSV/JSON using config for default filename
+- `ImportTasksCommand` (`task import`): Imports from CSV/JSON
 
-##### Mood Commands (`mood`)
-- `AddMoodCommand` (`mood add`): Records today's (or a specified date's) mood + descriptors
-- `UpdateMoodCommand` (`mood update`): Updates an existing mood entry
-- `ViewMoodCommand` (`mood view`): Displays a calendar-style mood view for a date range
+##### Journal Commands (`journal`)
+- `AddJournalCommand` (`journal add`): Records today's (or a specified date's) mood with interactive multi-select descriptors; optionally creates a markdown journal file and opens it in `$EDITOR`/`$VISUAL`
+- `UpdateJournalCommand` (`journal update`): Updates an existing mood/descriptors or opens the linked journal file for editing
+- `ViewJournalCommand` (`journal view`): Displays an interactive mood calendar (week/month/quarter/year) with journal entry markers (J); supports navigating entries, opening journal files, and editing
 
 ##### Config Commands (`config`)
 - `ConfigListCommand` (`config list`): Lists all config key/value pairs
@@ -132,8 +145,9 @@ Registers all commands with System.CommandLine:
   - `DescriptorsResetCommand`: Resets descriptors for a mood to defaults
 
 #### 6. **Utils (Dewit.CLI)**
-- **`Output`**: Spectre.Console table formatting
-- **`MoodCalendar`**: Renders a calendar grid of mood entries using Spectre.Console
+- **`Output`**: Spectre.Console table formatting; `WriteTable` renders tasks with coloured status, recurrence indicator, and description preview; `WriteTaskDetail` renders a full detail panel; `WriteText`, `WriteError`, `WriteVerbose`
+- **`MoodCalendar`**: Renders week/month/quarter/year calendar grids with coloured mood blocks (██), empty cell markers (░░), and journal entry indicators (J); interactive navigation: d=details, ↑↓=navigate, enter=open journal, e=edit, b=back, esc=exit; includes mood colour legend
+- **`EditorHelper`**: Opens files using `$EDITOR` or `$VISUAL` env var; falls back to default OS file opener
 
 ---
 
@@ -164,20 +178,20 @@ dotnet publish src/Dewit.CLI -c Release -r win-x64 --self-contained -p:PublishSi
 ```
 
 ### Database
-- SQLite database file: `dewit_tasks.db` (created automatically)
-- Location: Same directory as executable
+- SQLite database file: `dewit.db` (created automatically)
+- Default location: `~/.dewit/` (configurable via `DEWIT_DIR` env var)
 - Migrations: Applied automatically on startup
-- Tables: `Tasks`, `ConfigItems`, `MoodEntries`, `MoodDescriptors`
+- Tables: `Tasks`, `ConfigItems`, `MoodEntries`, `MoodDescriptors`, `JournalEntries`, `RecurringSchedules`
 
 ---
 
 ## Quick Reference: Common Tasks
 
 ### Adding a New Command
-1. Create `Commands/MyCommand.cs` (or a subdirectory) inheriting from `Command`
+1. Create `Commands/<Group>/MyCommand.cs` inheriting from `Command`
 2. Inject required services via constructor
 3. Register in `App.cs`
-4. Add tests in `Tests/Services/` or `Tests/Commands/`
+4. Add tests in `Dewit.CLI.Tests/Services/` or `Dewit.CLI.Tests/Utils/`
 5. Update README.md with usage example
 
 ### Adding a New Service
@@ -241,6 +255,7 @@ dotnet list src/Dewit.sln package --vulnerable
 - [Entity Framework Core](https://learn.microsoft.com/ef/core/)
 - [Spectre.Console](https://spectreconsole.net/)
 - [Serilog](https://serilog.net/)
+- [Verify (snapshot testing)](https://github.com/VerifyTests/Verify)
 
 ### Learning Resources
 - [.NET CLI Best Practices](https://learn.microsoft.com/dotnet/core/tools/)
